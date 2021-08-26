@@ -12,10 +12,10 @@ public class MainLayout extends AppLayout {
     public MainLayout(Client client) {
         RouterLink firstPage = new RouterLink("FirstPage", FirstPage.class);
         firstPage.setHighlightCondition(HighlightConditions.sameLocation());
-        RouterLink docPage = new RouterLink("DoctorView", DoctorView.class);
-        RouterLink patientPage = new RouterLink("PatientView", PatientView.class);
+        RouterLink staffView = new RouterLink("DoctorView", StaffView.class);
+        RouterLink patientView = new RouterLink("PatientView", PatientView.class);
 
 
-        addToDrawer(new VerticalLayout(firstPage, docPage));
+        addToDrawer(new VerticalLayout(firstPage, staffView, patientView));
     }
 }
