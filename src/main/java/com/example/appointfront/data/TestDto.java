@@ -1,4 +1,4 @@
-package com.example.appointfront;
+package com.example.appointfront.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class Dto {
+public class TestDto {
 
     @JsonProperty("id")
     private Long id;
@@ -16,6 +16,6 @@ public class Dto {
 
     @Override
     public String toString() {
-        return "Dto { " + "id= " + id + ", name= '" + name + '\'' + '}';
+        return "TestDto { " + "id= " + id + ", name= '" + name + '\'' + '}';
     }
 }
