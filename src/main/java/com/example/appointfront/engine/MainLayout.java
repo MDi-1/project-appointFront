@@ -7,9 +7,10 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HighlightConditions;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import org.springframework.stereotype.Component;
 
+@Route("")
 public class MainLayout extends AppLayout {
 
     public MainLayout() {
@@ -31,9 +32,9 @@ public class MainLayout extends AppLayout {
     void constructRouterLinks() {
         RouterLink firstPage = new RouterLink("Welcome", WelcomeView.class);
         firstPage.setHighlightCondition(HighlightConditions.sameLocation());
-        RouterLink staffView = new RouterLink("Doctor", DoctorView.class);
         RouterLink patientView = new RouterLink("Patient", PatientView.class);
+        RouterLink doctorView = new RouterLink("Doctor", DoctorView.class);
 
-        addToDrawer(new VerticalLayout(firstPage, staffView, patientView));
+        addToDrawer(new VerticalLayout(firstPage, patientView, doctorView));
     }
 }

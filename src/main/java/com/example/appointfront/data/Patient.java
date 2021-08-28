@@ -10,9 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Doctor {
-
-    public enum Position {  Specialist, Administrator, Manager, Board  }
+public class Patient {
 
     @JsonProperty("id")
     private Long id;
@@ -23,15 +21,6 @@ public class Doctor {
     @JsonProperty("lastName")
     private String lastName;
 
-    @JsonProperty("position")
-    private String position;
-
-    @JsonProperty("timeframeId")
-    private Long timeframeId;
-
-    @JsonProperty("appointmentIds")
-    private List<Long> appointmentIds;
-
-    @JsonProperty("medServiceIds")
-    private List<Long> medServiceIds;
+    @JsonProperty("appointmentsIds")
+    private List<Long> appointmentsIds;
 }

@@ -4,7 +4,6 @@ import com.example.appointfront.data.Doctor;
 import com.example.appointfront.data.MedicalService;
 import com.example.appointfront.data.TestDto;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,15 +15,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.*;
 
-
 @Getter
-//@RequiredArgsConstructor
-//@NoArgsConstructor
-//@Component
-public class Client {
-/*
+@RequiredArgsConstructor
+@Component
+public class BackendClient {
+
     private final RestTemplate restTemplate;
-    private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
     public List<TestDto> getResponse() {
         URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/test/getAll").build().encode().toUri();
@@ -61,7 +58,13 @@ public class Client {
         }
     }
 
- */
+    Doctor saveDoctor(Doctor doctor) {
+        return null;
+    }
+
+    void deleteDoctor(Doctor doctor) {
+
+    }
 
     public List<MedicalService> getSTestList1() {
         List<MedicalService> list = new ArrayList<>();
