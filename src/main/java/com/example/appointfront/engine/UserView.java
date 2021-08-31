@@ -12,9 +12,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Stream;
-
 @Route(value="user", layout = MainLayout.class)
 @PageTitle("User | Tiny Clinic")
 @Service
@@ -49,38 +46,10 @@ public class UserView extends VerticalLayout {
         appointmentGrid.setColumns("startDate", "duration");
         appointmentGrid.addColumn(apt -> backendClient.getDoctorList()
                         .stream().filter(x -> x.getId().equals(apt.getDoctorId())).findAny().get().getFirstName()
-                ).setHeader("doctors' name");
-
-/*
-        appointmentGrid.addColumn(apt ->
-                {
-                    Long id = apt.getDoctorId();
-                    String result = null;
-                    List<Doctor> docList = backendClient.getDoctorList();
-                    for(Doctor doc : docList) {
-                        Long id_from_list = doc.getId();
-                        if(id_from_list == id) result = doc.getLastName();
-                    } return result;
-                }).setHeader("doctors' name");
-*/
-
-        //appointmentGrid.addColumn(appointment -> backendClient.getDoctorList()
-        //        .get(Math.toIntExact(appointment.getDoctorId())).getLastName()).setHeader("doctors' last name");
+                ).setHeader("doctors' first name");
+        appointmentGrid.addColumn(apt -> backendClient.getDoctorList()
+                        .stream().filter(x -> x.getId().equals(apt.getDoctorId())).findAny().get().getLastName()
+                ).setHeader("doctors' last name");
         return new VerticalLayout(new Label("List of recent / incoming appointments"), appointmentGrid);
-    }
-
-    String function(Appointment apt) {
-        String result = null;
-        List<Doctor> docList = backendClient.getDoctorList();
-        Long aid = apt.getDoctorId();
-        for(Doctor doc : docList) {
-            if(doc.getId() == aid) result = doc.getLastName();
-            else result = "no such person found";
-        }
-        return result;
-    }
-
-    String function2() {
-        return "abc";
     }
 }
