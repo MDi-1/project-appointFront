@@ -24,7 +24,7 @@ public class Doctor {
     private String lastName;
 
     @JsonProperty("position")
-    private String position;
+    private Doctor.Position position;
 
     @JsonProperty("timeframeId")
     private Long timeframeId;

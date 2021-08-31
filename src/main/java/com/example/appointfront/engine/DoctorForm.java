@@ -23,6 +23,8 @@ public class DoctorForm extends FormLayout {
     private Button addBtn = new Button("Add");
     private Button saveBtn = new Button("Save");
     private Button delBtn = new Button("Delete");
+    private Button timeBtn = new Button("Edit Timeframe");
+    private Button cancelBtn = new Button("Cancel");
     private ComboBox<Doctor.Position> position = new ComboBox<>("position");
     private ComboBox<MedicalService> services = new ComboBox<>("medical services");
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
@@ -32,8 +34,9 @@ public class DoctorForm extends FormLayout {
         binder.bindInstanceFields(this);
         position.setItems(Doctor.Position.values());
         services.setItems(medicalServices);
-        HorizontalLayout buttons = new HorizontalLayout(addBtn, saveBtn, delBtn);
-        add(firstName, lastName, position, buttons);
+        HorizontalLayout buttonRow1 = new HorizontalLayout(addBtn, saveBtn, delBtn);
+        HorizontalLayout buttonRow2 = new HorizontalLayout(timeBtn, cancelBtn);
+        add(firstName, lastName, position, buttonRow1, buttonRow2);
         addBtn.addClickListener(event -> {
             Doctor doctor = new Doctor();
             binder.setBean(doctor);
@@ -48,13 +51,19 @@ public class DoctorForm extends FormLayout {
             backendClient.deleteDoctor(doctor);
             clearForm();
         });
+        timeBtn.addClickListener(event -> {
+
+        });
+        cancelBtn.addClickListener(event -> {
+
+        });
     }
 
     void clearForm() {
-        //fixme
+        // fixme
     }
 
     void inactivateForm() {
-        //fixme
+        // fixme
     }
 }

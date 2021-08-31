@@ -2,12 +2,20 @@ package com.example.appointfront.engine;
 
 import com.example.appointfront.data.Doctor;
 import com.example.appointfront.data.Patient;
-import com.example.appointfront.data.SideEntry;
 import com.example.appointfront.data.TableEntry;
+import com.example.appointfront.data.TimeFrame;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -15,20 +23,25 @@ import java.util.stream.Stream;
 
 @Route(value = "doctors", layout = MainLayout.class)
 @PageTitle("Doctors | Tiny Clinic")
-public class DoctorView extends VerticalLayout {
+public class DoctorView extends HorizontalLayout {
 
     private Doctor currentDoctor;
     private Patient currentPatient;
     private BackendClient backendClient;
+    HorizontalLayout tables = new HorizontalLayout();
 
-    public DoctorView() {
+    public DoctorView(BackendClient backendClient) {
+        this.backendClient = backendClient;
+        Label label = new Label("this some txt");
         addClassName("doctor-view");
-        setHeightFull();
-        DoctorForm form = new DoctorForm(backendClient.getMedServiceList()); // to nie jest jak w tutorialach / fixme
-        processTables();
+        setSizeFull();
+        tables.setSizeFull();
+        add(tables);
+        createTables();
     }
 
-    void processTables() {
+    void createTables() {
+        VerticalLayout container = new VerticalLayout();
         String[] weekdays = {"mon", "tue", "wed", "thu", "fri"};
         Grid<SideEntry> sideGrid = new Grid<>(SideEntry.class);
         sideGrid.setItems(getSideGrid());
@@ -36,7 +49,7 @@ public class DoctorView extends VerticalLayout {
         sideGrid.getColumnByKey("parsedTime").setHeader("h");
         sideGrid.getColumnByKey("parsedTime").setSortable(false);
         sideGrid.setHeightFull();
-        add(sideGrid);
+        tables.add(sideGrid);
         for(int i = 0; i < 5; i ++) {
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
             timetable.setItems(getEntries(weekdays[i]));
@@ -44,8 +57,13 @@ public class DoctorView extends VerticalLayout {
             timetable.getColumnByKey("status").setHeader(weekdays[i]);
             timetable.getColumnByKey("status").setSortable(false);
             timetable.setHeightFull();
-            add(timetable);
+            tables.add(timetable);
         }
+        container.add(tables, createTimeForm(weekdays));
+        container.setWidth("80%");
+        DoctorForm form = new DoctorForm(backendClient.getMedServiceList());
+        form.setWidth("20%");
+        add(container, form);
     }
 
     SideEntry[] getSideGrid() {
@@ -73,6 +91,22 @@ public class DoctorView extends VerticalLayout {
         return entries;
     }
 
+    FormLayout createTimeForm(String[] weekdays) {
+        Binder<TimeFrame> binder = new Binder<>(TimeFrame.class);
+        HorizontalLayout bottomBar = new HorizontalLayout();
+        for(int i = 0; i < 5; i++) {
+            TextField start = new TextField();
+            TextField end = new TextField();
+            start.setPlaceholder(weekdays[i] + " from");
+            end.setPlaceholder(weekdays[i] + " to");
+            binder.bind(start, "start" + i);
+            binder.bind(end, "end" + i);
+            VerticalLayout form = new VerticalLayout(start, end);
+            bottomBar.add(form);
+        }
+        return new FormLayout(bottomBar);
+    }
+
     TableEntry[] getEntries_old() {
         return Stream.of(
                 new TableEntry("mon", "busy", LocalTime.of(8, 0),   15L, currentPatient, currentDoctor),
@@ -85,5 +119,12 @@ public class DoctorView extends VerticalLayout {
                 new TableEntry("mon", "busy", LocalTime.of(11, 30), 30L, currentPatient, currentDoctor),
                 new TableEntry("mon", "busy", LocalTime.of(12, 0),  15L, currentPatient, currentDoctor)
         ).toArray(TableEntry[]::new);
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class SideEntry {
+        private String parsedTime;
     }
 }

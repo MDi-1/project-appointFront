@@ -3,6 +3,7 @@ package com.example.appointfront.engine;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -15,26 +16,25 @@ public class MainLayout extends AppLayout {
 
     public MainLayout() {
         constructHeader();
-        constructRouterLinks();
+        constructLinks();
     }
 
     void constructHeader() {
-        H1 logo = new H1("Application Title here");
+        H1 logo = new H1("Tiny clinic app");
         logo.addClassName("logo");
-        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo);
-
-        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        header.setWidth("100%");
+        Label loggedUser = new Label("patient Name Surname");
+        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, loggedUser);
+        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         header.addClassName("header");
         addToNavbar(header);
     }
 
-    void constructRouterLinks() {
-        RouterLink firstPage = new RouterLink("Welcome", WelcomeView.class);
-        firstPage.setHighlightCondition(HighlightConditions.sameLocation());
-        RouterLink patientView = new RouterLink("Patient", PatientView.class);
+    void constructLinks() {
+        RouterLink startingView = new RouterLink("Start", StartingView.class);
+        startingView.setHighlightCondition(HighlightConditions.sameLocation());
+        RouterLink userView = new RouterLink("User", UserView.class);
         RouterLink doctorView = new RouterLink("Doctor", DoctorView.class);
 
-        addToDrawer(new VerticalLayout(firstPage, patientView, doctorView));
+        addToDrawer(new VerticalLayout(startingView, userView, doctorView));
     }
 }
