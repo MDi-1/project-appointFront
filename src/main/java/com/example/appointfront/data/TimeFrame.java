@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TimeFrame {
+    private Long id;
     private String start0;
     private String end0;
     private String start1;
@@ -20,4 +21,5 @@ public class TimeFrame {
     private String end4;
     private String start5;
     private String end5;
+    private Long doctorId;
 }

@@ -22,34 +22,39 @@ public class UserView extends VerticalLayout {
 
     public UserView(BackendClient backendClient) {
         this.backendClient = backendClient;
-        UserForm userForm = new UserForm();
-        Label tableTitle = new Label("Pick service or doctor to make an appointment");
-        add(userForm, tableTitle, constructGrids(), new Label("Company, Street, Postal code, City, Phone number"));
+        HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeSrvTab(), makeDocTab());
+        mainTables.setSizeFull();
+        add(new UserForm(), mainTables, new Label("Company, Street, Postal code, City, Phone number"));
     }
 
-    HorizontalLayout constructGrids() {
-        Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
-        Grid<Doctor> doctorGrid = new Grid<>(Doctor.class);
-        HorizontalLayout grids = new HorizontalLayout(createGrid1(), serviceGrid, doctorGrid);
-        serviceGrid.setColumns("description");
-        doctorGrid.setColumns("firstName", "lastName", "position");
-        serviceGrid.setItems(backendClient.getMedServiceList());
-        doctorGrid.setItems(backendClient.getDoctorList());
-        grids.setSizeFull();
-        return grids;
-    }
-
-    VerticalLayout createGrid1() {
+    VerticalLayout makeAppTab() {
         Grid<Appointment> appointmentGrid = new Grid<>(Appointment.class);
         appointmentGrid.setItems(backendClient.getAppointmentList());
-        appointmentGrid.removeColumnByKey("doctorId");
         appointmentGrid.setColumns("startDate", "duration");
         appointmentGrid.addColumn(apt -> backendClient.getDoctorList()
-                        .stream().filter(x -> x.getId().equals(apt.getDoctorId())).findAny().get().getFirstName()
-                ).setHeader("doctors' first name");
+                .stream().filter(doc -> doc.getId().equals(apt.getDoctorId())).findAny().get().getFirstName()
+        ).setHeader("doctors' name");
         appointmentGrid.addColumn(apt -> backendClient.getDoctorList()
-                        .stream().filter(x -> x.getId().equals(apt.getDoctorId())).findAny().get().getLastName()
-                ).setHeader("doctors' last name");
+                .stream().filter(doc -> doc.getId().equals(apt.getDoctorId())).findAny().get().getLastName()
+        ).setHeader("doctors' surname");
         return new VerticalLayout(new Label("List of recent / incoming appointments"), appointmentGrid);
+    }
+
+    VerticalLayout makeSrvTab() {
+        Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
+        serviceGrid.setColumns("description");
+        serviceGrid.setItems(backendClient.getMedServiceList());
+        VerticalLayout serviceTab = new VerticalLayout(new Label("Pick service to make an appointment"), serviceGrid);
+        serviceTab.setWidth("50%");
+        return serviceTab;
+    }
+
+    VerticalLayout makeDocTab() {
+        Grid<Doctor> doctorGrid = new Grid<>(Doctor.class);
+        doctorGrid.setColumns("firstName", "lastName", "position");
+        doctorGrid.setItems(backendClient.getDoctorList());
+        VerticalLayout docTab = new VerticalLayout(new Label("...or pick doctor to make an appointment"), doctorGrid);
+        docTab.setWidth("60%");
+        return docTab;
     }
 }

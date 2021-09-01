@@ -64,7 +64,6 @@ public class BackendClient {
     }
 
     void deleteDoctor(Doctor doctor) {
-
     }
 
     public List<Appointment> getAppointmentList() {
@@ -78,8 +77,6 @@ public class BackendClient {
             return Collections.emptyList();
         }
     }
-
-
 
     public List<MedicalService> getSTestList1() {
         List<MedicalService> list = new ArrayList<>();

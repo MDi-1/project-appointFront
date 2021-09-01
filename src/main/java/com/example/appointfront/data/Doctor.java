@@ -34,4 +34,10 @@ public class Doctor {
 
     @JsonProperty("medServiceIds")
     private List<Long> medServiceIds;
+
+    public Doctor(String firstName, String lastName, Position position) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.position = position;
+    }
 }

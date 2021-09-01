@@ -23,4 +23,9 @@ public class Patient {
 
     @JsonProperty("appointmentsIds")
     private List<Long> appointmentsIds;
+
+    public Patient(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 }

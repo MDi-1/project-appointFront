@@ -15,8 +15,8 @@ public class Appointment {
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("startDate")
-    private LocalDateTime startDate;
+    @JsonProperty("startDateTime")
+    private String startDate;
 
     @JsonProperty("duration")
     private long duration;
