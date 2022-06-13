@@ -43,13 +43,13 @@ public class DoctorView extends HorizontalLayout {
     void createTables() {
         VerticalLayout container = new VerticalLayout();
         String[] weekdays = {"mon", "tue", "wed", "thu", "fri"};
-        Grid<SideEntry> sideGrid = new Grid<>(SideEntry.class);
+        Grid<SideEntry> sideGrid = new Grid<>(SideEntry.class);  //fixme - object sideGrid is a dead code
         sideGrid.setItems(getSideGrid());
         sideGrid.setColumns("parsedTime");
         sideGrid.getColumnByKey("parsedTime").setHeader("h");
         sideGrid.getColumnByKey("parsedTime").setSortable(false);
         sideGrid.setHeightFull();
-        tables.add(sideGrid);
+        //tables.add(sideGrid);
         for(int i = 0; i < 5; i ++) {
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
             timetable.setItems(getEntries(weekdays[i]));
@@ -60,13 +60,13 @@ public class DoctorView extends HorizontalLayout {
             tables.add(timetable);
         }
         container.add(tables, createTimeForm(weekdays));
-        container.setWidth("80%");
+        container.setWidth("74%");
         DoctorForm form = new DoctorForm(backendClient.getMedServiceList());
-        form.setWidth("20%");
+        form.setWidth("26%");
         add(container, form);
     }
 
-    SideEntry[] getSideGrid() {
+    SideEntry[] getSideGrid() {  //fixme - dead function
         SideEntry[] sideTable = new SideEntry[16];
         for(int n = 0; n < 16; n ++) {
             int min;
@@ -81,11 +81,10 @@ public class DoctorView extends HorizontalLayout {
 
     TableEntry[] getEntries(String weekday) {
         TableEntry[] entries = new TableEntry[16];
-        for(int n = 0; n < 16; n ++) {
-            int min;
-            int hr = n / 2 + 8;
-            if(n % 2 != 0) min = 30;
-            else min = 0;
+        for(int n = 0; n < 8; n ++) {
+            int min = 0;
+            int hr = n + 8;
+            // if(n % 2 != 0) min = 30; else min = 0;
             entries[n] = new TableEntry(weekday, "busy", LocalTime.of(hr, min), 15L, currentPatient, currentDoctor);
         }
         return entries;

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -22,10 +23,12 @@ import java.util.*;
 public class BackendClient {
 
     private final RestTemplate restTemplate;
+    @Value("${endpoint.prefix}")
+    private String endpointPrefix;
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
     public List<TestDto> getResponse() {
-        URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/test/getAll").build().encode().toUri();
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "test/getAll").build().encode().toUri();
         try {
             TestDto[] response = restTemplate.getForObject(url, TestDto[].class);
             return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
@@ -36,7 +39,7 @@ public class BackendClient {
     }
 
     public List<MedicalService> getMedServiceList() {
-        URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/medService/getAll")
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/getAll")
                 .build().encode().toUri();
         try {
             MedicalService[] response = restTemplate.getForObject(url, MedicalService[].class);
@@ -48,7 +51,7 @@ public class BackendClient {
     }
 
     public List<Doctor> getDoctorList() {
-        URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/doctor/getAll")
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/getAll")
                 .build().encode().toUri();
         try {
             Doctor[] response = restTemplate.getForObject(url, Doctor[].class);
@@ -67,7 +70,7 @@ public class BackendClient {
     }
 
     public List<Appointment> getAppointmentList() {
-        URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/appointment/getAll")
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/getAll")
                 .build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
