@@ -43,13 +43,15 @@ public class DoctorView extends HorizontalLayout {
     void createTables() {
         VerticalLayout container = new VerticalLayout();
         String[] weekdays = {"mon", "tue", "wed", "thu", "fri"};
-        Grid<SideEntry> sideGrid = new Grid<>(SideEntry.class);  //fixme - object sideGrid is a dead code
+/*
+        Grid<SideEntry> sideGrid = new Grid<>(SideEntry.class);
         sideGrid.setItems(getSideGrid());
         sideGrid.setColumns("parsedTime");
         sideGrid.getColumnByKey("parsedTime").setHeader("h");
         sideGrid.getColumnByKey("parsedTime").setSortable(false);
         sideGrid.setHeightFull();
-        //tables.add(sideGrid);
+        tables.add(sideGrid);
+*/
         for(int i = 0; i < 5; i ++) {
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
             timetable.setItems(getEntries(weekdays[i]));
@@ -80,7 +82,7 @@ public class DoctorView extends HorizontalLayout {
     }
 
     TableEntry[] getEntries(String weekday) {
-        TableEntry[] entries = new TableEntry[16];
+        TableEntry[] entries = new TableEntry[8];
         for(int n = 0; n < 8; n ++) {
             int min = 0;
             int hr = n + 8;
