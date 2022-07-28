@@ -39,8 +39,7 @@ public class BackendClient {
     }
 
     public List<MedicalService> getMedServiceList() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/getAll")
-                .build().encode().toUri();
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/getAll").build().encode().toUri();
         try {
             MedicalService[] response = restTemplate.getForObject(url, MedicalService[].class);
             return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
@@ -51,8 +50,7 @@ public class BackendClient {
     }
 
     public List<Doctor> getDoctorList() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/getAll")
-                .build().encode().toUri();
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/getAll").build().encode().toUri();
         try {
             Doctor[] response = restTemplate.getForObject(url, Doctor[].class);
             return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
@@ -70,8 +68,7 @@ public class BackendClient {
     }
 
     public List<Appointment> getAppointmentList() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/getAll")
-                .build().encode().toUri();
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/getAll").build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
             return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());

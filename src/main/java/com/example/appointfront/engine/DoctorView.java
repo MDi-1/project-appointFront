@@ -6,12 +6,14 @@ import com.example.appointfront.data.TableEntry;
 import com.example.appointfront.data.TimeFrame;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -21,11 +23,13 @@ import java.util.Locale;
 
 @Route(value = "doctors", layout = MainLayout.class)
 @PageTitle("Doctors | Tiny Clinic")
+@Component
 public class DoctorView extends HorizontalLayout {
 
     private Doctor currentDoctor;
     private Patient currentPatient;
     private BackendClient backendClient;
+    private Binder<Doctor> binder = new Binder<>(Doctor.class);
     HorizontalLayout tables = new HorizontalLayout();
 
     public DoctorView(BackendClient backendClient) {
@@ -58,9 +62,14 @@ public class DoctorView extends HorizontalLayout {
         String[] weekdays = {"mon", "tue", "wed", "thu", "fri"};
         container.add(tables, createTimeForm(weekdays));
         container.setWidth("72%");
+        String formHeaderTxt;
+        if (currentDoctor == null) formHeaderTxt = "none selected";
+        else formHeaderTxt = "selected: " + currentDoctor.getFirstName() + " " + currentDoctor.getLastName();
+        Label formHeader = new Label(formHeaderTxt);
         DoctorForm form = new DoctorForm(backendClient.getMedServiceList());
+        VerticalLayout containerVertical = new VerticalLayout(formHeader, form);
         form.setWidth("27%");
-        add(container, form);
+        add(container, containerVertical);
     }
 
     TableEntry[] getEntries(String weekday) {
@@ -84,5 +93,13 @@ public class DoctorView extends HorizontalLayout {
             VerticalLayout form = new VerticalLayout(start, end);
             bottomBar.add(form);
         } return new FormLayout(bottomBar);
+    }
+
+    public void setDocFromTab(Doctor doctor) {
+        binder.setBean(doctor);
+    }
+
+    public void setCurrentDoctor(Doctor currentDoctor) {
+        this.currentDoctor = currentDoctor;
     }
 }

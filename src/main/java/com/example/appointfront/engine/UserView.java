@@ -3,6 +3,7 @@ package com.example.appointfront.engine;
 import com.example.appointfront.data.Appointment;
 import com.example.appointfront.data.Doctor;
 import com.example.appointfront.data.MedicalService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -10,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Route(value="user", layout = MainLayout.class)
@@ -20,9 +22,13 @@ public class UserView extends VerticalLayout {
 
     private final BackendClient backendClient;
 
+    @Autowired
+    private DoctorView doctorView;
+
+
     public UserView(BackendClient backendClient) {
         this.backendClient = backendClient;
-        HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeSrvTab(), makeDocTab());
+        HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
         mainTables.setSizeFull();
         add(new UserForm(), mainTables, new Label("Company, Street, Postal code, City, Phone number"));
     }
@@ -40,7 +46,7 @@ public class UserView extends VerticalLayout {
         return new VerticalLayout(new Label("List of recent / incoming appointments"), appointmentGrid);
     }
 
-    VerticalLayout makeSrvTab() {
+    VerticalLayout makeServiceTab() {
         Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
         serviceGrid.setColumns("description");
         serviceGrid.setItems(backendClient.getMedServiceList());
@@ -53,6 +59,11 @@ public class UserView extends VerticalLayout {
         Grid<Doctor> doctorGrid = new Grid<>(Doctor.class);
         doctorGrid.setColumns("firstName", "lastName", "position");
         doctorGrid.setItems(backendClient.getDoctorList());
+        doctorGrid.asSingleSelect().addValueChangeListener(event -> {
+            doctorView.setDocFromTab(event.getValue());
+            doctorView.setCurrentDoctor(event.getValue());
+            UI.getCurrent().navigate("doctors");
+        });
         VerticalLayout docTab = new VerticalLayout(new Label("...or pick doctor to make an appointment"), doctorGrid);
         docTab.setWidth("60%");
         return docTab;
