@@ -11,23 +11,19 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Route(value="user", layout = MainLayout.class)
 @PageTitle("User | Tiny Clinic")
-@Service
 @UIScope
 public class UserView extends VerticalLayout {
 
     private final BackendClient backendClient;
 
-    @Autowired
     private DoctorView doctorView;
-
 
     public UserView(BackendClient backendClient) {
         this.backendClient = backendClient;
+        doctorView = new DoctorView(backendClient);
         HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
         mainTables.setSizeFull();
         add(new UserForm(), mainTables, new Label("Company, Street, Postal code, City, Phone number"));
@@ -59,11 +55,7 @@ public class UserView extends VerticalLayout {
         Grid<Doctor> doctorGrid = new Grid<>(Doctor.class);
         doctorGrid.setColumns("firstName", "lastName", "position");
         doctorGrid.setItems(backendClient.getDoctorList());
-        doctorGrid.asSingleSelect().addValueChangeListener(event -> {
-            doctorView.setDocFromTab(event.getValue());
-            doctorView.setCurrentDoctor(event.getValue());
-            UI.getCurrent().navigate("doctors");
-        });
+        doctorGrid.asSingleSelect().addValueChangeListener(event -> doctorView.enterDoctorManagement(event.getValue()));
         VerticalLayout docTab = new VerticalLayout(new Label("...or pick doctor to make an appointment"), doctorGrid);
         docTab.setWidth("60%");
         return docTab;

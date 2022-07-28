@@ -4,6 +4,8 @@ import com.example.appointfront.data.Doctor;
 import com.example.appointfront.data.Patient;
 import com.example.appointfront.data.TableEntry;
 import com.example.appointfront.data.TimeFrame;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
@@ -13,7 +15,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -23,13 +24,14 @@ import java.util.Locale;
 
 @Route(value = "doctors", layout = MainLayout.class)
 @PageTitle("Doctors | Tiny Clinic")
-@Component
 public class DoctorView extends HorizontalLayout {
 
     private Doctor currentDoctor;
     private Patient currentPatient;
     private BackendClient backendClient;
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
+    Label formLabel = new Label();
+    Button sillyButton = new Button("change txt");
     HorizontalLayout tables = new HorizontalLayout();
 
     public DoctorView(BackendClient backendClient) {
@@ -65,10 +67,12 @@ public class DoctorView extends HorizontalLayout {
         String formHeaderTxt;
         if (currentDoctor == null) formHeaderTxt = "none selected";
         else formHeaderTxt = "selected: " + currentDoctor.getFirstName() + " " + currentDoctor.getLastName();
-        Label formHeader = new Label(formHeaderTxt);
+        formLabel.setText(formHeaderTxt);
         DoctorForm form = new DoctorForm(backendClient.getMedServiceList());
-        VerticalLayout containerVertical = new VerticalLayout(formHeader, form);
-        form.setWidth("27%");
+        sillyButton.addClickListener(event -> formLabel.setText(
+                "selected: " + getCurrentDoctor().getFirstName() + " " + getCurrentDoctor().getLastName()));
+        VerticalLayout containerVertical = new VerticalLayout(formLabel, form, sillyButton);
+        containerVertical.setSizeFull();
         add(container, containerVertical);
     }
 
@@ -95,8 +99,20 @@ public class DoctorView extends HorizontalLayout {
         } return new FormLayout(bottomBar);
     }
 
+    public void enterDoctorManagement(Doctor doctor) {
+        setDocFromTab(doctor);
+        setCurrentDoctor(doctor);
+        UI.getCurrent().navigate("doctors");
+        System.out.println(getCurrentDoctor().getFirstName() + " " + getCurrentDoctor().getLastName());
+        formLabel.setText("changed txt");
+    }
+
     public void setDocFromTab(Doctor doctor) {
         binder.setBean(doctor);
+    }
+
+    public Doctor getCurrentDoctor() {
+        return currentDoctor;
     }
 
     public void setCurrentDoctor(Doctor currentDoctor) {

@@ -34,7 +34,6 @@ public class MainLayout extends AppLayout {
         startingView.setHighlightCondition(HighlightConditions.sameLocation());
         RouterLink userView = new RouterLink("User", UserView.class);
         RouterLink doctorView = new RouterLink("Doctor", DoctorView.class);
-
         addToDrawer(new VerticalLayout(startingView, userView, doctorView));
     }
 }

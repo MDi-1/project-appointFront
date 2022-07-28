@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,5 +40,22 @@ public class Doctor {
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Doctor doctor = (Doctor) o;
+        return Objects.equals(id, doctor.id) && Objects.equals(firstName, doctor.firstName)
+                && Objects.equals(lastName, doctor.lastName) && position == doctor.position
+                && Objects.equals(timeframeId, doctor.timeframeId)
+                && Objects.equals(appointmentIds, doctor.appointmentIds)
+                && Objects.equals(medServiceIds, doctor.medServiceIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstName, lastName, position, timeframeId, appointmentIds, medServiceIds);
     }
 }
