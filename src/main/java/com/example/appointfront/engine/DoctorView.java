@@ -1,7 +1,7 @@
 package com.example.appointfront.engine;
 
+import com.example.appointfront.data.Appointment;
 import com.example.appointfront.data.Doctor;
-import com.example.appointfront.data.Patient;
 import com.example.appointfront.data.TableEntry;
 import com.example.appointfront.data.TimeFrame;
 import com.vaadin.flow.component.UI;
@@ -20,22 +20,21 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
+import java.util.List;
 import java.util.Locale;
 
 @Route(value = "doctors", layout = MainLayout.class)
 @PageTitle("Doctors | Tiny Clinic")
 public class DoctorView extends HorizontalLayout {
 
-    private Doctor currentDoctor;
-    private Patient currentPatient;
-    private BackendClient backendClient;
+    private BackendClient client;
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
     Label formLabel = new Label();
-    Button sillyButton = new Button("change txt");
+    Button sillyButton = new Button("silly button");
     HorizontalLayout tables = new HorizontalLayout();
 
-    public DoctorView(BackendClient backendClient) {
-        this.backendClient = backendClient;
+    public DoctorView(BackendClient client) {
+        this.client = client;
         addClassName("doctor-view");
         setSizeFull();
         tables.setSizeFull();
@@ -54,7 +53,7 @@ public class DoctorView extends HorizontalLayout {
         }
         for(int i = 0; i < 5; i ++) {
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
-            timetable.setItems(getEntries(dayTableHeaders[i]));
+            timetable.setItems(buildWeekDay(dayTableHeaders[i]));
             timetable.setColumns("status");
             timetable.getColumnByKey("status").setHeader(dayTableHeaders[i]);
             timetable.getColumnByKey("status").setSortable(false);
@@ -65,22 +64,26 @@ public class DoctorView extends HorizontalLayout {
         container.add(tables, createTimeForm(weekdays));
         container.setWidth("72%");
         String formHeaderTxt;
-        if (currentDoctor == null) formHeaderTxt = "none selected";
-        else formHeaderTxt = "selected: " + currentDoctor.getFirstName() + " " + currentDoctor.getLastName();
+        if (client.getCurrentDoctor() == null) formHeaderTxt = "none selected";
+        else formHeaderTxt = "selected: " + client.getCurrentDoctor().getFirstName() +
+                " " + client.getCurrentDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
-        DoctorForm form = new DoctorForm(backendClient.getMedServiceList());
-        sillyButton.addClickListener(event -> formLabel.setText(
-                "selected: " + getCurrentDoctor().getFirstName() + " " + getCurrentDoctor().getLastName()));
+        DoctorForm form = new DoctorForm(client.getMedServiceList());
+        sillyButton.addClickListener(event -> {
+            List<Appointment> list = client.getDocsAppointments();
+            for (Appointment element : list) { System.out.println(element.toString()); }
+        });
         VerticalLayout containerVertical = new VerticalLayout(formLabel, form, sillyButton);
         containerVertical.setSizeFull();
         add(container, containerVertical);
     }
 
-    TableEntry[] getEntries(String weekday) {
+    TableEntry[] buildWeekDay(String weekday) {
         TableEntry[] entries = new TableEntry[8];
         for(int n = 0; n < 8; n ++) {
             int hr = n + 8;
-            entries[n] = new TableEntry(weekday, "busy", LocalTime.of(hr, 0), 15L, currentPatient, currentDoctor);
+            entries[n] = new TableEntry(
+                    weekday, "busy", LocalTime.of(hr, 0), 15L, client.getCurrentPatient(), client.getCurrentDoctor());
         } return entries;
     }
 
@@ -101,21 +104,12 @@ public class DoctorView extends HorizontalLayout {
 
     public void enterDoctorManagement(Doctor doctor) {
         setDocFromTab(doctor);
-        setCurrentDoctor(doctor);
+        client.setCurrentDoctor(doctor);
         UI.getCurrent().navigate("doctors");
-        System.out.println(getCurrentDoctor().getFirstName() + " " + getCurrentDoctor().getLastName());
         formLabel.setText("changed txt");
     }
 
     public void setDocFromTab(Doctor doctor) {
         binder.setBean(doctor);
-    }
-
-    public Doctor getCurrentDoctor() {
-        return currentDoctor;
-    }
-
-    public void setCurrentDoctor(Doctor currentDoctor) {
-        this.currentDoctor = currentDoctor;
     }
 }
