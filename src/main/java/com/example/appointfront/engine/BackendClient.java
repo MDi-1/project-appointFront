@@ -19,12 +19,11 @@ import java.util.*;
 @Component
 public class BackendClient {
 
-
     private final RestTemplate restTemplate;
     @Value("${endpoint.prefix}")
     private String endpointPrefix;
-    private Doctor currentDoctor;
-    private Patient currentPatient;
+    private Doctor doctor;
+    private Patient patient;
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
     public List<TestDto> getResponse() {
@@ -60,7 +59,7 @@ public class BackendClient {
         }
     }
 
-    public List<Appointment> getAppointmentList() {
+    public List<Appointment> getAllAppointments() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/getAll").build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
@@ -71,12 +70,25 @@ public class BackendClient {
         }
     }
 
-    public List<Appointment> getDocsAppointments(Doctor doc) {
+    public List<Appointment> getDocsAppointments() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/doctorApps/")
-                .query("", doc.getId())
+                .path(doctor.getId().toString()) // path parameter come here
                 .build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
+            return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
+    public List<TimeFrame> getDocsTimeFrames() {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "timeFrame/byDoc/")
+                .path(doctor.getId().toString())
+                .build().encode().toUri();
+        try {
+            TimeFrame[] response = restTemplate.getForObject(url, TimeFrame[].class);
             return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage(), e);
@@ -95,12 +107,12 @@ public class BackendClient {
     void deleteDoctor(Doctor doctor) {
     }
 
-    public Doctor getCurrentDoctor() {
-        return currentDoctor;
+    public Doctor getDoctor() {
+        return doctor;
     }
 
-    public void setCurrentDoctor(Doctor currentDoctor) {
-        this.currentDoctor = currentDoctor;
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
     }
 
 }

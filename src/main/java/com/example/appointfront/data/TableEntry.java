@@ -3,12 +3,13 @@ package com.example.appointfront.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @AllArgsConstructor
 @Data
 public class TableEntry {
-    private String weekday;
+    private LocalDate weekday;
     private String status;
     private LocalTime time;
     private Long duration;

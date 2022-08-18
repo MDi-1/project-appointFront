@@ -18,7 +18,9 @@ import com.vaadin.flow.router.Route;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
@@ -29,8 +31,6 @@ public class DoctorView extends HorizontalLayout {
 
     private BackendClient client;
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
-    Label formLabel = new Label();
-    Button sillyButton = new Button("silly button");
     HorizontalLayout tables = new HorizontalLayout();
 
     public DoctorView(BackendClient client) {
@@ -42,20 +42,22 @@ public class DoctorView extends HorizontalLayout {
         createTables();
     }
 
-    void createTables() {
+    void createTables() { // - this f. is too long fixme
+        LocalDate setDay = LocalDate.of(2022, 8, 17); // temporary value for target day in createTables
+        Button sillyButton = new Button("silly button"); // temporary button for test purposes
+        Label formLabel = new Label();
         VerticalLayout container = new VerticalLayout();
-        LocalDate today = LocalDate.now();
-        long thisDayNum = today.getDayOfWeek().getValue();
-        String[] dayTableHeaders = new String[7];
-        for(int n = 1; n < 8; n ++) {
-            String dayName = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
-            dayTableHeaders[n - 1] = dayName + "; " + today.minusDays(thisDayNum - n);
+        LocalDate[] date = new LocalDate[7];
+        String[] dayHeaders = new String[7];
+        for (int n = 1; n < 8; n ++) {
+            date[n - 1] = setDay.minusDays(setDay.getDayOfWeek().getValue() - n);
+            dayHeaders[n - 1] = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH) + "; " + date[n - 1];
         }
-        for(int i = 0; i < 5; i ++) {
+        for (int i = 0; i < 5; i ++) {
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
-            timetable.setItems(buildWeekDay(dayTableHeaders[i]));
+            timetable.setItems(buildWeekDay(date[i])); // - this is spaghetti #1 fixme
             timetable.setColumns("status");
-            timetable.getColumnByKey("status").setHeader(dayTableHeaders[i]);
+            timetable.getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
             timetable.getColumnByKey("status").setSortable(false);
             timetable.setHeightFull();
             tables.add(timetable);
@@ -64,33 +66,63 @@ public class DoctorView extends HorizontalLayout {
         container.add(tables, createTimeForm(weekdays));
         container.setWidth("72%");
         String formHeaderTxt;
-        if (client.getCurrentDoctor() == null) formHeaderTxt = "none selected";
-        else formHeaderTxt = "selected: " + client.getCurrentDoctor().getFirstName() +
-                " " + client.getCurrentDoctor().getLastName();
+        if (client.getDoctor() == null) formHeaderTxt = "none selected";
+        else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
         DoctorForm form = new DoctorForm(client.getMedServiceList());
         sillyButton.addClickListener(event -> {
             List<Appointment> list = client.getDocsAppointments();
-            for (Appointment element : list) { System.out.println(element.toString()); }
+            for (Appointment element : list) { System.out.println(element.toString()); } // temporary print
+            List<TimeFrame> tfList = client.getDocsTimeFrames();
+            for (TimeFrame element : tfList) { System.out.println(element.toString()); }
         });
         VerticalLayout containerVertical = new VerticalLayout(formLabel, form, sillyButton);
         containerVertical.setSizeFull();
         add(container, containerVertical);
     }
 
-    TableEntry[] buildWeekDay(String weekday) {
-        TableEntry[] entries = new TableEntry[8];
-        for(int n = 0; n < 8; n ++) {
-            int hr = n + 8;
-            entries[n] = new TableEntry(
-                    weekday, "busy", LocalTime.of(hr, 0), 15L, client.getCurrentPatient(), client.getCurrentDoctor());
+    TableEntry[] buildWeekDay(LocalDate weekdayDate) {  // - this f. is spaghetti #1 fixme
+        int workDayHrsCount  = 12;
+        TableEntry[] entries = new TableEntry[workDayHrsCount];
+        List<TimeFrame> timeFrames;
+        List<Appointment> appointments = null;
+        LocalDate tfDate  = null;
+        LocalTime tfStart = null;
+        LocalTime tfEnd   = null;
+        if (client.getDoctor() != null) {
+            timeFrames   = client.getDocsTimeFrames();
+            appointments = client.getDocsAppointments();
+            int foundTf = 0;
+            for (TimeFrame tf : timeFrames) {
+                tfDate  = LocalDate.parse(tf.getDate());
+                if (weekdayDate.equals(tfDate)) {
+                    tfStart = LocalTime.parse(tf.getTimeStart());
+                    tfEnd   = LocalTime.parse(tf.getTimeEnd());
+                    foundTf ++;
+                }
+            }
+        }
+        for (int n = 0; n < workDayHrsCount; n ++) {
+            LocalTime time = LocalTime.of(n + 6, 0);
+            String status;
+            if (tfDate == null) break;
+            if (time.isBefore(tfStart) || time.isAfter(tfEnd)) status = "off";
+            else status = time.getHour() + ":00 AVAILABLE";
+            for (Appointment singleApp : appointments) {
+                LocalDateTime appDateTime = LocalDateTime.parse(
+                        singleApp.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
+                LocalDate appDate = LocalDate.from(appDateTime);
+                LocalTime appTime = LocalTime.from(appDateTime);
+                if (weekdayDate.equals(appDate) && time.equals(appTime)) status = time.getHour() + ":00 busy";
+            }
+            entries[n] = new TableEntry(weekdayDate, status, time, 15L, client.getPatient(), client.getDoctor());
         } return entries;
     }
 
     FormLayout createTimeForm(String[] weekdays) {
         Binder<TimeFrame> binder = new Binder<>(TimeFrame.class);
         HorizontalLayout bottomBar = new HorizontalLayout();
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             TextField start = new TextField();
             TextField end = new TextField();
             start.setPlaceholder(weekdays[i] + " from");
@@ -104,9 +136,8 @@ public class DoctorView extends HorizontalLayout {
 
     public void enterDoctorManagement(Doctor doctor) {
         setDocFromTab(doctor);
-        client.setCurrentDoctor(doctor);
+        client.setDoctor(doctor);
         UI.getCurrent().navigate("doctors");
-        formLabel.setText("changed txt");
     }
 
     public void setDocFromTab(Doctor doctor) {

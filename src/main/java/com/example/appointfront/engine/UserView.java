@@ -3,7 +3,6 @@ package com.example.appointfront.engine;
 import com.example.appointfront.data.Appointment;
 import com.example.appointfront.data.Doctor;
 import com.example.appointfront.data.MedicalService;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -18,7 +17,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 public class UserView extends VerticalLayout {
 
     private final BackendClient backendClient;
-
     private DoctorView doctorView;
 
     public UserView(BackendClient backendClient) {
@@ -31,8 +29,8 @@ public class UserView extends VerticalLayout {
 
     VerticalLayout makeAppTab() {
         Grid<Appointment> appointmentGrid = new Grid<>(Appointment.class);
-        appointmentGrid.setItems(backendClient.getAppointmentList());
-        appointmentGrid.setColumns("startDate", "duration");
+        appointmentGrid.setItems(backendClient.getAllAppointments());
+        appointmentGrid.setColumns("startDateTime", "price");
         appointmentGrid.addColumn(apt -> backendClient.getDoctorList()
                 .stream().filter(doc -> doc.getId().equals(apt.getDoctorId())).findAny().get().getFirstName()
         ).setHeader("doctors' name");
