@@ -14,7 +14,6 @@ import java.util.List;
 
 import static com.example.appointfront.data.Doctor.Position.*;
 
-
 @Route(value= "start", layout = MainLayout.class)
 @PageTitle("Start | Tiny Clinic")
 public class StartingView extends HorizontalLayout {
@@ -40,11 +39,5 @@ public class StartingView extends HorizontalLayout {
         patients.add(new Patient("Jenny", "Pear"));
         patients.add(new Patient("Will", "Sith"));
         patients.add(new Patient("Bob", "Roberts"));
-
-        List<TimeFrame> timeframes = new ArrayList<>();
-
-        List<Appointment> appointments = new ArrayList<>();
-
-        List<MedicalService> medServices = new ArrayList<>();
     }
 }

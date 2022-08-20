@@ -97,7 +97,6 @@ public class BackendClient {
     }
 
     public void getAppointmentsForADay() {
-
     }
 
     Doctor saveDoctor(Doctor doctor) {

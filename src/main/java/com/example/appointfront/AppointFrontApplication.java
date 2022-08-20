@@ -10,3 +10,5 @@ public class AppointFrontApplication {
         SpringApplication.run(AppointFrontApplication.class, args);
     }
 }
+
+// todo: In docView right panel to be exchangeable - doctor form or week navigation.

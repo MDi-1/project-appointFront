@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -22,8 +23,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Route(value = "doctors", layout = MainLayout.class)
 @PageTitle("Doctors | Tiny Clinic")
@@ -35,6 +38,10 @@ public class DoctorView extends HorizontalLayout {
 
     public DoctorView(BackendClient client) {
         this.client = client;
+        if (client.getDoctor() == null) {
+            Optional<Doctor> firstDoc = client.getDoctorList().stream().findFirst();
+            client.setDoctor(Optional.of(firstDoc).get().orElseThrow(NotFoundException::new));
+        }
         addClassName("doctor-view");
         setSizeFull();
         tables.setSizeFull();
@@ -49,6 +56,12 @@ public class DoctorView extends HorizontalLayout {
         VerticalLayout container = new VerticalLayout();
         LocalDate[] date = new LocalDate[7];
         String[] dayHeaders = new String[7];
+        String[] shortenedDayHeaders = Arrays.copyOfRange(dayHeaders, 0, 5);
+        DoctorForm form = new DoctorForm(client.getMedServiceList());
+        String formHeaderTxt;
+        if (client.getDoctor() == null) formHeaderTxt = "none selected";
+        else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
+        formLabel.setText(formHeaderTxt);
         for (int n = 1; n < 8; n ++) {
             date[n - 1] = setDay.minusDays(setDay.getDayOfWeek().getValue() - n);
             dayHeaders[n - 1] = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH) + "; " + date[n - 1];
@@ -62,21 +75,15 @@ public class DoctorView extends HorizontalLayout {
             timetable.setHeightFull();
             tables.add(timetable);
         }
-        String[] weekdays = {"mon", "tue", "wed", "thu", "fri"};
-        container.add(tables, createTimeForm(weekdays));
+        container.add(tables, createTimeForm(shortenedDayHeaders));
         container.setWidth("72%");
-        String formHeaderTxt;
-        if (client.getDoctor() == null) formHeaderTxt = "none selected";
-        else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
-        formLabel.setText(formHeaderTxt);
-        DoctorForm form = new DoctorForm(client.getMedServiceList());
         sillyButton.addClickListener(event -> {
             List<Appointment> list = client.getDocsAppointments();
             for (Appointment element : list) { System.out.println(element.toString()); } // temporary print
             List<TimeFrame> tfList = client.getDocsTimeFrames();
             for (TimeFrame element : tfList) { System.out.println(element.toString()); }
         });
-        VerticalLayout containerVertical = new VerticalLayout(formLabel, form, sillyButton);
+        VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), formLabel, form, sillyButton);
         containerVertical.setSizeFull();
         add(container, containerVertical);
     }
@@ -117,6 +124,20 @@ public class DoctorView extends HorizontalLayout {
             }
             entries[n] = new TableEntry(weekdayDate, status, time, 15L, client.getPatient(), client.getDoctor());
         } return entries;
+    }
+
+    FormLayout buildNavPanel() {
+        Button rwd = new Button("<<");
+        Button fwd = new Button(">>");
+        Button go2date = new Button("go to date");
+        TextField targetDate = new TextField(null, "input date");
+        //rwd.addClickListener(event -> );
+        //fwd.addClickListener(event -> );
+        HorizontalLayout horizontal = new HorizontalLayout(rwd, targetDate, fwd);
+        VerticalLayout navPanel = new VerticalLayout(horizontal, go2date);
+        horizontal.setAlignItems(Alignment.START);
+        navPanel.setAlignItems(Alignment.CENTER);
+        return new FormLayout(navPanel);
     }
 
     FormLayout createTimeForm(String[] weekdays) {

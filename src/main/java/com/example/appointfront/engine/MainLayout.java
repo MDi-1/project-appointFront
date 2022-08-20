@@ -1,5 +1,6 @@
 package com.example.appointfront.engine;
 
+import com.example.appointfront.data.Doctor;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.H1;
@@ -30,7 +31,7 @@ public class MainLayout extends AppLayout {
     }
 
     void constructLinks() {
-        RouterLink startingView = new RouterLink("Start", StartingView.class);
+        RouterLink startingView = new RouterLink("start", StartingView.class);
         startingView.setHighlightCondition(HighlightConditions.sameLocation());
         RouterLink userView = new RouterLink("User", UserView.class);
         RouterLink doctorView = new RouterLink("Doctor", DoctorView.class);

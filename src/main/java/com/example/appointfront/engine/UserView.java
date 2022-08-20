@@ -54,6 +54,8 @@ public class UserView extends VerticalLayout {
         doctorGrid.setColumns("firstName", "lastName", "position");
         doctorGrid.setItems(backendClient.getDoctorList());
         doctorGrid.asSingleSelect().addValueChangeListener(event -> doctorView.enterDoctorManagement(event.getValue()));
+        // seems pointless to call enterDoctorManagement() to go to docView class and do nothing but set doc in
+        // backend client
         VerticalLayout docTab = new VerticalLayout(new Label("...or pick doctor to make an appointment"), doctorGrid);
         docTab.setWidth("60%");
         return docTab;
