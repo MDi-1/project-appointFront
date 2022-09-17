@@ -50,7 +50,7 @@ public class DoctorView extends HorizontalLayout {
     }
 
     void createTables() { // - this f. is too long fixme
-        LocalDate setDay = LocalDate.of(2022, 8, 17); // temporary value for target day in createTables
+        LocalDate setDay = LocalDate.of(2022, 9, 15); // temporary value for target day in createTables
         Button sillyButton = new Button("silly button"); // temporary button for test purposes
         Label formLabel = new Label();
         VerticalLayout container = new VerticalLayout();
@@ -93,37 +93,36 @@ public class DoctorView extends HorizontalLayout {
         TableEntry[] entries = new TableEntry[workDayHrsCount];
         List<TimeFrame> timeFrames;
         List<Appointment> appointments = null;
-        LocalDate tfDate  = null;
         LocalTime tfStart = null;
         LocalTime tfEnd   = null;
         if (client.getDoctor() != null) {
             timeFrames   = client.getDocsTimeFrames();
             appointments = client.getDocsAppointments();
-            int foundTf = 0;
             for (TimeFrame tf : timeFrames) {
-                tfDate  = LocalDate.parse(tf.getDate());
-                if (weekdayDate.equals(tfDate)) {
+                if (weekdayDate.equals(LocalDate.parse(tf.getDate()))) {
                     tfStart = LocalTime.parse(tf.getTimeStart());
                     tfEnd   = LocalTime.parse(tf.getTimeEnd());
-                    foundTf ++;
                 }
             }
         }
         for (int n = 0; n < workDayHrsCount; n ++) {
             LocalTime time = LocalTime.of(n + 6, 0);
             String status;
-            if (tfDate == null) break;
-            if (time.isBefore(tfStart) || time.isAfter(tfEnd)) status = "off";
-            else status = time.getHour() + ":00 AVAILABLE";
-            for (Appointment singleApp : appointments) {
-                LocalDateTime appDateTime = LocalDateTime.parse(
-                        singleApp.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
-                LocalDate appDate = LocalDate.from(appDateTime);
-                LocalTime appTime = LocalTime.from(appDateTime);
-                if (weekdayDate.equals(appDate) && time.equals(appTime)) status = time.getHour() + ":00 busy";
+            if (tfStart == null) status = "n/a";
+            else {
+                if (time.isBefore(tfStart) || time.isAfter(tfEnd)) status = "off";
+                else status = time.getHour() + ":00 AVAILABLE";
+                for (Appointment singleApp : appointments) {
+                    LocalDateTime appDateTime = LocalDateTime.parse(
+                            singleApp.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
+                    LocalDate appDate = LocalDate.from(appDateTime);
+                    LocalTime appTime = LocalTime.from(appDateTime);
+                    if (weekdayDate.equals(appDate) && time.equals(appTime)) status = time.getHour() + ":00 busy";
+                }
             }
             entries[n] = new TableEntry(weekdayDate, status, time, 15L, client.getPatient(), client.getDoctor());
-        } return entries;
+        }
+        return entries;
     }
 
     FormLayout buildNavPanel() {
