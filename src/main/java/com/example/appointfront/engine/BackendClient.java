@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.*;
 
 @Getter
@@ -24,6 +25,7 @@ public class BackendClient {
     private String endpointPrefix;
     private Doctor doctor;
     private Patient patient;
+    private LocalDate setDay;
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
     public List<TestDto> getResponse() {
@@ -94,6 +96,10 @@ public class BackendClient {
             LOGGER.error(e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+
+    public void setSetDay(LocalDate setDay) {
+        this.setDay = setDay;
     }
 
     public void getAppointmentsForADay() {

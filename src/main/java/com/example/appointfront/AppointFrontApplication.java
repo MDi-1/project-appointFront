@@ -12,3 +12,4 @@ public class AppointFrontApplication {
 }
 
 // todo: In docView right panel to be exchangeable - doctor form or week navigation.
+// todo: In the end - constrain access modifiers, not all f.s need to be public.

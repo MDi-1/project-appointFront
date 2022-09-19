@@ -50,7 +50,6 @@ public class DoctorView extends HorizontalLayout {
     }
 
     void createTables() { // - this f. is too long fixme
-        LocalDate setDay = LocalDate.of(2022, 9, 15); // temporary value for target day in createTables
         Button sillyButton = new Button("silly button"); // temporary button for test purposes
         Label formLabel = new Label();
         VerticalLayout container = new VerticalLayout();
@@ -63,7 +62,7 @@ public class DoctorView extends HorizontalLayout {
         else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
         for (int n = 1; n < 8; n ++) {
-            date[n - 1] = setDay.minusDays(setDay.getDayOfWeek().getValue() - n);
+            date[n - 1] = client.getSetDay().minusDays(client.getSetDay().getDayOfWeek().getValue() - n);
             dayHeaders[n - 1] = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH) + "; " + date[n - 1];
         }
         for (int i = 0; i < 5; i ++) {
@@ -129,10 +128,14 @@ public class DoctorView extends HorizontalLayout {
         Button rwd = new Button("<<");
         Button fwd = new Button(">>");
         Button go2date = new Button("go to date");
-        TextField targetDate = new TextField(null, "input date");
-        //rwd.addClickListener(event -> );
+        TextField targetDateField = new TextField(null, client.getSetDay().toString());
+        rwd.addClickListener(event -> {
+                    client.setSetDay(LocalDate.parse(targetDateField.getValue()));
+                    refresh();
+                });
         //fwd.addClickListener(event -> );
-        HorizontalLayout horizontal = new HorizontalLayout(rwd, targetDate, fwd);
+        go2date.addClickListener(event -> refresh());
+        HorizontalLayout horizontal = new HorizontalLayout(rwd, targetDateField, fwd);
         VerticalLayout navPanel = new VerticalLayout(horizontal, go2date);
         horizontal.setAlignItems(Alignment.START);
         navPanel.setAlignItems(Alignment.CENTER);
@@ -152,6 +155,12 @@ public class DoctorView extends HorizontalLayout {
             VerticalLayout form = new VerticalLayout(start, end);
             bottomBar.add(form);
         } return new FormLayout(bottomBar);
+    }
+
+    // as soon as this project is finished refactor this f. to more civilized way to refresh view.
+    public void refresh() {
+        client.setSetDay(LocalDate.parse(targetDateField.getValue()));
+        UI.getCurrent().getPage().reload();
     }
 
     public void enterDoctorManagement(Doctor doctor) {

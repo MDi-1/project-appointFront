@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,8 @@ import static com.example.appointfront.data.Doctor.Position.*;
 @PageTitle("Start | Tiny Clinic")
 public class StartingView extends HorizontalLayout {
 
-    public StartingView() {
+    public StartingView(BackendClient client) {
+        client.setSetDay(LocalDate.of(2022, 9, 15)); // temporary value for target day in createTables
         Label label = new Label("Click one of buttons to log in as sample patient or as administrator");
         Button patient = new Button("Log in as patient");
         Button admin = new Button("Log in as administrator");
