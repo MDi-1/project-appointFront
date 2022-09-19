@@ -33,6 +33,7 @@ import java.util.Optional;
 public class DoctorView extends HorizontalLayout {
 
     private BackendClient client;
+    private LocalDate targetDate;
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
     HorizontalLayout tables = new HorizontalLayout();
 
@@ -130,7 +131,7 @@ public class DoctorView extends HorizontalLayout {
         Button go2date = new Button("go to date");
         TextField targetDateField = new TextField(null, client.getSetDay().toString());
         rwd.addClickListener(event -> {
-                    client.setSetDay(LocalDate.parse(targetDateField.getValue()));
+                    targetDate = LocalDate.parse(targetDateField.getValue());
                     refresh();
                 });
         //fwd.addClickListener(event -> );
@@ -159,7 +160,7 @@ public class DoctorView extends HorizontalLayout {
 
     // as soon as this project is finished refactor this f. to more civilized way to refresh view.
     public void refresh() {
-        client.setSetDay(LocalDate.parse(targetDateField.getValue()));
+        client.setSetDay(targetDate);
         UI.getCurrent().getPage().reload();
     }
 
