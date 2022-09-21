@@ -1,6 +1,7 @@
 package com.example.appointfront.engine;
 
 import com.example.appointfront.data.*;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -10,10 +11,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.example.appointfront.data.Doctor.Position.*;
 
 @Route(value= "start", layout = MainLayout.class)
 @PageTitle("Start | Tiny Clinic")
@@ -30,16 +27,13 @@ public class StartingView extends HorizontalLayout {
         loginBox.setMaxWidth("50%");
         add(loginBox);
         loginBox.setAlignItems(Alignment.CENTER);
-    }
-
-    public void sendSampleData() {
-        List<Doctor> doctors = new ArrayList<>();
-        doctors.add(new Doctor("Vincent", "Watkins", Administrator));
-        doctors.add(new Doctor("Hillary", "Washington", Specialist));
-        doctors.add(new Doctor("Alexander", "Franklin", Specialist));
-        List<Patient> patients = new ArrayList<>();
-        patients.add(new Patient("Jenny", "Pear"));
-        patients.add(new Patient("Will", "Sith"));
-        patients.add(new Patient("Bob", "Roberts"));
+        patient.addClickListener(event -> {
+            UI.getCurrent().navigate("user");
+            client.setAdmission(false);
+        });
+        admin.addClickListener(event -> {
+            UI.getCurrent().navigate("doctor");
+            client.setAdmission(true);
+        });
     }
 }

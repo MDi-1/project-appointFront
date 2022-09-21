@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-@Route(value = "doctors", layout = MainLayout.class)
+@Route(value = "doctor", layout = MainLayout.class)
 @PageTitle("Doctors | Tiny Clinic")
 public class DoctorView extends HorizontalLayout {
 
@@ -63,8 +63,11 @@ public class DoctorView extends HorizontalLayout {
         else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
         for (int n = 1; n < 8; n ++) {
-            date[n - 1] = client.getSetDay().minusDays(client.getSetDay().getDayOfWeek().getValue() - n);
-            dayHeaders[n - 1] = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH) + "; " + date[n - 1];
+            LocalDate day = client.getSetDay();
+            date[n - 1] = day.minusDays(day.getDayOfWeek().getValue() - n);
+            String dayOfWeek = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+            String dateStamp = date[n - 1].format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            dayHeaders[n - 1] =  dayOfWeek + "; " + dateStamp;
         }
         for (int i = 0; i < 5; i ++) {
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
@@ -77,7 +80,7 @@ public class DoctorView extends HorizontalLayout {
         }
         container.add(tables, createTimeForm(shortenedDayHeaders));
         container.setWidth("72%");
-        sillyButton.addClickListener(event -> {
+        sillyButton.addClickListener(event -> { // remove this when the time will come
             List<Appointment> list = client.getDocsAppointments();
             for (Appointment element : list) { System.out.println(element.toString()); } // temporary print
             List<TimeFrame> tfList = client.getDocsTimeFrames();
@@ -129,13 +132,22 @@ public class DoctorView extends HorizontalLayout {
         Button rwd = new Button("<<");
         Button fwd = new Button(">>");
         Button go2date = new Button("go to date");
-        TextField targetDateField = new TextField(null, client.getSetDay().toString());
+        TextField targetDateField = new TextField(
+                null,
+                client.getSetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")).toString()
+        );
         rwd.addClickListener(event -> {
-                    targetDate = LocalDate.parse(targetDateField.getValue());
-                    refresh();
-                });
-        //fwd.addClickListener(event -> );
-        go2date.addClickListener(event -> refresh());
+            targetDate = client.getSetDay().minusDays(7L);
+            refresh();
+        });
+        fwd.addClickListener(event -> {
+            targetDate = client.getSetDay().plusDays(7L);
+            refresh();
+        });
+        go2date.addClickListener(event -> {
+            targetDate = LocalDate.parse(targetDateField.getValue(), DateTimeFormatter.ofPattern("dd-M-yyyy"));
+            refresh();
+        });
         HorizontalLayout horizontal = new HorizontalLayout(rwd, targetDateField, fwd);
         VerticalLayout navPanel = new VerticalLayout(horizontal, go2date);
         horizontal.setAlignItems(Alignment.START);
@@ -167,7 +179,7 @@ public class DoctorView extends HorizontalLayout {
     public void enterDoctorManagement(Doctor doctor) {
         setDocFromTab(doctor);
         client.setDoctor(doctor);
-        UI.getCurrent().navigate("doctors");
+        UI.getCurrent().navigate("doctor");
     }
 
     public void setDocFromTab(Doctor doctor) {

@@ -23,6 +23,7 @@ public class BackendClient {
     private final RestTemplate restTemplate;
     @Value("${endpoint.prefix}")
     private String endpointPrefix;
+    private boolean admission;
     private Doctor doctor;
     private Patient patient;
     private LocalDate setDay;
@@ -100,6 +101,10 @@ public class BackendClient {
 
     public void setSetDay(LocalDate setDay) {
         this.setDay = setDay;
+    }
+
+    public void setAdmission(boolean admission) {
+        this.admission = admission;
     }
 
     public void getAppointmentsForADay() {
