@@ -51,14 +51,15 @@ public class DoctorView extends HorizontalLayout {
     }
 
     void createTables() { // - this f. is too long fixme
-        Button sillyButton = new Button("silly button"); // temporary button for test purposes
         Label formLabel = new Label();
         VerticalLayout container = new VerticalLayout();
         LocalDate[] date = new LocalDate[7];
         String[] dayHeaders = new String[7];
         String[] shortenedDayHeaders = Arrays.copyOfRange(dayHeaders, 0, 5);
-        DoctorForm form = new DoctorForm(client.getMedServiceList());
+        FormLayout form;
         String formHeaderTxt;
+        if (client.isAdmission()) form = new DoctorForm(client.getMedServiceList());
+        else form = new AppointForm();
         if (client.getDoctor() == null) formHeaderTxt = "none selected";
         else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
@@ -80,13 +81,7 @@ public class DoctorView extends HorizontalLayout {
         }
         container.add(tables, createTimeForm(shortenedDayHeaders));
         container.setWidth("72%");
-        sillyButton.addClickListener(event -> { // remove this when the time will come
-            List<Appointment> list = client.getDocsAppointments();
-            for (Appointment element : list) { System.out.println(element.toString()); } // temporary print
-            List<TimeFrame> tfList = client.getDocsTimeFrames();
-            for (TimeFrame element : tfList) { System.out.println(element.toString()); }
-        });
-        VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), formLabel, form, sillyButton);
+        VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), formLabel, form);
         containerVertical.setSizeFull();
         add(container, containerVertical);
     }
@@ -132,10 +127,7 @@ public class DoctorView extends HorizontalLayout {
         Button rwd = new Button("<<");
         Button fwd = new Button(">>");
         Button go2date = new Button("go to date");
-        TextField targetDateField = new TextField(
-                null,
-                client.getSetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")).toString()
-        );
+        TextField dateField = new TextField(null, client.getSetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")));
         rwd.addClickListener(event -> {
             targetDate = client.getSetDay().minusDays(7L);
             refresh();
@@ -145,10 +137,10 @@ public class DoctorView extends HorizontalLayout {
             refresh();
         });
         go2date.addClickListener(event -> {
-            targetDate = LocalDate.parse(targetDateField.getValue(), DateTimeFormatter.ofPattern("dd-M-yyyy"));
+            targetDate = LocalDate.parse(dateField.getValue(), DateTimeFormatter.ofPattern("dd-M-yyyy"));
             refresh();
         });
-        HorizontalLayout horizontal = new HorizontalLayout(rwd, targetDateField, fwd);
+        HorizontalLayout horizontal = new HorizontalLayout(rwd, dateField, fwd);
         VerticalLayout navPanel = new VerticalLayout(horizontal, go2date);
         horizontal.setAlignItems(Alignment.START);
         navPanel.setAlignItems(Alignment.CENTER);
@@ -170,7 +162,7 @@ public class DoctorView extends HorizontalLayout {
         } return new FormLayout(bottomBar);
     }
 
-    // as soon as this project is finished refactor this f. to more civilized way to refresh view.
+    // as soon as this project is finished refactor this f. into more civilized form to refresh view.
     public void refresh() {
         client.setSetDay(targetDate);
         UI.getCurrent().getPage().reload();

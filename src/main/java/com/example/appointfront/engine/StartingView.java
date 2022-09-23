@@ -1,6 +1,5 @@
 package com.example.appointfront.engine;
 
-import com.example.appointfront.data.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
@@ -28,12 +27,12 @@ public class StartingView extends HorizontalLayout {
         add(loginBox);
         loginBox.setAlignItems(Alignment.CENTER);
         patient.addClickListener(event -> {
-            UI.getCurrent().navigate("user");
             client.setAdmission(false);
+            UI.getCurrent().navigate("user");
         });
         admin.addClickListener(event -> {
-            UI.getCurrent().navigate("doctor");
             client.setAdmission(true);
+            UI.getCurrent().navigate("doctor");
         });
     }
 }
