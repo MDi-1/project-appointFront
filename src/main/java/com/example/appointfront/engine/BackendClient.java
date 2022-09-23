@@ -1,9 +1,6 @@
 package com.example.appointfront.engine;
 
-import com.example.appointfront.data.Appointment;
-import com.example.appointfront.data.Doctor;
-import com.example.appointfront.data.MedicalService;
-import com.example.appointfront.data.TestDto;
+import com.example.appointfront.data.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -15,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.*;
 
 @Getter
@@ -25,6 +23,10 @@ public class BackendClient {
     private final RestTemplate restTemplate;
     @Value("${endpoint.prefix}")
     private String endpointPrefix;
+    private boolean admission;
+    private Doctor doctor;
+    private Patient patient;
+    private LocalDate setDay;
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
     public List<TestDto> getResponse() {
@@ -39,8 +41,7 @@ public class BackendClient {
     }
 
     public List<MedicalService> getMedServiceList() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/getAll")
-                .build().encode().toUri();
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/getAll").build().encode().toUri();
         try {
             MedicalService[] response = restTemplate.getForObject(url, MedicalService[].class);
             return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
@@ -51,8 +52,7 @@ public class BackendClient {
     }
 
     public List<Doctor> getDoctorList() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/getAll")
-                .build().encode().toUri();
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/getAll").build().encode().toUri();
         try {
             Doctor[] response = restTemplate.getForObject(url, Doctor[].class);
             return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
@@ -62,15 +62,20 @@ public class BackendClient {
         }
     }
 
-    Doctor saveDoctor(Doctor doctor) {
-        return null;
+    public List<Appointment> getAllAppointments() {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/getAll").build().encode().toUri();
+        try {
+            Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
+            return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
-    void deleteDoctor(Doctor doctor) {
-    }
-
-    public List<Appointment> getAppointmentList() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/getAll")
+    public List<Appointment> getDocsAppointments() {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/doctorApps/")
+                .path(doctor.getId().toString()) // path parameter come here
                 .build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
@@ -81,22 +86,43 @@ public class BackendClient {
         }
     }
 
-    public List<MedicalService> getSTestList1() {
-        List<MedicalService> list = new ArrayList<>();
-        list.add(new MedicalService(1L, "service desc1", 1L));
-        list.add(new MedicalService(2L, "service desc2", 2L));
-        list.add(new MedicalService(3L, "service desc3", 3L));
-        return list;
+    public List<TimeFrame> getDocsTimeFrames() {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "timeFrame/byDoc/")
+                .path(doctor.getId().toString())
+                .build().encode().toUri();
+        try {
+            TimeFrame[] response = restTemplate.getForObject(url, TimeFrame[].class);
+            return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
-    public List<Doctor> getDTestList2() {
-        List<Doctor> list = new ArrayList<>();
-        list.add(new Doctor(1L, "name1", "lName1",
-                Doctor.Position.Specialist, 1L, Arrays.asList(35L, 61L), Arrays.asList(1L, 2L)));
-        list.add(new Doctor(2L, "name2", "lName2",
-                Doctor.Position.Administrator, 2L, Arrays.asList(11L, 22L), Arrays.asList(4L, 5L)));
-        list.add(new Doctor(3L, "name3", "lName3",
-                Doctor.Position.Manager, 3L, Arrays.asList(77L, 99L), Arrays.asList(6L, 7L)));
-        return list;
+    public void setSetDay(LocalDate setDay) {
+        this.setDay = setDay;
     }
+
+    public void setAdmission(boolean admission) {
+        this.admission = admission;
+    }
+
+    public void getAppointmentsForADay() {
+    }
+
+    Doctor saveDoctor(Doctor doctor) {
+        return null;
+    }
+
+    void deleteDoctor(Doctor doctor) {
+    }
+
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
+    }
+
 }

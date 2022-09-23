@@ -10,3 +10,7 @@ public class AppointFrontApplication {
         SpringApplication.run(AppointFrontApplication.class, args);
     }
 }
+
+// todo: In docView right panel to be exchangeable - doctor form or appointment form.
+// todo: In the end - constrain access modifiers, not all f.s need to be public.
+// some additional sample data (docs and patients) were in StartingView class, refer to git history if necessary

@@ -1,9 +1,11 @@
 package com.example.appointfront.engine;
 
+import com.example.appointfront.data.Appointment;
 import com.example.appointfront.data.Doctor;
-import com.example.appointfront.data.Patient;
 import com.example.appointfront.data.TableEntry;
 import com.example.appointfront.data.TimeFrame;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
@@ -11,28 +13,36 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Stream;
+import java.time.format.TextStyle;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
-@Route(value = "doctors", layout = MainLayout.class)
+@Route(value = "doctor", layout = MainLayout.class)
 @PageTitle("Doctors | Tiny Clinic")
 public class DoctorView extends HorizontalLayout {
 
-    private Doctor currentDoctor;
-    private Patient currentPatient;
-    private BackendClient backendClient;
+    private BackendClient client;
+    private LocalDate targetDate;
+    private Binder<Doctor> binder = new Binder<>(Doctor.class);
     HorizontalLayout tables = new HorizontalLayout();
 
-    public DoctorView(BackendClient backendClient) {
-        this.backendClient = backendClient;
-        Label label = new Label("this some txt");
+    public DoctorView(BackendClient client) {
+        this.client = client;
+        if (client.getDoctor() == null) {
+            Optional<Doctor> firstDoc = client.getDoctorList().stream().findFirst();
+            client.setDoctor(Optional.of(firstDoc).get().orElseThrow(NotFoundException::new));
+        }
         addClassName("doctor-view");
         setSizeFull();
         tables.setSizeFull();
@@ -40,92 +50,131 @@ public class DoctorView extends HorizontalLayout {
         createTables();
     }
 
-    void createTables() {
+    void createTables() { // - this f. is too long fixme
+        Label formLabel = new Label();
         VerticalLayout container = new VerticalLayout();
-        String[] weekdays = {"mon", "tue", "wed", "thu", "fri"};
-/*
-        Grid<SideEntry> sideGrid = new Grid<>(SideEntry.class);
-        sideGrid.setItems(getSideGrid());
-        sideGrid.setColumns("parsedTime");
-        sideGrid.getColumnByKey("parsedTime").setHeader("h");
-        sideGrid.getColumnByKey("parsedTime").setSortable(false);
-        sideGrid.setHeightFull();
-        tables.add(sideGrid);
-*/
-        for(int i = 0; i < 5; i ++) {
+        LocalDate[] date = new LocalDate[7];
+        String[] dayHeaders = new String[7];
+        String[] shortenedDayHeaders = Arrays.copyOfRange(dayHeaders, 0, 5);
+        FormLayout form;
+        String formHeaderTxt;
+        if (client.isAdmission()) form = new DoctorForm(client.getMedServiceList());
+        else form = new AppointForm();
+        if (client.getDoctor() == null) formHeaderTxt = "none selected";
+        else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
+        formLabel.setText(formHeaderTxt);
+        for (int n = 1; n < 8; n ++) {
+            LocalDate day = client.getSetDay();
+            date[n - 1] = day.minusDays(day.getDayOfWeek().getValue() - n);
+            String dayOfWeek = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+            String dateStamp = date[n - 1].format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            dayHeaders[n - 1] =  dayOfWeek + "; " + dateStamp;
+        }
+        for (int i = 0; i < 5; i ++) {
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
-            timetable.setItems(getEntries(weekdays[i]));
+            timetable.setItems(buildWeekDay(date[i])); // - this is spaghetti #1 fixme
             timetable.setColumns("status");
-            timetable.getColumnByKey("status").setHeader(weekdays[i]);
+            timetable.getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
             timetable.getColumnByKey("status").setSortable(false);
             timetable.setHeightFull();
             tables.add(timetable);
         }
-        container.add(tables, createTimeForm(weekdays));
-        container.setWidth("74%");
-        DoctorForm form = new DoctorForm(backendClient.getMedServiceList());
-        form.setWidth("26%");
-        add(container, form);
+        container.add(tables, createTimeForm(shortenedDayHeaders));
+        container.setWidth("72%");
+        VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), formLabel, form);
+        containerVertical.setSizeFull();
+        add(container, containerVertical);
     }
 
-    SideEntry[] getSideGrid() {  //fixme - dead function
-        SideEntry[] sideTable = new SideEntry[16];
-        for(int n = 0; n < 16; n ++) {
-            int min;
-            int hr = n / 2 + 8;
-            if (n % 2 != 0) min = 30;
-            else min = 0;
-            String timeText = LocalTime.of(hr, min).format(DateTimeFormatter.ofPattern("HH:mm"));
-            sideTable[n] = new SideEntry(timeText);
+    TableEntry[] buildWeekDay(LocalDate weekdayDate) {  // - this f. is spaghetti #1 fixme
+        int workDayHrsCount  = 12;
+        TableEntry[] entries = new TableEntry[workDayHrsCount];
+        List<TimeFrame> timeFrames;
+        List<Appointment> appointments = null;
+        LocalTime tfStart = null;
+        LocalTime tfEnd   = null;
+        if (client.getDoctor() != null) {
+            timeFrames   = client.getDocsTimeFrames();
+            appointments = client.getDocsAppointments();
+            for (TimeFrame tf : timeFrames) {
+                if (weekdayDate.equals(LocalDate.parse(tf.getDate()))) {
+                    tfStart = LocalTime.parse(tf.getTimeStart());
+                    tfEnd   = LocalTime.parse(tf.getTimeEnd());
+                }
+            }
         }
-        return sideTable;
-    }
-
-    TableEntry[] getEntries(String weekday) {
-        TableEntry[] entries = new TableEntry[8];
-        for(int n = 0; n < 8; n ++) {
-            int min = 0;
-            int hr = n + 8;
-            // if(n % 2 != 0) min = 30; else min = 0;
-            entries[n] = new TableEntry(weekday, "busy", LocalTime.of(hr, min), 15L, currentPatient, currentDoctor);
+        for (int n = 0; n < workDayHrsCount; n ++) {
+            LocalTime time = LocalTime.of(n + 6, 0);
+            String status;
+            if (tfStart == null) status = "n/a";
+            else {
+                if (time.isBefore(tfStart) || time.isAfter(tfEnd)) status = "off";
+                else status = time.getHour() + ":00 AVAILABLE";
+                for (Appointment singleApp : appointments) {
+                    LocalDateTime appDateTime = LocalDateTime.parse(
+                            singleApp.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
+                    LocalDate appDate = LocalDate.from(appDateTime);
+                    LocalTime appTime = LocalTime.from(appDateTime);
+                    if (weekdayDate.equals(appDate) && time.equals(appTime)) status = time.getHour() + ":00 busy";
+                }
+            }
+            entries[n] = new TableEntry(weekdayDate, status, time, 15L, client.getPatient(), client.getDoctor());
         }
         return entries;
+    }
+
+    FormLayout buildNavPanel() {
+        Button rwd = new Button("<<");
+        Button fwd = new Button(">>");
+        Button go2date = new Button("go to date");
+        TextField dateField = new TextField(null, client.getSetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")));
+        rwd.addClickListener(event -> {
+            targetDate = client.getSetDay().minusDays(7L);
+            refresh();
+        });
+        fwd.addClickListener(event -> {
+            targetDate = client.getSetDay().plusDays(7L);
+            refresh();
+        });
+        go2date.addClickListener(event -> {
+            targetDate = LocalDate.parse(dateField.getValue(), DateTimeFormatter.ofPattern("dd-M-yyyy"));
+            refresh();
+        });
+        HorizontalLayout horizontal = new HorizontalLayout(rwd, dateField, fwd);
+        VerticalLayout navPanel = new VerticalLayout(horizontal, go2date);
+        horizontal.setAlignItems(Alignment.START);
+        navPanel.setAlignItems(Alignment.CENTER);
+        return new FormLayout(navPanel);
     }
 
     FormLayout createTimeForm(String[] weekdays) {
         Binder<TimeFrame> binder = new Binder<>(TimeFrame.class);
         HorizontalLayout bottomBar = new HorizontalLayout();
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             TextField start = new TextField();
             TextField end = new TextField();
             start.setPlaceholder(weekdays[i] + " from");
             end.setPlaceholder(weekdays[i] + " to");
-            binder.bind(start, "start" + i);
-            binder.bind(end, "end" + i);
+            binder.bind(start, "timeStart");
+            binder.bind(end, "timeEnd");
             VerticalLayout form = new VerticalLayout(start, end);
             bottomBar.add(form);
-        }
-        return new FormLayout(bottomBar);
+        } return new FormLayout(bottomBar);
     }
 
-    TableEntry[] getEntries_old() {
-        return Stream.of(
-                new TableEntry("mon", "busy", LocalTime.of(8, 0),   15L, currentPatient, currentDoctor),
-                new TableEntry("mon", "busy", LocalTime.of(8, 30),  15L, currentPatient, currentDoctor),
-                new TableEntry("mon", "busy", LocalTime.of(9, 0),   30L, currentPatient, currentDoctor),
-                new TableEntry("mon", "busy", LocalTime.of(9, 30),  15L, currentPatient, currentDoctor),
-                new TableEntry("mon", "busy", LocalTime.of(10, 0),  30L, currentPatient, currentDoctor),
-                new TableEntry("mon", "busy", LocalTime.of(10, 30), 15L, currentPatient, currentDoctor),
-                new TableEntry("mon", "busy", LocalTime.of(11, 0),  30L, currentPatient, currentDoctor),
-                new TableEntry("mon", "busy", LocalTime.of(11, 30), 30L, currentPatient, currentDoctor),
-                new TableEntry("mon", "busy", LocalTime.of(12, 0),  15L, currentPatient, currentDoctor)
-        ).toArray(TableEntry[]::new);
+    // as soon as this project is finished refactor this f. into more civilized form to refresh view.
+    public void refresh() {
+        client.setSetDay(targetDate);
+        UI.getCurrent().getPage().reload();
     }
 
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    public static class SideEntry {
-        private String parsedTime;
+    public void enterDoctorManagement(Doctor doctor) {
+        setDocFromTab(doctor);
+        client.setDoctor(doctor);
+        UI.getCurrent().navigate("doctor");
+    }
+
+    public void setDocFromTab(Doctor doctor) {
+        binder.setBean(doctor);
     }
 }

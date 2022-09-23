@@ -20,21 +20,21 @@ public class DoctorForm extends FormLayout {
     private BackendClient backendClient;
     private TextField firstName = new TextField("first name");
     private TextField lastName = new TextField("last name");
-    private Button addBtn = new Button("Add");
-    private Button saveBtn = new Button("Save");
-    private Button delBtn = new Button("Delete");
-    private Button timeBtn = new Button("Edit Timeframe");
-    private Button cancelBtn = new Button("Cancel");
-    private ComboBox<Doctor.Position> position = new ComboBox<>("position");
     private ComboBox<MedicalService> services = new ComboBox<>("medical services");
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
 
     public DoctorForm(List<MedicalService> medicalServices) {
         addClassName("doctor-form");
         binder.bindInstanceFields(this);
+        ComboBox<Doctor.Position> position = new ComboBox<>("position");
         position.setItems(Doctor.Position.values());
         services.setItems(medicalServices);
+        Button saveBtn = new Button("Save");
+        Button delBtn = new Button("Delete");
+        Button addBtn = new Button("Add");
         HorizontalLayout buttonRow1 = new HorizontalLayout(addBtn, saveBtn, delBtn);
+        Button timeBtn = new Button("Edit Timeframe");
+        Button cancelBtn = new Button("Cancel");
         HorizontalLayout buttonRow2 = new HorizontalLayout(timeBtn, cancelBtn);
         add(firstName, lastName, position, buttonRow1, buttonRow2);
         addBtn.addClickListener(event -> {

@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -16,10 +14,10 @@ public class Appointment {
     private Long id;
 
     @JsonProperty("startDateTime")
-    private String startDate;
+    private String startDateTime;
 
-    @JsonProperty("duration")
-    private long duration;
+    @JsonProperty("price")
+    private long price;
 
     @JsonProperty("doctorId")
     private Long doctorId;
