@@ -14,8 +14,8 @@ public class TestDto {
     @JsonProperty("name")
     private String name;
 
+    private int testId;
+
     @Override
-    public String toString() {
-        return "TestDto { " + "id= " + id + ", name= '" + name + '\'' + '}';
-    }
+    public String toString() { return "TestDto{" + "id=" + id + ", name='" + name + '\'' + ", testId=" + testId + '}';}
 }

@@ -29,7 +29,7 @@ public class BackendClient {
     private LocalDate setDay;
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
-    public List<TestDto> getResponse() {
+    public List<TestDto> getTestObjects() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "test/getAll").build().encode().toUri();
         try {
             TestDto[] response = restTemplate.getForObject(url, TestDto[].class);

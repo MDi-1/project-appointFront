@@ -1,5 +1,6 @@
 package com.example.appointfront.engine;
 
+import com.example.appointfront.data.TestDto;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -11,6 +12,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
+import static com.example.appointfront.engine.TestView.printTestList;
 
 @Route("")
 public class MainLayout extends AppLayout {
@@ -29,6 +32,7 @@ public class MainLayout extends AppLayout {
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         header.addClassName("header");
         addToNavbar(header);
+        b1.addClickListener(event -> printTestList());
     }
 
     void constructLinks() {
@@ -36,6 +40,7 @@ public class MainLayout extends AppLayout {
         startingView.setHighlightCondition(HighlightConditions.sameLocation());
         RouterLink userView = new RouterLink("User", UserView.class);
         RouterLink doctorView = new RouterLink("Doctor", DoctorView.class);
-        addToDrawer(new VerticalLayout(startingView, userView, doctorView));
+        RouterLink testView = new RouterLink("Test", TestView.class); // this thing to be removed later
+        addToDrawer(new VerticalLayout(startingView, userView, doctorView, testView));
     }
 }
