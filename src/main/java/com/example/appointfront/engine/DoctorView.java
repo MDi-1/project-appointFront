@@ -34,6 +34,7 @@ public class DoctorView extends HorizontalLayout {
 
     private BackendClient client;
     private LocalDate targetDate;
+    private AppointForm appointForm;
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
     HorizontalLayout tables = new HorizontalLayout();
 
@@ -59,7 +60,7 @@ public class DoctorView extends HorizontalLayout {
         FormLayout form;
         String formHeaderTxt;
         if (client.isAdmission()) form = new DoctorForm(client.getMedServiceList());
-        else form = new AppointForm();
+        else form = new AppointForm(client);
         if (client.getDoctor() == null) formHeaderTxt = "none selected";
         else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
@@ -77,6 +78,9 @@ public class DoctorView extends HorizontalLayout {
             timetable.getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
             timetable.getColumnByKey("status").setSortable(false);
             timetable.setHeightFull();
+            timetable.asSingleSelect().addValueChangeListener(event -> {
+                appointForm.processApp(event.getValue());
+            });
             tables.add(timetable);
         }
         container.add(tables, createTimeForm(shortenedDayHeaders));
