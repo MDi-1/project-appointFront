@@ -33,7 +33,13 @@ public class BackendClient {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "test/getAll").build().encode().toUri();
         try {
             TestDto[] response = restTemplate.getForObject(url, TestDto[].class);
-            return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
+            List<TestDto> testList = Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
+            int i = 1;
+            for (TestDto item : testList) {
+                item.setTestId(i);
+                i++;
+            }
+            return testList;
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage(), e);
             return Collections.emptyList();

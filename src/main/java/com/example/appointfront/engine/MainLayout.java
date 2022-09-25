@@ -13,7 +13,7 @@ import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
-import static com.example.appointfront.engine.TestView.printTestList;
+import static com.example.appointfront.engine.TestView.addFunctionality;
 
 @Route("")
 public class MainLayout extends AppLayout {
@@ -24,15 +24,14 @@ public class MainLayout extends AppLayout {
     }
 
     void constructHeader() {
-        Button b1 = new Button("tmp test button-1");
         H1 logo = new H1("Tiny clinic app");
         logo.addClassName("logo");
         Label loggedUser = new Label("patient Name Surname");
-        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, loggedUser, b1);
+        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, loggedUser);
+        addFunctionality(header);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         header.addClassName("header");
         addToNavbar(header);
-        b1.addClickListener(event -> printTestList());
     }
 
     void constructLinks() {
