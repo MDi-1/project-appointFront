@@ -19,8 +19,14 @@ public class TestView extends VerticalLayout { // this thing to be removed later
     public TestView(BackendClient client) {
         TestView.client = client;
         Grid<TestDto> table = new Grid<>(TestDto.class);
+        Button buttonAdd = new Button("add test object");
+        TestDto t1 = new TestDto("final amendment");
+        buttonAdd.addClickListener(event -> {
+            TestDto response = client.createTestObject(t1);
+            System.out.println(response);
+        });
         table.setItems(client.getTestObjects());
-        add(table);
+        add(table, buttonAdd);
     }
 
     public static void addFunctionality(HorizontalLayout header) {

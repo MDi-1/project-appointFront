@@ -16,7 +16,16 @@ public class TestDto {
     @JsonProperty("name")
     private String name;
 
-    private int testId;
+    private Integer testId;
+
+    public TestDto(String name) {
+        this.name = name;
+    }
+
+    public TestDto(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     @Override
     public String toString() { return "TestDto{" +"id=" +id +", name='" +name +'\'' +", testId=" +testId +'}'; }

@@ -15,4 +15,5 @@ public class TableEntry {
     private Long duration;
     private Patient patient;
     private Doctor doctor;
+    private long attributedApp;
 }

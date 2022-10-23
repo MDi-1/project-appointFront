@@ -1,8 +1,7 @@
 package com.example.appointfront.engine;
 
 import com.example.appointfront.data.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,8 +14,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.*;
 
-@Getter
-@RequiredArgsConstructor
+@Data
 @Component
 public class BackendClient {
 
@@ -27,6 +25,7 @@ public class BackendClient {
     private Doctor doctor;
     private Patient patient;
     private LocalDate setDay;
+    private TableEntry entry;
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
     public List<TestDto> getTestObjects() {
@@ -44,6 +43,10 @@ public class BackendClient {
             LOGGER.error(e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+    public TestDto createTestObject(TestDto dto) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "test").build().encode().toUri();
+        return restTemplate.postForObject(url, dto, TestDto.class);
     }
 
     public List<MedicalService> getMedServiceList() {
@@ -81,7 +84,7 @@ public class BackendClient {
 
     public List<Appointment> getDocsAppointments() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/doctorApps/")
-                .path(doctor.getId().toString()) // path parameter come here
+                .path(doctor.getId().toString()) // path parameter comes here
                 .build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
@@ -91,6 +94,26 @@ public class BackendClient {
             return Collections.emptyList();
         }
     }
+
+    public Appointment createAppointment(Appointment app) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment").build().encode().toUri();
+        try {
+            return restTemplate.postForObject(url, app, Appointment.class);
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    public void deleteAppointment(Long appId) {
+        String id = String.valueOf(appId);
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment")
+                .path(id)
+                .build().encode().toUri();
+        restTemplate.delete(url);
+    }
+
+
 
     public List<TimeFrame> getDocsTimeFrames() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "timeFrame/byDoc/")
@@ -103,6 +126,23 @@ public class BackendClient {
             LOGGER.error(e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+
+    public List<Patient> getAllPatients() {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/getAll").build().encode().toUri();
+        try {
+            Patient[] response = restTemplate.getForObject(url, Patient[].class);
+            return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
+    public Patient getPatientById(int id) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/")
+                .path(String.valueOf(id)).build().encode().toUri();
+        return restTemplate.getForObject(url, Patient.class);
     }
 
     public void setSetDay(LocalDate setDay) {
@@ -130,5 +170,4 @@ public class BackendClient {
     public void setDoctor(Doctor doctor) {
         this.doctor = doctor;
     }
-
 }

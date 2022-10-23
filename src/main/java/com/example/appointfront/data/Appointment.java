@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class Appointment {
 
     @JsonProperty("id")
-    private Long id;
+    private long id;
 
     @JsonProperty("startDateTime")
     private String startDateTime;
@@ -24,4 +24,10 @@ public class Appointment {
 
     @JsonProperty("patientId")
     private Long patientId;
+
+    public Appointment(String startDateTime, Long doctorId, Long patientId) {
+        this.startDateTime = startDateTime;
+        this.doctorId = doctorId;
+        this.patientId = patientId;
+    }
 }

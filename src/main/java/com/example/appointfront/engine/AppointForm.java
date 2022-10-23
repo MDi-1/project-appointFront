@@ -1,49 +1,82 @@
 package com.example.appointfront.engine;
 
 import com.example.appointfront.data.Appointment;
-import com.example.appointfront.data.TableEntry;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import lombok.NoArgsConstructor;
 
-public class AppointForm extends FormLayout {
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@NoArgsConstructor
+public class AppointForm extends FormLayout implements BaseForm{
+
+    private BackendClient client;
+    VerticalLayout container = new VerticalLayout();
+    HorizontalLayout promptPanel = new HorizontalLayout();
+    Label question = new Label();
+    Button btnAcceptDeny = new Button("appoint");
+    Button confirm = new Button("confirm");
+    Button back2 = new Button("back");
+    boolean appointMode;
 
     public AppointForm(BackendClient client) {
+        this.client = client;
         addClassName("appointment-form");
-        String txt1 = "Are You sure to ";
-        String txt2 = "an appointment with doctor ";
-        String docName = client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
         Button back1 = new Button("back");
-        Button back2 = new Button("back");
-        Button appoint = new Button("appoint");
-        Button callOff = new Button("call off");
-        Button confirm = new Button("confirm");
-        Label question = new Label();
-        HorizontalLayout buttons = new HorizontalLayout(appoint, back1, callOff);
-        VerticalLayout container = new VerticalLayout(buttons);
-        HorizontalLayout prompt = new HorizontalLayout();
+
+        HorizontalLayout buttons = new HorizontalLayout(btnAcceptDeny, back1);
         add(container);
-        confirm.addClickListener(event -> {
-            container.remove(question, prompt);
-        });
-        back2.addClickListener(event -> {
-            container.remove(question, prompt);
-        });
-        appoint.addClickListener(event -> {
-            question.setText(txt1 + "make " + txt2 + docName);
-            container.add(question, prompt);
-            prompt.add(confirm, back2);
-        });
-        callOff.addClickListener(event -> {
-            question.setText(txt1 + "call off " + txt2 + docName);
-            container.add(question, prompt);
-            prompt.add(confirm, back2);
-        });
+        container.add(buttons);
+        btnAcceptDeny.addClickListener(event -> processApp());
     }
 
-    public void processApp(TableEntry appointment){
+    @Override
+    public void setButtons() {
+        String doctorName = client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
+        String timeString = " at " + client.getEntry().getTime();
+        container.add(question);
+        if (client.getEntry().getAttributedApp() == 0) {
+            btnAcceptDeny.setText("Appoint");
+            question.setText("Are You sure to make an appointment with doctor " + doctorName + timeString);
+            appointMode = true;
+        } else {
+            btnAcceptDeny.setText("Call Off");
+            question.setText("Are You sure to call off an appointment with doctor " + doctorName + timeString);
+            appointMode = false;
+        }
+    }
 
+    @Override
+    public void clearForm() {
+
+    }
+
+    public void processApp(){
+        container.add(promptPanel);
+        promptPanel.add(confirm, back2);
+        confirm.addClickListener(event -> {
+            executeItem();
+            container.remove(question, promptPanel);
+            // statement to update tables
+        });
+        back2.addClickListener(event -> container.remove(question, promptPanel));
+    }
+
+    // mode: true - create App; false - delete App; third option - do not execute this f. (click into back2 btn)
+    public void executeItem() {
+        LocalDate date = client.getSetDay(); // client should probably store just Entry field instead of separate date
+        LocalDateTime dateTime = date.atTime(client.getEntry().getTime());
+        if (appointMode) {
+            Appointment newApp = new Appointment(
+                    dateTime.toString(), client.getDoctor().getId(), client.getPatient().getId());
+            Appointment response = client.createAppointment(newApp);
+            System.out.println(response); // fixme
+        } else {
+            System.out.println(" >>??? deleted ???<<");
+        }
     }
 }

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class DoctorForm extends FormLayout {
+public class DoctorForm extends FormLayout implements BaseForm{
 
     @Autowired
     private BackendClient backendClient;
@@ -59,7 +59,22 @@ public class DoctorForm extends FormLayout {
         });
     }
 
-    void clearForm() {
+
+    @Override
+    public void setButtons() {
+
+    }
+
+    @Override
+    public void executeItem() {
+
+    }
+
+    public void delete() {
+
+    }
+
+    public void clearForm() {
         // fixme
     }
 
