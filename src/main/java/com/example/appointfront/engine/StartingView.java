@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class StartingView extends HorizontalLayout {
 
 
-    private InitHeader header;
+    private final InitHeader header;
 
     public StartingView(BackendClient client, InitHeader header) {
         this.header = header;

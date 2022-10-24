@@ -70,8 +70,6 @@ public class DoctorView extends HorizontalLayout {
         }
         List<Grid<TableEntry>> timetables = new ArrayList<>();
         for (int i = 0; i < 5; i ++) {
-            // zrobić 5 elementową tablicę obiektów timetable wówczas będzie można za pomocą polecenia:
-            // timetable[].deselect() wyłączać zaznaczenie określonej timetable.
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
             timetable.setItems(buildWeekDay(date[i])); // - this is spaghetti #1 fixme
             timetable.setColumns("status");
@@ -81,6 +79,10 @@ public class DoctorView extends HorizontalLayout {
             int finalI = i; // Intellij did this; I don't have better solution right now.
             timetable.asSingleSelect().addValueChangeListener(event -> {
                 TableEntry entry = event.getValue();
+                if (entry == null) {
+                    System.out.println("]]]Project Appoint[[[ most likely an entry has been deselected");
+                    return;
+                }
                 System.out.println(entry);
                 for (int k = 0; k < 5; k ++) {
                     if (k != finalI) timetables.get(k).deselectAll();

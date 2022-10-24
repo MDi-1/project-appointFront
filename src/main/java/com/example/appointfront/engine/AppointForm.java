@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 public class AppointForm extends FormLayout implements BaseForm{
@@ -78,11 +80,22 @@ public class AppointForm extends FormLayout implements BaseForm{
             System.out.println(response); // fixme
         } else {
             List<Appointment> appList = client.getDoctorAppList();
-            //appList.stream().filter()
 
+            Optional<LocalDateTime> parsedTime1 = appList.stream()
+                    .map(Appointment::getStartDateTime)
+                    .map(i -> LocalDateTime.parse(i, DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm")))
+                    .filter(i -> i.equals(dateTime))
+                    .findAny();
+            //... zrobić to koniecznie jako stream fixme
+            //... wyciągnąć z optionala zmienną LocalDateTime
 
-
-            System.out.println(" >>??? deleted ???<<");
+            for (Appointment item : appList) {
+                LocalDateTime parsedTime2 = LocalDateTime.parse(
+                        item.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
+                if (parsedTime2.equals(dateTime)) {
+                    System.out.println(">>the one at time |" + item.getStartDateTime() + "| to be deleted <<");
+                }
+            }
         }
     }
 }
