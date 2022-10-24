@@ -107,7 +107,8 @@ public class DoctorView extends HorizontalLayout {
         LocalTime tfStart = null, tfEnd = null;
         if (client.getDoctor() != null) {
             timeFrames   = client.getDocsTimeFrames();
-            appointments = client.getDocsAppointments();
+            appointments = client.getAppsByDoc();
+            client.setDoctorAppList(appointments);
             for (TimeFrame tf : timeFrames) {
                 if (weekdayDate.equals(LocalDate.parse(tf.getDate()))) {
                     tfStart = LocalTime.parse(tf.getTimeStart());

@@ -1,21 +1,23 @@
 package com.example.appointfront.engine;
 
 import com.vaadin.flow.component.applayout.AppLayout;
+<<<<<<< Updated upstream
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+=======
+>>>>>>> Stashed changes
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
-import static com.example.appointfront.engine.TestView.addFunctionality;
-
 @Route("")
 public class MainLayout extends AppLayout {
 
+<<<<<<< Updated upstream
     private Setup setup;
 
     public MainLayout(Setup setup) {
@@ -29,6 +31,13 @@ public class MainLayout extends AppLayout {
         header.addClassName("header");
         addToNavbar(header);
 
+=======
+    private InitHeader header;
+
+    public MainLayout(InitHeader header) {
+        this.header = header;
+        addToNavbar(this.header);
+>>>>>>> Stashed changes
         RouterLink startingView = new RouterLink("start", StartingView.class);
         startingView.setHighlightCondition(HighlightConditions.sameLocation());
         RouterLink userView = new RouterLink("User", UserView.class);

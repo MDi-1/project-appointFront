@@ -10,6 +10,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+<<<<<<< Updated upstream
+=======
+import java.util.List;
+>>>>>>> Stashed changes
 
 @NoArgsConstructor
 public class AppointForm extends FormLayout implements BaseForm{
@@ -76,6 +80,14 @@ public class AppointForm extends FormLayout implements BaseForm{
             Appointment response = client.createAppointment(newApp);
             System.out.println(response); // fixme
         } else {
+<<<<<<< Updated upstream
+=======
+            List<Appointment> appList = client.getDoctorAppList();
+            //appList.stream().filter()
+
+
+
+>>>>>>> Stashed changes
             System.out.println(" >>??? deleted ???<<");
         }
     }
