@@ -28,6 +28,7 @@ public class StartingView extends HorizontalLayout {
         Button admin = new Button("Log in as administrator");
         Grid<Patient> table = new Grid<>(Patient.class);
         table.setItems(client.getAllPatients());
+        table.setColumns("firstName", "lastName");
         table.asSingleSelect().addValueChangeListener(event -> client.setPatient(event.getValue()));
         VerticalLayout loginBox = new VerticalLayout(label, patientBtn, admin);
         loginBox.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
