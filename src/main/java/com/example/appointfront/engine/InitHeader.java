@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-package com.example.appointfront.engine;public class InitHeader {
-=======
 package com.example.appointfront.engine;
 
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -32,5 +29,4 @@ public class InitHeader extends HorizontalLayout {
         String string = "patient: " + client.getPatient().getFirstName() + " " + client.getPatient().getLastName();
         label.setText(string);
     }
->>>>>>> Stashed changes
 }

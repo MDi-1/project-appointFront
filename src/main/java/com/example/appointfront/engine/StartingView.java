@@ -17,18 +17,11 @@ import java.time.LocalDate;
 @PageTitle("Start | Tiny Clinic")
 public class StartingView extends HorizontalLayout {
 
-<<<<<<< Updated upstream
-    private Setup setup;
-
-    public StartingView(BackendClient client, Setup setup) {
-        this.setup = setup;
-=======
 
     private InitHeader header;
 
     public StartingView(BackendClient client, InitHeader header) {
         this.header = header;
->>>>>>> Stashed changes
         client.setSetDay(LocalDate.of(2022, 9, 15)); // temporary value for target day in createTables
         Label label = new Label("Click one of buttons to log in as sample patient or as administrator");
         Button patientBtn = new Button("Log in as patient");
@@ -43,15 +36,9 @@ public class StartingView extends HorizontalLayout {
         add(loginBox, table);
         loginBox.setAlignItems(Alignment.CENTER);
         patientBtn.addClickListener(event -> {
-<<<<<<< Updated upstream
-            if (client.getPatient() == null) client.setPatient(client.getPatientById(17)); // unnecessarily hardcoded 17
-            client.setAdmission(false);
-            setup.setLabelText(client.getPatient().getFirstName() + " " + client.getPatient().getLastName());
-=======
             if (client.getPatient() == null) client.setPatient(client.getPatientById(17)); //unnecessarily hardcoded 17
             client.setAdmission(false);
             this.header.updateLoggedUser();
->>>>>>> Stashed changes
             UI.getCurrent().navigate("user");
         });
         admin.addClickListener(event -> {

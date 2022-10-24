@@ -26,10 +26,7 @@ public class BackendClient {
     private Patient patient;
     private LocalDate setDay;
     private TableEntry entry;
-<<<<<<< Updated upstream
-=======
     private List<Appointment> doctorAppList;
->>>>>>> Stashed changes
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
     public List<TestDto> getTestObjects() {
