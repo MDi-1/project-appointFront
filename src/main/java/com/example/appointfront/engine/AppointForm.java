@@ -1,6 +1,7 @@
 package com.example.appointfront.engine;
 
 import com.example.appointfront.data.Appointment;
+import com.example.appointfront.data.TableEntry;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
@@ -12,11 +13,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 @NoArgsConstructor
 public class AppointForm extends FormLayout implements BaseForm{
 
+    private Setup setup;
     private BackendClient client;
     VerticalLayout container = new VerticalLayout();
     HorizontalLayout promptPanel = new HorizontalLayout();
@@ -26,15 +27,16 @@ public class AppointForm extends FormLayout implements BaseForm{
     Button back2 = new Button("back");
     boolean appointMode;
 
-    public AppointForm(BackendClient client) {
+    public AppointForm(BackendClient client, Setup setup) {
         this.client = client;
+        this.setup = setup;
         addClassName("appointment-form");
         Button back1 = new Button("back");
 
         HorizontalLayout buttons = new HorizontalLayout(btnAcceptDeny, back1);
         add(container);
         container.add(buttons);
-        btnAcceptDeny.addClickListener(event -> processApp());
+        btnAcceptDeny.addClickListener(event -> processApp(client.getEntry()));
     }
 
     @Override
@@ -53,18 +55,27 @@ public class AppointForm extends FormLayout implements BaseForm{
         }
     }
 
+    public void removeButtons() {
+        container.remove(question, promptPanel);
+    }
+
+    public boolean selectionCheck() {
+        return true;
+    }
+
     @Override
     public void clearForm() {
 
     }
 
-    public void processApp(){
+    public void processApp(TableEntry entry){
+        setup.setEntrySelected(entry);
         container.add(promptPanel);
         promptPanel.add(confirm, back2);
         confirm.addClickListener(event -> {
             executeItem();
             container.remove(question, promptPanel);
-            // statement to update tables
+            // statement to update tables - to be added
         });
         back2.addClickListener(event -> container.remove(question, promptPanel));
     }
@@ -80,22 +91,18 @@ public class AppointForm extends FormLayout implements BaseForm{
             System.out.println(response); // fixme
         } else {
             List<Appointment> appList = client.getDoctorAppList();
-
-            Optional<LocalDateTime> parsedTime1 = appList.stream()
-                    .map(Appointment::getStartDateTime)
-                    .map(i -> LocalDateTime.parse(i, DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm")))
-                    .filter(i -> i.equals(dateTime))
-                    .findAny();
-            //... zrobić to koniecznie jako stream fixme
-            //... wyciągnąć z optionala zmienną LocalDateTime
-
             for (Appointment item : appList) {
-                LocalDateTime parsedTime2 = LocalDateTime.parse(
-                        item.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
-                if (parsedTime2.equals(dateTime)) {
-                    System.out.println(">>the one at time |" + item.getStartDateTime() + "| to be deleted <<");
-                }
+                LocalDateTime parsedTime = LocalDateTime.parse(
+                        item.getStartDateTime(),DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
+                if (parsedTime.equals(dateTime)) client.deleteAppointment(item.getId());
             }
+            /* Futile attempts - do it later
+            LocalDateTime parsedTime1 = appList.stream()
+                    .filter(i -> LocalDateTime.parse(i, DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm")).equals(dateTime))
+                    .findFirst()
+                    .orElseThrow(NullPointerException::new);
+            System.out.println("]] Project Appoint: " + parsedTime1 + "____" + dateTime);
+            */
         }
     }
 }

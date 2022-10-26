@@ -16,12 +16,14 @@ import com.vaadin.flow.spring.annotation.UIScope;
 @UIScope
 public class UserView extends VerticalLayout {
 
+    private Setup setup;
     private final BackendClient backendClient;
     private DoctorView doctorView;
 
-    public UserView(BackendClient backendClient) {
+    public UserView(BackendClient backendClient, Setup setup) {
         this.backendClient = backendClient;
-        doctorView = new DoctorView(backendClient);
+        this.setup = setup;
+        doctorView = new DoctorView(backendClient, setup);
         HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
         mainTables.setSizeFull();
         add(new UserForm(), mainTables, new Label("Company, Street, Postal code, City, Phone number"));

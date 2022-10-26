@@ -108,7 +108,7 @@ public class BackendClient {
 
     public void deleteAppointment(Long appId) {
         String id = String.valueOf(appId);
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment")
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/")
                 .path(id)
                 .build().encode().toUri();
         restTemplate.delete(url);

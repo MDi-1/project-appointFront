@@ -5,10 +5,12 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.stereotype.Component;
 import static com.example.appointfront.engine.TestView.addFunctionality;
 
 @Component
+@UIScope
 public class InitHeader extends HorizontalLayout {
 
     private final BackendClient client;

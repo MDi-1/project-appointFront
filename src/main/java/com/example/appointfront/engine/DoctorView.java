@@ -17,6 +17,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -30,13 +31,15 @@ import java.util.*;
 @PageTitle("Doctors | Tiny Clinic")
 public class DoctorView extends HorizontalLayout {
 
+    private Setup setup;
     private BackendClient client;
     private LocalDate targetDate;
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
     HorizontalLayout weekTables = new HorizontalLayout();
 
-    public DoctorView(BackendClient client) {
+    public DoctorView(BackendClient client, Setup setup) {
         this.client = client;
+        this.setup = setup;
         if (client.getDoctor() == null) {
             Optional<Doctor> firstDoc = client.getDoctorList().stream().findFirst();
             client.setDoctor(Optional.of(firstDoc).get().orElseThrow(NotFoundException::new));
@@ -53,7 +56,7 @@ public class DoctorView extends HorizontalLayout {
         String formHeaderTxt;
         BaseForm form;
         if (client.isAdmission()) form = new DoctorForm(client.getMedServiceList());
-        else form = new AppointForm(client);
+        else form = new AppointForm(client, setup);
         if (client.getDoctor() == null) formHeaderTxt = "none selected";
         else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
@@ -80,10 +83,13 @@ public class DoctorView extends HorizontalLayout {
             timetable.asSingleSelect().addValueChangeListener(event -> {
                 TableEntry entry = event.getValue();
                 if (entry == null) {
-                    System.out.println("]]]Project Appoint[[[ most likely an entry has been deselected");
+                    form.removeButtons();
                     return;
                 }
-                System.out.println(entry);
+                if (client.getEntry() != null && !entry.equals(setup.getEntrySelected())) {
+                    form.removeButtons();
+                    return;
+                }
                 for (int k = 0; k < 5; k ++) {
                     if (k != finalI) timetables.get(k).deselectAll();
                 }

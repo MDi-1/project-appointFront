@@ -28,6 +28,16 @@ public class UserForm extends FormLayout implements BaseForm{
     }
 
     @Override
+    public void removeButtons() {
+
+    }
+
+    @Override
+    public boolean selectionCheck() {
+        return true;
+    }
+
+    @Override
     public void executeItem() {
 
     }
