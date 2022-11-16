@@ -4,6 +4,7 @@ import com.example.appointfront.data.*;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -11,21 +12,17 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.time.LocalDate;
 import java.util.*;
 
 @Data
 @Component
 public class BackendClient {
 
+    @Autowired
+    private Setup setup;
     private final RestTemplate restTemplate;
     @Value("${endpoint.prefix}")
     private String endpointPrefix;
-    private boolean admission;
-    private Doctor doctor;
-    private Patient patient;
-    private LocalDate setDay;
-    private TableEntry entry;
     private List<Appointment> doctorAppList;
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
@@ -85,7 +82,7 @@ public class BackendClient {
 
     public List<Appointment> getAppsByDoc() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/doctorApps/")
-                .path(doctor.getId().toString()) // path parameter comes here
+                .path(setup.getDoctor().getId().toString()) // path parameter comes here
                 .build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
@@ -118,7 +115,7 @@ public class BackendClient {
 
     public List<TimeFrame> getDocsTimeFrames() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "timeFrame/byDoc/")
-                .path(doctor.getId().toString())
+                .path(setup.getDoctor().getId().toString())
                 .build().encode().toUri();
         try {
             TimeFrame[] response = restTemplate.getForObject(url, TimeFrame[].class);
@@ -146,29 +143,10 @@ public class BackendClient {
         return restTemplate.getForObject(url, Patient.class);
     }
 
-    public void setSetDay(LocalDate setDay) {
-        this.setDay = setDay;
-    }
-
-    public void setAdmission(boolean admission) {
-        this.admission = admission;
-    }
-
-    public void getAppointmentsForADay() {
-    }
-
     Doctor saveDoctor(Doctor doctor) {
         return null;
     }
 
     void deleteDoctor(Doctor doctor) {
-    }
-
-    public Doctor getDoctor() {
-        return doctor;
-    }
-
-    public void setDoctor(Doctor doctor) {
-        this.doctor = doctor;
     }
 }

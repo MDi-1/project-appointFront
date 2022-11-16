@@ -17,34 +17,37 @@ import java.time.LocalDate;
 @PageTitle("Start | Tiny Clinic")
 public class StartingView extends HorizontalLayout {
 
-
     private final InitHeader header;
 
-    public StartingView(BackendClient client, InitHeader header) {
+    public StartingView(BackendClient client, Setup setup, InitHeader header) {
         this.header = header;
-        client.setSetDay(LocalDate.of(2022, 9, 15)); // temporary value for target day in createTables
         Label label = new Label("Click one of buttons to log in as sample patient or as administrator");
         Button patientBtn = new Button("Log in as patient");
-        Button admin = new Button("Log in as administrator");
+        Button managerBtn = new Button("Log in as manager");
+        Button adminButton = new Button("Log in as service administrator");
         Grid<Patient> table = new Grid<>(Patient.class);
         table.setItems(client.getAllPatients());
         table.setColumns("firstName", "lastName");
-        table.asSingleSelect().addValueChangeListener(event -> client.setPatient(event.getValue()));
-        VerticalLayout loginBox = new VerticalLayout(label, patientBtn, admin);
+        table.asSingleSelect().addValueChangeListener(event -> setup.setPatient(event.getValue()));
+        VerticalLayout loginBox = new VerticalLayout(label, patientBtn, managerBtn, adminButton);
         loginBox.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
         loginBox.setMaxHeight("40%");
         loginBox.setMaxWidth("50%");
         add(loginBox, table);
         loginBox.setAlignItems(Alignment.CENTER);
         patientBtn.addClickListener(event -> {
-            if (client.getPatient() == null) client.setPatient(client.getPatientById(17)); //unnecessarily hardcoded 17
-            client.setAdmission(false);
+            if (setup.getPatient() == null) setup.setPatient(client.getPatientById(17)); //unnecessarily hardcoded 17
+            setup.setAdmission(false);
             this.header.updateLoggedUser();
             UI.getCurrent().navigate("user");
         });
-        admin.addClickListener(event -> {
-            client.setAdmission(true);
+        managerBtn.addClickListener(event -> {
+            setup.setAdmission(true);
             UI.getCurrent().navigate("doctor");
+        });
+        adminButton.addClickListener(event -> {
+            setup.setAdmission(true);
+            UI.getCurrent().navigate("admin");
         });
     }
 }

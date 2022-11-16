@@ -1,14 +1,20 @@
 package com.example.appointfront.engine;
 
+import com.example.appointfront.data.Doctor;
+import com.example.appointfront.data.Patient;
 import com.example.appointfront.data.TableEntry;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
 @Component
 public class Setup {
 
-    private TableEntry entrySelected;
+    private boolean admission;
+    private Doctor doctor;
+    private Patient patient;
+    private TableEntry entry;
+    private TableEntry entryProcessed;
+    private LocalDate targetDay = LocalDate.of(2022, 9, 15); // temporary value for target day in createTables
 }

@@ -61,17 +61,12 @@ public class DoctorForm extends FormLayout implements BaseForm{
 
 
     @Override
-    public void setButtons() {
+    public void activateControls() {
 
     }
 
     public void removeButtons() {
 
-    }
-
-    @Override
-    public boolean selectionCheck() {
-        return true;
     }
 
     @Override

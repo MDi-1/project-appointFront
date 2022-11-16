@@ -13,10 +13,12 @@ import static com.example.appointfront.engine.TestView.addFunctionality;
 @UIScope
 public class InitHeader extends HorizontalLayout {
 
+    private Setup setup;
     private final BackendClient client;
     private final Label label = new Label("patient Name Surname");
 
-    public InitHeader(BackendClient client) {
+    public InitHeader(Setup setup, BackendClient client) {
+        this.setup = setup;
         this.client = client;
         H1 logo = new H1("Tiny clinic app");
         HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, label);
@@ -27,8 +29,8 @@ public class InitHeader extends HorizontalLayout {
         add(header);
     }
 
-    public void updateLoggedUser() {
-        String string = "patient: " + client.getPatient().getFirstName() + " " + client.getPatient().getLastName();
+    public void updateLoggedUser() { // is this supposed to be here? in this nothing uses this f.
+        String string = "patient: " + setup.getPatient().getFirstName() + " " + setup.getPatient().getLastName();
         label.setText(string);
     }
 }

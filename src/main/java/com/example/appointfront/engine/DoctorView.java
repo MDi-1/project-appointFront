@@ -17,7 +17,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -32,6 +31,7 @@ import java.util.*;
 public class DoctorView extends HorizontalLayout {
 
     private Setup setup;
+    private BaseForm form;
     private BackendClient client;
     private LocalDate targetDate;
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
@@ -40,9 +40,9 @@ public class DoctorView extends HorizontalLayout {
     public DoctorView(BackendClient client, Setup setup) {
         this.client = client;
         this.setup = setup;
-        if (client.getDoctor() == null) {
+        if (setup.getDoctor() == null) {
             Optional<Doctor> firstDoc = client.getDoctorList().stream().findFirst();
-            client.setDoctor(Optional.of(firstDoc).get().orElseThrow(NotFoundException::new));
+            setup.setDoctor(Optional.of(firstDoc).get().orElseThrow(NotFoundException::new));
         }
         addClassName("doctor-view");
         setSizeFull();
@@ -54,18 +54,17 @@ public class DoctorView extends HorizontalLayout {
     void createTables() { // - this f. is too long fixme
         Label formLabel = new Label();
         String formHeaderTxt;
-        BaseForm form;
-        if (client.isAdmission()) form = new DoctorForm(client.getMedServiceList());
+        if (setup.isAdmission()) form = new DoctorForm(client.getMedServiceList());
         else form = new AppointForm(client, setup);
-        if (client.getDoctor() == null) formHeaderTxt = "none selected";
-        else formHeaderTxt = "selected: " + client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
+        if (setup.getDoctor() == null) formHeaderTxt = "none selected";
+        else formHeaderTxt = "selected: " + setup.getDoctor().getFirstName() + " " + setup.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
         VerticalLayout container = new VerticalLayout();
         LocalDate[] date = new LocalDate[7];
         String[] dayHeaders = new String[7];
         String[] shortenedDayHeaders = Arrays.copyOfRange(dayHeaders, 0, 5);
         for (int n = 1; n < 8; n ++) {
-            LocalDate day = client.getSetDay();
+            LocalDate day = setup.getTargetDay();
             date[n - 1] = day.minusDays(day.getDayOfWeek().getValue() - n);
             String dayOfWeek = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
             String dateStamp = date[n - 1].format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
@@ -81,21 +80,15 @@ public class DoctorView extends HorizontalLayout {
             timetable.setHeightFull();
             int finalI = i; // Intellij did this; I don't have better solution right now.
             timetable.asSingleSelect().addValueChangeListener(event -> {
-                TableEntry entry = event.getValue();
-                if (entry == null) {
-                    form.removeButtons();
-                    return;
-                }
-                if (client.getEntry() != null && !entry.equals(setup.getEntrySelected())) {
-                    form.removeButtons();
-                    return;
-                }
                 for (int k = 0; k < 5; k ++) {
                     if (k != finalI) timetables.get(k).deselectAll();
                 }
-                client.setEntry(entry);
-                client.setSetDay(entry.getWeekday());
-                form.setButtons();
+                TableEntry entry = event.getValue();
+                System.out.println(entry); // remove it later
+                form.clearForm();
+                if (entry == null) return;
+                setup.setEntry(entry);
+                form.activateControls();
             });
             timetables.add(timetable);
             weekTables.add(timetables.get(i));
@@ -113,7 +106,7 @@ public class DoctorView extends HorizontalLayout {
         List<TimeFrame> timeFrames;
         List<Appointment> appointments = null;
         LocalTime tfStart = null, tfEnd = null;
-        if (client.getDoctor() != null) {
+        if (setup.getDoctor() != null) {
             timeFrames   = client.getDocsTimeFrames();
             appointments = client.getAppsByDoc();
             client.setDoctorAppList(appointments);
@@ -143,7 +136,7 @@ public class DoctorView extends HorizontalLayout {
                     }
                 }
             }
-            entries[n] = new TableEntry(weekdayDate, status, time, 15L, client.getPatient(), client.getDoctor(), appId);
+            entries[n] = new TableEntry(weekdayDate, status, time, 15L, setup.getPatient(), setup.getDoctor(), appId);
         }
         return entries;
     }
@@ -152,13 +145,13 @@ public class DoctorView extends HorizontalLayout {
         Button rwd = new Button("<<");
         Button fwd = new Button(">>");
         Button go2date = new Button("go to date");
-        TextField dateField = new TextField(null, client.getSetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")));
+        TextField dateField = new TextField(null, setup.getTargetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")));
         rwd.addClickListener(event -> {
-            targetDate = client.getSetDay().minusDays(7L);
+            targetDate = setup.getTargetDay().minusDays(7L);
             refresh();
         });
         fwd.addClickListener(event -> {
-            targetDate = client.getSetDay().plusDays(7L);
+            targetDate = setup.getTargetDay().plusDays(7L);
             refresh();
         });
         go2date.addClickListener(event -> {
@@ -189,13 +182,13 @@ public class DoctorView extends HorizontalLayout {
 
     // as soon as this project is finished refactor this f. into more civilized form to refresh view.
     public void refresh() {
-        client.setSetDay(targetDate);
+        setup.setTargetDay(targetDate);
         UI.getCurrent().getPage().reload();
     }
 
     public void enterDoctorManagement(Doctor doctor) {
         setDocFromTab(doctor);
-        client.setDoctor(doctor);
+        setup.setDoctor(doctor);
         UI.getCurrent().navigate("doctor");
     }
 

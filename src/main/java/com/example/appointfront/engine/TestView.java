@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 import org.springframework.stereotype.Component;
 
 @Route(value = "test", layout = MainLayout.class)
-@PageTitle("Test | Tiny Clinic")
+@PageTitle("admin | Tiny Clinic")
 @Component
 public class TestView extends VerticalLayout { // this thing to be removed later
 

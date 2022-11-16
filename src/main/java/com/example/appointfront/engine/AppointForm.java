@@ -20,9 +20,8 @@ public class AppointForm extends FormLayout implements BaseForm{
     private Setup setup;
     private BackendClient client;
     VerticalLayout container = new VerticalLayout();
-    HorizontalLayout promptPanel = new HorizontalLayout();
+    HorizontalLayout promptButtons = new HorizontalLayout();
     Label question = new Label();
-    Button btnAcceptDeny = new Button("appoint");
     Button confirm = new Button("confirm");
     Button back2 = new Button("back");
     boolean appointMode;
@@ -31,20 +30,20 @@ public class AppointForm extends FormLayout implements BaseForm{
         this.client = client;
         this.setup = setup;
         addClassName("appointment-form");
-        Button back1 = new Button("back");
-
-        HorizontalLayout buttons = new HorizontalLayout(btnAcceptDeny, back1);
         add(container);
-        container.add(buttons);
-        btnAcceptDeny.addClickListener(event -> processApp(client.getEntry()));
     }
 
     @Override
-    public void setButtons() {
-        String doctorName = client.getDoctor().getFirstName() + " " + client.getDoctor().getLastName();
-        String timeString = " at " + client.getEntry().getTime();
-        container.add(question);
-        if (client.getEntry().getAttributedApp() == 0) {
+    public void activateControls() {
+        if (setup.getEntry().getStatus().equals("n/a") || setup.getEntry().getStatus().equals("off")) return;
+        Button back1 = new Button("Back");
+        Button btnAcceptDeny = new Button("Appoint");
+        HorizontalLayout buttons = new HorizontalLayout(btnAcceptDeny, back1);
+        btnAcceptDeny.addClickListener(event -> processApp(setup.getEntry()));
+        String doctorName = setup.getDoctor().getFirstName() + " " + setup.getDoctor().getLastName();
+        String timeString = " at " + setup.getEntry().getTime();
+        container.add(buttons, question);
+        if (setup.getEntry().getAttributedApp() == 0) {
             btnAcceptDeny.setText("Appoint");
             question.setText("Are You sure to make an appointment with doctor " + doctorName + timeString);
             appointMode = true;
@@ -53,40 +52,36 @@ public class AppointForm extends FormLayout implements BaseForm{
             question.setText("Are You sure to call off an appointment with doctor " + doctorName + timeString);
             appointMode = false;
         }
-    }
-
-    public void removeButtons() {
-        container.remove(question, promptPanel);
-    }
-
-    public boolean selectionCheck() {
-        return true;
+        setup.setTargetDay(setup.getEntry().getWeekday());
+        back1.addClickListener(event -> clearForm());
     }
 
     @Override
     public void clearForm() {
-
+        container.removeAll();
+        setup.setEntry(null);
+        setup.setEntryProcessed(null);
     }
 
     public void processApp(TableEntry entry){
-        setup.setEntrySelected(entry);
-        container.add(promptPanel);
-        promptPanel.add(confirm, back2);
+        setup.setEntryProcessed(entry);
+        container.add(promptButtons);
+        promptButtons.add(confirm, back2);
         confirm.addClickListener(event -> {
             executeItem();
-            container.remove(question, promptPanel);
+            container.remove(question, promptButtons);
             // statement to update tables - to be added
         });
-        back2.addClickListener(event -> container.remove(question, promptPanel));
+        back2.addClickListener(event -> container.remove(question, promptButtons));
     }
 
     // mode: true - create App; false - delete App; third option - do not execute this f. (click into back2 btn)
     public void executeItem() {
-        LocalDate date = client.getSetDay(); // client should probably store just Entry field instead of separate date
-        LocalDateTime dateTime = date.atTime(client.getEntry().getTime());
+        LocalDate date = setup.getTargetDay(); // client should probably store just Entry field instead of separate date
+        LocalDateTime dateTime = date.atTime(setup.getEntry().getTime());
         if (appointMode) {
             Appointment newApp = new Appointment(
-                    dateTime.toString(), client.getDoctor().getId(), client.getPatient().getId());
+                    dateTime.toString(), setup.getDoctor().getId(), setup.getPatient().getId());
             Appointment response = client.createAppointment(newApp);
             System.out.println(response); // fixme
         } else {
