@@ -54,7 +54,7 @@ public class DoctorView extends HorizontalLayout {
     void createTables() { // - this f. is too long fixme
         Label formLabel = new Label();
         String formHeaderTxt;
-        if (setup.isAdmission()) form = new DoctorForm(client.getMedServiceList());
+        if (setup.isAdmission()) form = new DoctorForm(client.getMedServiceList(), client, setup);
         else form = new AppointForm(client, setup);
         if (setup.getDoctor() == null) formHeaderTxt = "none selected";
         else formHeaderTxt = "selected: " + setup.getDoctor().getFirstName() + " " + setup.getDoctor().getLastName();

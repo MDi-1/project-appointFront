@@ -8,7 +8,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,39 +15,57 @@ import java.util.List;
 @Component
 public class DoctorForm extends FormLayout implements BaseForm{
 
-    @Autowired
-    private BackendClient backendClient;
+    private final BackendClient client;
+    private final Setup setup;
     private TextField firstName = new TextField("first name");
     private TextField lastName = new TextField("last name");
     private ComboBox<MedicalService> services = new ComboBox<>("medical services");
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
+    private Button editBtn = new Button("Edit Doctor");
 
-    public DoctorForm(List<MedicalService> medicalServices) {
+    public DoctorForm(List<MedicalService> medicalServices, BackendClient client, Setup setup) {
+        this.client = client;
+        this.setup = setup;
         addClassName("doctor-form");
         binder.bindInstanceFields(this);
         ComboBox<Doctor.Position> position = new ComboBox<>("position");
         position.setItems(Doctor.Position.values());
         services.setItems(medicalServices);
-        Button saveBtn = new Button("Save");
-        Button delBtn = new Button("Delete");
         Button addBtn = new Button("Add");
-        HorizontalLayout buttonRow1 = new HorizontalLayout(addBtn, saveBtn, delBtn);
-        Button timeBtn = new Button("Edit Timeframe");
-        Button cancelBtn = new Button("Cancel");
-        HorizontalLayout buttonRow2 = new HorizontalLayout(timeBtn, cancelBtn);
-        add(firstName, lastName, position, buttonRow1, buttonRow2);
+        add(firstName, lastName, position, editBtn, addBtn);
+        editBtn.addClickListener(event -> {
+            Doctor doctor = setup.getDoctor();
+            activateControls();
+            binder.setBean(doctor);
+            firstName.focus();
+        });
         addBtn.addClickListener(event -> {
             Doctor doctor = new Doctor();
             binder.setBean(doctor);
             firstName.focus();
         });
+    }
+
+    @Override
+    public void activateControls() {
+        Button saveBtn = new Button("Save");
+        Button delBtn = new Button("Delete");
+        Button timeBtn = new Button("Edit Timeframe");
+        Button cancelBtn = new Button("Cancel");
+        HorizontalLayout buttonRow1 = new HorizontalLayout();
+        HorizontalLayout buttonRow2 = new HorizontalLayout(timeBtn, cancelBtn);
+        firstName.setPlaceholder(setup.getDoctor().getFirstName());
+        lastName.setPlaceholder(setup.getDoctor().getLastName());
+        buttonRow1.remove(editBtn);
+        buttonRow1.add(saveBtn, delBtn);
+        add(buttonRow1, buttonRow2);
         saveBtn.addClickListener(event -> {
             Doctor doctor = binder.getBean();
-            backendClient.saveDoctor(doctor);
+            client.saveDoctor(doctor);
         });
         delBtn.addClickListener(event -> {
             Doctor doctor = binder.getBean();
-            backendClient.deleteDoctor(doctor);
+            client.deleteDoctor(doctor);
             clearForm();
         });
         timeBtn.addClickListener(event -> {
@@ -57,12 +74,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
         cancelBtn.addClickListener(event -> {
 
         });
-    }
-
-
-    @Override
-    public void activateControls() {
-
     }
 
     public void removeButtons() {

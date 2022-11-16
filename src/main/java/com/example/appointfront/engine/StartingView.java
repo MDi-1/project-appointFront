@@ -11,8 +11,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.time.LocalDate;
-
 @Route(value= "start", layout = MainLayout.class)
 @PageTitle("Start | Tiny Clinic")
 public class StartingView extends HorizontalLayout {
@@ -43,7 +41,7 @@ public class StartingView extends HorizontalLayout {
         });
         managerBtn.addClickListener(event -> {
             setup.setAdmission(true);
-            UI.getCurrent().navigate("doctor");
+            UI.getCurrent().navigate("user");
         });
         adminButton.addClickListener(event -> {
             setup.setAdmission(true);
