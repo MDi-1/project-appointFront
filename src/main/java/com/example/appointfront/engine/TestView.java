@@ -20,13 +20,13 @@ public class TestView extends VerticalLayout { // this thing to be removed later
         TestView.client = client;
         Grid<TestDto> table = new Grid<>(TestDto.class);
         Button buttonAdd = new Button("add test object");
+        Button buttonPut = new Button("update test obj id = 109");
         TestDto t1 = new TestDto("final amendment");
-        buttonAdd.addClickListener(event -> {
-            TestDto response = client.createTestObject(t1);
-            System.out.println(response);
-        });
+        TestDto t2 = new TestDto(109L, "test object two: modified");
+        buttonAdd.addClickListener(event -> System.out.println(client.createTestObject(t1)));
+        buttonPut.addClickListener(event -> client.updateTestObject(t2));
         table.setItems(client.getTestObjects());
-        add(table, buttonAdd);
+        add(table, buttonAdd, buttonPut);
     }
 
     public static void addFunctionality(HorizontalLayout header) {

@@ -24,7 +24,7 @@ public class AppointForm extends FormLayout implements BaseForm{
     Label question = new Label();
     Button confirm = new Button("confirm");
     Button back2 = new Button("back");
-    boolean appointMode;
+    private boolean exeMode;
 
     public AppointForm(BackendClient client, Setup setup) {
         this.client = client;
@@ -46,11 +46,11 @@ public class AppointForm extends FormLayout implements BaseForm{
         if (setup.getEntry().getAttributedApp() == 0) {
             btnAcceptDeny.setText("Appoint");
             question.setText("Are You sure to make an appointment with doctor " + doctorName + timeString);
-            appointMode = true;
+            exeMode = true;
         } else {
             btnAcceptDeny.setText("Call Off");
             question.setText("Are You sure to call off an appointment with doctor " + doctorName + timeString);
-            appointMode = false;
+            exeMode = false;
         }
         setup.setTargetDay(setup.getEntry().getWeekday());
         back1.addClickListener(event -> clearForm());
@@ -76,10 +76,11 @@ public class AppointForm extends FormLayout implements BaseForm{
     }
 
     // mode: true - create App; false - delete App; third option - do not execute this f. (click into back2 btn)
+    @Override
     public void executeItem() {
         LocalDate date = setup.getTargetDay(); // client should probably store just Entry field instead of separate date
         LocalDateTime dateTime = date.atTime(setup.getEntry().getTime());
-        if (appointMode) {
+        if (exeMode) {
             Appointment newApp = new Appointment(
                     dateTime.toString(), setup.getDoctor().getId(), setup.getPatient().getId());
             Appointment response = client.createAppointment(newApp);

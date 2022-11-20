@@ -17,32 +17,44 @@ public class DoctorForm extends FormLayout implements BaseForm{
 
     private final BackendClient client;
     private final Setup setup;
+    private boolean exeMode;
     private TextField firstName = new TextField("first name");
     private TextField lastName = new TextField("last name");
+    private HorizontalLayout buttonRow = new HorizontalLayout();
+    private ComboBox<Doctor.Position> position = new ComboBox<>("position");
     private ComboBox<MedicalService> services = new ComboBox<>("medical services");
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
-    private Button editBtn = new Button("Edit Doctor");
 
     public DoctorForm(List<MedicalService> medicalServices, BackendClient client, Setup setup) {
         this.client = client;
         this.setup = setup;
         addClassName("doctor-form");
         binder.bindInstanceFields(this);
-        ComboBox<Doctor.Position> position = new ComboBox<>("position");
+        Button addBtn = new Button("Add");
+        Button editBtn = new Button("Edit Personal Data");
+        Button timeBtn = new Button("Edit Timeframes");
         position.setItems(Doctor.Position.values());
         services.setItems(medicalServices);
-        Button addBtn = new Button("Add");
-        add(firstName, lastName, position, editBtn, addBtn);
-        editBtn.addClickListener(event -> {
-            Doctor doctor = setup.getDoctor();
-            activateControls();
-            binder.setBean(doctor);
-            firstName.focus();
-        });
+        add(firstName, lastName, position, new HorizontalLayout(addBtn, editBtn, timeBtn));
+        if (setup.getDoctor() != null) {
+            firstName.setPlaceholder(setup.getDoctor().getFirstName());
+            lastName.setPlaceholder(setup.getDoctor().getLastName());
+        }
         addBtn.addClickListener(event -> {
-            Doctor doctor = new Doctor();
-            binder.setBean(doctor);
-            firstName.focus();
+            firstName.setPlaceholder("");
+            lastName.setPlaceholder("");
+            exeMode = true;
+            activateControls();
+            binder.setBean(new Doctor());
+        });
+        editBtn.addClickListener(event -> {
+            binder.setBean(setup.getDoctor());
+            exeMode = false;
+            activateControls();
+        });
+        timeBtn.addClickListener(event -> {
+            binder.setBean(setup.getDoctor());
+            exeMode = false;
         });
     }
 
@@ -50,50 +62,38 @@ public class DoctorForm extends FormLayout implements BaseForm{
     public void activateControls() {
         Button saveBtn = new Button("Save");
         Button delBtn = new Button("Delete");
-        Button timeBtn = new Button("Edit Timeframe");
         Button cancelBtn = new Button("Cancel");
-        HorizontalLayout buttonRow1 = new HorizontalLayout();
-        HorizontalLayout buttonRow2 = new HorizontalLayout(timeBtn, cancelBtn);
-        firstName.setPlaceholder(setup.getDoctor().getFirstName());
-        lastName.setPlaceholder(setup.getDoctor().getLastName());
-        buttonRow1.remove(editBtn);
-        buttonRow1.add(saveBtn, delBtn);
-        add(buttonRow1, buttonRow2);
-        saveBtn.addClickListener(event -> {
-            Doctor doctor = binder.getBean();
-            client.saveDoctor(doctor);
-        });
+        buttonRow.add(saveBtn, delBtn, cancelBtn);
+        add(buttonRow);
+        firstName.focus();
+        saveBtn.addClickListener(event -> executeItem());
         delBtn.addClickListener(event -> {
             Doctor doctor = binder.getBean();
-            client.deleteDoctor(doctor);
+            client.deleteDoctor(doctor.getId());
             clearForm();
         });
-        timeBtn.addClickListener(event -> {
-
-        });
-        cancelBtn.addClickListener(event -> {
-
-        });
-    }
-
-    public void removeButtons() {
-
+        cancelBtn.addClickListener(event -> clearForm());
     }
 
     @Override
     public void executeItem() {
-
-    }
-
-    public void delete() {
-
+        Doctor doctor = binder.getBean();
+        if (exeMode) {
+            Doctor doc = client.createDoctor(doctor);
+            System.out.println(" ]] Project-Appoint [[ doc created: " + doc);
+        } else {
+            Doctor doc = client.updateDoctor(doctor);
+            System.out.println(" ]] Project-Appoint [[ doc updated: " + doc);
+        }
+        clearForm();
     }
 
     public void clearForm() {
-        // fixme
-    }
-
-    void inactivateForm() {
-        // fixme
+        buttonRow.removeAll();
+        remove(buttonRow);
+        if (setup.getDoctor() != null) {
+            firstName.setPlaceholder(setup.getDoctor().getFirstName());
+            lastName.setPlaceholder(setup.getDoctor().getLastName());
+        }
     }
 }

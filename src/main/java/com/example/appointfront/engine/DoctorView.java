@@ -175,8 +175,8 @@ public class DoctorView extends HorizontalLayout {
             end.setPlaceholder(weekdays[i] + " to");
             binder.bind(start, "timeStart");
             binder.bind(end, "timeEnd");
-            VerticalLayout form = new VerticalLayout(start, end);
-            bottomBar.add(form);
+            VerticalLayout timeForm = new VerticalLayout(start, end);
+            bottomBar.add(timeForm);
         } return new FormLayout(bottomBar);
     }
 

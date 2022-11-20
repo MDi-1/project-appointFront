@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -42,10 +44,16 @@ public class BackendClient {
             return Collections.emptyList();
         }
     }
+
     public TestDto createTestObject(TestDto dto) {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "test").build().encode().toUri();
         return restTemplate.postForObject(url, dto, TestDto.class);
     }
+
+    public void updateTestObject(TestDto dto) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "test").build().encode().toUri();
+        restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), TestDto.class);
+    } // it'd be nice to use return value of exchange() f. for later processing... maybe
 
     public List<MedicalService> getMedServiceList() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/getAll").build().encode().toUri();
@@ -67,6 +75,34 @@ public class BackendClient {
             LOGGER.error(e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+
+    Doctor createDoctor(Doctor doctor) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor").build().encode().toUri();
+        try {
+            return restTemplate.postForObject(url, doctor, Doctor.class);
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    Doctor updateDoctor(Doctor doctor) { // fixme
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor").build().encode().toUri();
+        try {
+            return null;
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    void deleteDoctor(int docId) {
+        String id = String.valueOf(docId);
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/")
+                .path(id)
+                .build().encode().toUri();
+        restTemplate.delete(url);
     }
 
     public List<Appointment> getAllAppointments() {
@@ -141,12 +177,5 @@ public class BackendClient {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/")
                 .path(String.valueOf(id)).build().encode().toUri();
         return restTemplate.getForObject(url, Patient.class);
-    }
-
-    Doctor saveDoctor(Doctor doctor) {
-        return null;
-    }
-
-    void deleteDoctor(Doctor doctor) {
     }
 }

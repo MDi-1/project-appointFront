@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class Appointment {
 
     @JsonProperty("id")
-    private long id;
+    private Long id;
 
     @JsonProperty("startDateTime")
     private String startDateTime;
