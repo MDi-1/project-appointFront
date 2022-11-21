@@ -13,7 +13,7 @@ import java.util.List;
 public class Patient {
 
     @JsonProperty("id")
-    private Long id;
+    private int id;
 
     @JsonProperty("firstName")
     private String firstName;

@@ -8,11 +8,10 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
-@Component
 public class DoctorForm extends FormLayout implements BaseForm{
 
     private final BackendClient client;
@@ -21,11 +20,9 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private TextField firstName = new TextField("first name");
     private TextField lastName = new TextField("last name");
     private HorizontalLayout buttonRow = new HorizontalLayout();
-    private ComboBox<Doctor.Position> position = new ComboBox<>("position");
-    private ComboBox<MedicalService> services = new ComboBox<>("medical services");
     private Binder<Doctor> binder = new Binder<>(Doctor.class);
 
-    public DoctorForm(List<MedicalService> medicalServices, BackendClient client, Setup setup) {
+    public DoctorForm(List<MedicalService> medicalServices, BackendClient client, Setup setup, DoctorView view) {
         this.client = client;
         this.setup = setup;
         addClassName("doctor-form");
@@ -33,6 +30,8 @@ public class DoctorForm extends FormLayout implements BaseForm{
         Button addBtn = new Button("Add");
         Button editBtn = new Button("Edit Personal Data");
         Button timeBtn = new Button("Edit Timeframes");
+        ComboBox<Doctor.Position> position = new ComboBox<>("position");
+        ComboBox<MedicalService> services = new ComboBox<>("medical services");
         position.setItems(Doctor.Position.values());
         services.setItems(medicalServices);
         add(firstName, lastName, position, new HorizontalLayout(addBtn, editBtn, timeBtn));
@@ -54,14 +53,36 @@ public class DoctorForm extends FormLayout implements BaseForm{
         });
         timeBtn.addClickListener(event -> {
             binder.setBean(setup.getDoctor());
+            Arrays.stream(view.getFrameStart()).sequential().forEach(e -> {
+                e.setEnabled(true);
+                e.addValueChangeListener(action -> activateTfControls());
+            });
+            Arrays.stream(view.getFrameEnd()).sequential().forEach(e -> e.setEnabled(true));
             exeMode = false;
         });
+    }
+
+    public void activateTfControls() {
+        Button saveTfBtn   = new Button("Save");
+        Button delTfButton = new Button("Delete");
+        Button cancelTfBtn = new Button("Cancel");
+        buttonRow.add(saveTfBtn, delTfButton, cancelTfBtn);
+        add(buttonRow);
+        saveTfBtn.addClickListener(event -> {
+
+        });
+        delTfButton.addClickListener(event -> {
+            Doctor doctor = binder.getBean();
+            //client.deleteTf(doctor.getId());
+            clearForm();
+        });
+        cancelTfBtn.addClickListener(event -> clearForm());
     }
 
     @Override
     public void activateControls() {
         Button saveBtn = new Button("Save");
-        Button delBtn = new Button("Delete");
+        Button delBtn  = new Button("Delete");
         Button cancelBtn = new Button("Cancel");
         buttonRow.add(saveBtn, delBtn, cancelBtn);
         add(buttonRow);

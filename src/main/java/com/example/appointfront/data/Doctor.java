@@ -16,7 +16,7 @@ public class Doctor {
     public enum Position {  Specialist, Administrator, Manager, Board  }
 
     @JsonProperty("id")
-    private Long id;
+    private int id;
 
     @JsonProperty("firstName")
     private String firstName;

@@ -118,7 +118,7 @@ public class BackendClient {
 
     public List<Appointment> getAppsByDoc() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/doctorApps/")
-                .path(setup.getDoctor().getId().toString()) // path parameter comes here
+                .path(String.valueOf(setup.getDoctor().getId())) // path parameter comes here
                 .build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
@@ -147,11 +147,9 @@ public class BackendClient {
         restTemplate.delete(url);
     }
 
-
-
     public List<TimeFrame> getDocsTimeFrames() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "timeFrame/byDoc/")
-                .path(setup.getDoctor().getId().toString())
+                .path(String.valueOf(setup.getDoctor().getId()))
                 .build().encode().toUri();
         try {
             TimeFrame[] response = restTemplate.getForObject(url, TimeFrame[].class);

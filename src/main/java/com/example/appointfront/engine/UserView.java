@@ -34,10 +34,10 @@ public class UserView extends VerticalLayout {
         appointmentGrid.setItems(backendClient.getAllAppointments());
         appointmentGrid.setColumns("startDateTime", "price");
         appointmentGrid.addColumn(apt -> backendClient.getDoctorList()
-                .stream().filter(doc -> doc.getId().equals(apt.getDoctorId())).findAny().get().getFirstName()
+                .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getFirstName()
         ).setHeader("doctors' name");
         appointmentGrid.addColumn(apt -> backendClient.getDoctorList()
-                .stream().filter(doc -> doc.getId().equals(apt.getDoctorId())).findAny().get().getLastName()
+                .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getLastName()
         ).setHeader("doctors' surname");
         return new VerticalLayout(new Label("List of recent / incoming appointments"), appointmentGrid);
     }

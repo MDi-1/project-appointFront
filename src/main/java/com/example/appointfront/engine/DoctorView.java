@@ -34,7 +34,11 @@ public class DoctorView extends HorizontalLayout {
     private BaseForm form;
     private BackendClient client;
     private LocalDate targetDate;
-    private Binder<Doctor> binder = new Binder<>(Doctor.class);
+    private final TextField[] frameStart = new TextField[5];
+    private final TextField[] frameEnd = new TextField[5];
+    private final TimeFrame[] weekTimeFrames = new TimeFrame[5];
+    private List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
+    private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     HorizontalLayout weekTables = new HorizontalLayout();
 
     public DoctorView(BackendClient client, Setup setup) {
@@ -54,7 +58,7 @@ public class DoctorView extends HorizontalLayout {
     void createTables() { // - this f. is too long fixme
         Label formLabel = new Label();
         String formHeaderTxt;
-        if (setup.isAdmission()) form = new DoctorForm(client.getMedServiceList(), client, setup);
+        if (setup.isAdmission()) form = new DoctorForm(client.getMedServiceList(), client, setup, DoctorView.this);
         else form = new AppointForm(client, setup);
         if (setup.getDoctor() == null) formHeaderTxt = "none selected";
         else formHeaderTxt = "selected: " + setup.getDoctor().getFirstName() + " " + setup.getDoctor().getLastName();
@@ -62,7 +66,6 @@ public class DoctorView extends HorizontalLayout {
         VerticalLayout container = new VerticalLayout();
         LocalDate[] date = new LocalDate[7];
         String[] dayHeaders = new String[7];
-        String[] shortenedDayHeaders = Arrays.copyOfRange(dayHeaders, 0, 5);
         for (int n = 1; n < 8; n ++) {
             LocalDate day = setup.getTargetDay();
             date[n - 1] = day.minusDays(day.getDayOfWeek().getValue() - n);
@@ -73,7 +76,7 @@ public class DoctorView extends HorizontalLayout {
         List<Grid<TableEntry>> timetables = new ArrayList<>();
         for (int i = 0; i < 5; i ++) {
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
-            timetable.setItems(buildWeekDay(date[i])); // - this is spaghetti #1 fixme
+            timetable.setItems(buildWeekDay(date[i], i)); // - this is spaghetti #1 fixme
             timetable.setColumns("status");
             timetable.getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
             timetable.getColumnByKey("status").setSortable(false);
@@ -85,22 +88,22 @@ public class DoctorView extends HorizontalLayout {
                 }
                 TableEntry entry = event.getValue();
                 System.out.println(entry); // remove it later
-                form.clearForm();
-                if (entry == null) return;
+                form.clearForm();               // main purpose of creating interface BaseForm was to call
+                if (entry == null) return;      // f. as clearForm() or activateControls() from within this class
                 setup.setEntry(entry);
                 form.activateControls();
             });
             timetables.add(timetable);
             weekTables.add(timetables.get(i));
         }
-        container.add(weekTables, createTimeForm(shortenedDayHeaders));
+        container.add(weekTables, createTimeForm());
         container.setWidth("72%");
         VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), formLabel, (Component) form);
         containerVertical.setSizeFull();
         add(container, containerVertical);
     }
 
-    TableEntry[] buildWeekDay(LocalDate weekdayDate) {  // - this f. is spaghetti #1 fixme
+    TableEntry[] buildWeekDay(LocalDate weekdayDate, int weekdayArrayPosition) {  // - this f. is spaghetti #1 fixme
         int workDayHrsCount  = 12;
         TableEntry[] entries = new TableEntry[workDayHrsCount];
         List<TimeFrame> timeFrames;
@@ -114,6 +117,7 @@ public class DoctorView extends HorizontalLayout {
                 if (weekdayDate.equals(LocalDate.parse(tf.getDate()))) {
                     tfStart = LocalTime.parse(tf.getTimeStart());
                     tfEnd   = LocalTime.parse(tf.getTimeEnd());
+                    weekTimeFrames[weekdayArrayPosition] = tf;
                 }
             }
         }
@@ -165,23 +169,26 @@ public class DoctorView extends HorizontalLayout {
         return new FormLayout(navPanel);
     }
 
-    FormLayout createTimeForm(String[] weekdays) {
-        Binder<TimeFrame> binder = new Binder<>(TimeFrame.class);
+    // (i) instead of writing new class for this form we can write the f. returning desired type;
+    // given the desired type is already defined.
+    FormLayout createTimeForm() {
         HorizontalLayout bottomBar = new HorizontalLayout();
         for (int i = 0; i < 5; i++) {
-            TextField start = new TextField();
-            TextField end = new TextField();
-            start.setPlaceholder(weekdays[i] + " from");
-            end.setPlaceholder(weekdays[i] + " to");
-            binder.bind(start, "timeStart");
-            binder.bind(end, "timeEnd");
-            VerticalLayout timeForm = new VerticalLayout(start, end);
-            bottomBar.add(timeForm);
+            Binder<TimeFrame> tfBinder = new Binder<>(TimeFrame.class);
+            frameStart[i] = new TextField();
+            frameEnd[i] = new TextField();
+            if (weekTimeFrames[i] != null) tfBinder.setBean(weekTimeFrames[i]);
+            else tfBinder.setBean(new TimeFrame("-", "-", "-", 0));
+            tfBinder.bind(frameStart[i], "timeStart");
+            tfBinder.bind(frameEnd[i], "timeEnd");
+            frameStart[i].setEnabled(false);
+            frameEnd[i].setEnabled(false);
+            bottomBar.add(new VerticalLayout(frameStart[i], frameEnd[i]));
+            tfBinderList.add(tfBinder);
         } return new FormLayout(bottomBar);
     }
 
-    // as soon as this project is finished refactor this f. into more civilized form to refresh view.
-    public void refresh() {
+    public void refresh() {//as soon as this project's finished refactor this f. to more civilized form to refresh view.
         setup.setTargetDay(targetDate);
         UI.getCurrent().getPage().reload();
     }
@@ -190,6 +197,14 @@ public class DoctorView extends HorizontalLayout {
         setDocFromTab(doctor);
         setup.setDoctor(doctor);
         UI.getCurrent().navigate("doctor");
+    }
+
+    public TextField[] getFrameStart() {
+        return frameStart;
+    }
+
+    public TextField[] getFrameEnd() {
+        return frameEnd;
     }
 
     public void setDocFromTab(Doctor doctor) {

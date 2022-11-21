@@ -17,5 +17,5 @@ public class MedicalService {
     private String description;
 
     @JsonProperty("doctorId")
-    private Long doctorId;
+    private int doctorId;
 }

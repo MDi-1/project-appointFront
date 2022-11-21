@@ -23,5 +23,12 @@ public class TimeFrame {
     private String timeEnd;
 
     @JsonProperty("doctorId")
-    private Long doctorId;
+    private int doctorId;
+
+    public TimeFrame(String date, String timeStart, String timeEnd, int doctorId) {
+        this.date = date;
+        this.timeStart = timeStart;
+        this.timeEnd = timeEnd;
+        this.doctorId = doctorId;
+    }
 }
