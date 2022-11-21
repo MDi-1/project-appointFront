@@ -17,6 +17,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final BackendClient client;
     private final Setup setup;
     private boolean exeMode;
+    private boolean tfOpenMode;
     private TextField firstName = new TextField("first name");
     private TextField lastName = new TextField("last name");
     private HorizontalLayout buttonRow = new HorizontalLayout();
@@ -55,7 +56,10 @@ public class DoctorForm extends FormLayout implements BaseForm{
             binder.setBean(setup.getDoctor());
             Arrays.stream(view.getFrameStart()).sequential().forEach(e -> {
                 e.setEnabled(true);
-                e.addValueChangeListener(action -> activateTfControls());
+                e.addValueChangeListener(action -> {
+                    if (!tfOpenMode) activateTfControls();
+                    System.out.println(action.getValue());
+                });
             });
             Arrays.stream(view.getFrameEnd()).sequential().forEach(e -> e.setEnabled(true));
             exeMode = false;
@@ -68,8 +72,9 @@ public class DoctorForm extends FormLayout implements BaseForm{
         Button cancelTfBtn = new Button("Cancel");
         buttonRow.add(saveTfBtn, delTfButton, cancelTfBtn);
         add(buttonRow);
+        tfOpenMode = true;
         saveTfBtn.addClickListener(event -> {
-
+            clearForm();
         });
         delTfButton.addClickListener(event -> {
             Doctor doctor = binder.getBean();
@@ -116,5 +121,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
             firstName.setPlaceholder(setup.getDoctor().getFirstName());
             lastName.setPlaceholder(setup.getDoctor().getLastName());
         }
+        tfOpenMode = false;
     }
 }
