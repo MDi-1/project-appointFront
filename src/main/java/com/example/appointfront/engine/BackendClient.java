@@ -160,6 +160,18 @@ public class BackendClient {
         }
     }
 
+    public TimeFrame createTimeFrame(TimeFrame tf) {
+        return null;
+    }
+
+    public TimeFrame updateTimeframe(Long tfId) {
+        return null;
+    }
+
+    public void deleteTimeFrame(Long tfId) {
+
+    }
+
     public List<Patient> getAllPatients() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/getAll").build().encode().toUri();
         try {

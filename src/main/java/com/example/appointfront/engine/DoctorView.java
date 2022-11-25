@@ -37,7 +37,7 @@ public class DoctorView extends HorizontalLayout {
     private final TextField[] frameStart = new TextField[5];
     private final TextField[] frameEnd = new TextField[5];
     private final TimeFrame[] weekTimeFrames = new TimeFrame[5];
-    private List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
+    private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     HorizontalLayout weekTables = new HorizontalLayout();
 
@@ -201,6 +201,10 @@ public class DoctorView extends HorizontalLayout {
 
     public TextField[] getFrameStart() {
         return frameStart;
+    }
+
+    public List<Binder<TimeFrame>> getTfBinderList() {
+        return tfBinderList;
     }
 
     public TextField[] getFrameEnd() {
