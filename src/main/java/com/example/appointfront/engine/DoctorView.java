@@ -81,13 +81,12 @@ public class DoctorView extends HorizontalLayout {
             timetable.getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
             timetable.getColumnByKey("status").setSortable(false);
             timetable.setHeightFull();
-            int finalI = i; // Intellij did this; I don't have better solution right now.
+            int y = i;
             timetable.asSingleSelect().addValueChangeListener(event -> {
                 for (int k = 0; k < 5; k ++) {
-                    if (k != finalI) timetables.get(k).deselectAll();
+                    if (k != y) timetables.get(k).deselectAll();
                 }
                 TableEntry entry = event.getValue();
-                System.out.println(entry); // remove it later
                 form.clearForm();               // main purpose of creating interface BaseForm was to call
                 if (entry == null) return;      // f. as clearForm() or activateControls() from within this class
                 setup.setEntry(entry);
@@ -149,7 +148,7 @@ public class DoctorView extends HorizontalLayout {
         Button rwd = new Button("<<");
         Button fwd = new Button(">>");
         Button go2date = new Button("go to date");
-        TextField dateField = new TextField(null, setup.getTargetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")));
+        TextField field = new TextField(null, setup.getTargetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")));
         rwd.addClickListener(event -> {
             targetDate = setup.getTargetDay().minusDays(7L);
             refresh();
@@ -159,10 +158,10 @@ public class DoctorView extends HorizontalLayout {
             refresh();
         });
         go2date.addClickListener(event -> {
-            targetDate = LocalDate.parse(dateField.getValue(), DateTimeFormatter.ofPattern("dd-M-yyyy"));
+            targetDate = LocalDate.parse(field.getValue(), DateTimeFormatter.ofPattern("dd-M-yyyy"));
             refresh();
         });
-        HorizontalLayout horizontal = new HorizontalLayout(rwd, dateField, fwd);
+        HorizontalLayout horizontal = new HorizontalLayout(rwd, field, fwd);
         VerticalLayout navPanel = new VerticalLayout(horizontal, go2date);
         horizontal.setAlignItems(Alignment.START);
         navPanel.setAlignItems(Alignment.CENTER);

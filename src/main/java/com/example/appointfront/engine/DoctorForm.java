@@ -17,18 +17,20 @@ import java.util.Set;
 public class DoctorForm extends FormLayout implements BaseForm{
 
     private final BackendClient client;
+    private final DoctorView view;
     private final Setup setup;
     private boolean exeMode;
     private boolean tfOpenMode;
-    private TextField firstName = new TextField("first name");
-    private TextField lastName = new TextField("last name");
-    private HorizontalLayout buttonRow = new HorizontalLayout();
-    private Binder<Doctor> binder = new Binder<>(Doctor.class);
-    private Set<TimeFrame> tfProcessSet = new HashSet<>();
+    private final TextField firstName = new TextField("first name");
+    private final TextField lastName = new TextField("last name");
+    private final HorizontalLayout buttonRow = new HorizontalLayout();
+    private final Binder<Doctor> binder = new Binder<>(Doctor.class);
+    private final Set<TimeFrame> tfProcessSet = new HashSet<>();
 
     public DoctorForm(List<MedicalService> medicalServices, BackendClient client, Setup setup, DoctorView view) {
         this.client = client;
         this.setup = setup;
+        this.view = view;
         addClassName("doctor-form");
         binder.bindInstanceFields(this);
         Button addBtn = new Button("Add");
@@ -57,36 +59,28 @@ public class DoctorForm extends FormLayout implements BaseForm{
         });
         timeBtn.addClickListener(event -> {
             binder.setBean(setup.getDoctor());
-            int i = 0;
-            for (TextField field : view.getFrameStart()) {
-                int x = i;
-                field.setEnabled(true);
-                field.addValueChangeListener(action -> {
-                    if (!tfOpenMode) activateTfControls();
-                    TimeFrame tfx = view.getTfBinderList().get(x).getBean();
-                    for (TimeFrame tf : tfProcessSet) {
-                        if (tf.getDate().equals(tfx.getDate())) {
-                            ...
-                        } else tfProcessSet.add(tfx);
-                    }
-                });
-                i ++;
-            }
-
-
-            int j = 0;
-            for (TextField item : view.getFrameEnd()) {
-                item.setEnabled(true);
-                int x = j;
-                item.addValueChangeListener(action -> {
-                    if (!tfOpenMode) activateTfControls();
-                    TimeFrame tfx = view.getTfBinderList().get(x).getBean();
-                });
-                j++;
-            }
-
+            tfProcessSet.clear();
+            prepareTfSet(view.getFrameStart());
+            prepareTfSet(view.getFrameEnd());
             exeMode = false;
         });
+    }
+
+    private void prepareTfSet(TextField[] array) {
+        int i = 0;
+        for (TextField field : array) {
+            int x = i;
+            field.setEnabled(true);
+            field.addValueChangeListener(action -> {
+                if (!tfOpenMode) activateTfControls();
+                TimeFrame tfx = view.getTfBinderList().get(x).getBean();
+                for (TimeFrame tf : tfProcessSet) {
+                    if (tf.getDate().equals(tfx.getDate())) tfProcessSet.remove(tf);
+                    tfProcessSet.add(tfx);
+                }
+            });
+            i ++;
+        }
     }
 
     public void activateTfControls() {
