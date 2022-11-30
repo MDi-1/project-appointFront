@@ -39,6 +39,8 @@ public class DoctorView extends HorizontalLayout {
     private final TimeFrame[] weekTimeFrames = new TimeFrame[5];
     private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
+    private List<Grid<TableEntry>> timetables = new ArrayList<>();
+    private LocalDate[] date4tfForm;
     HorizontalLayout weekTables = new HorizontalLayout();
 
     public DoctorView(BackendClient client, Setup setup) {
@@ -56,9 +58,10 @@ public class DoctorView extends HorizontalLayout {
     }
 
     void createTables() { // - this f. is too long fixme
+        Label lockLabel = new Label("timetable unlocked");
         Label formLabel = new Label();
         String formHeaderTxt;
-        if (setup.isAdmission()) form = new DoctorForm(client.getMedServiceList(), client, setup, DoctorView.this);
+        if (setup.isAdmission()) form = new DoctorForm(client, setup, DoctorView.this);
         else form = new AppointForm(client, setup);
         if (setup.getDoctor() == null) formHeaderTxt = "none selected";
         else formHeaderTxt = "selected: " + setup.getDoctor().getFirstName() + " " + setup.getDoctor().getLastName();
@@ -73,7 +76,8 @@ public class DoctorView extends HorizontalLayout {
             String dateStamp = date[n - 1].format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
             dayHeaders[n - 1] =  dayOfWeek + "; " + dateStamp;
         }
-        List<Grid<TableEntry>> timetables = new ArrayList<>();
+        date4tfForm = Arrays.copyOfRange(date, 0, 5);
+        setup.setTimetableLock(false);
         for (int i = 0; i < 5; i ++) {
             Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
             timetable.setItems(buildWeekDay(date[i], i)); // - this is spaghetti #1 fixme
@@ -97,7 +101,7 @@ public class DoctorView extends HorizontalLayout {
         }
         container.add(weekTables, createTimeForm());
         container.setWidth("72%");
-        VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), formLabel, (Component) form);
+        VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), lockLabel, formLabel, (Component) form);
         containerVertical.setSizeFull();
         add(container, containerVertical);
     }
@@ -176,8 +180,11 @@ public class DoctorView extends HorizontalLayout {
             Binder<TimeFrame> tfBinder = new Binder<>(TimeFrame.class);
             frameStart[i] = new TextField();
             frameEnd[i] = new TextField();
-            if (weekTimeFrames[i] != null) tfBinder.setBean(weekTimeFrames[i]);
-            else tfBinder.setBean(new TimeFrame("-", "-", "-", 0));
+            if (weekTimeFrames[i] != null) {
+                tfBinder.setBean(weekTimeFrames[i]);
+            } else {
+                tfBinder.setBean(new TimeFrame(date4tfForm[i].toString(), "-", "-", setup.getDoctor().getId()));
+            }
             tfBinder.bind(frameStart[i], "timeStart");
             tfBinder.bind(frameEnd[i], "timeEnd");
             frameStart[i].setEnabled(false);
@@ -212,5 +219,9 @@ public class DoctorView extends HorizontalLayout {
 
     public void setDocFromTab(Doctor doctor) {
         binder.setBean(doctor);
+    }
+
+    public void lockTimetables(boolean lock) {
+        timetables.forEach(e -> e.setEnabled(lock));
     }
 }

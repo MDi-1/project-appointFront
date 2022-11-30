@@ -161,7 +161,13 @@ public class BackendClient {
     }
 
     public TimeFrame createTimeFrame(TimeFrame tf) {
-        return null;
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "timeFrame").build().encode().toUri();
+        try {
+            return restTemplate.postForObject(url, tf, TimeFrame.class);
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        }
     }
 
     public TimeFrame updateTimeframe(Long tfId) {

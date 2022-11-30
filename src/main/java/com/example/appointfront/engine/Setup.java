@@ -12,6 +12,7 @@ import java.time.LocalDate;
 public class Setup {
 
     private boolean admission;
+    private boolean timetableLock;
     private Doctor doctor;
     private Patient patient;
     private TableEntry entry;

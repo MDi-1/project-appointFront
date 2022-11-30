@@ -11,7 +11,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class DoctorForm extends FormLayout implements BaseForm{
@@ -27,7 +26,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private final Set<TimeFrame> tfProcessSet = new HashSet<>();
 
-    public DoctorForm(List<MedicalService> medicalServices, BackendClient client, Setup setup, DoctorView view) {
+    public DoctorForm(BackendClient client, Setup setup, DoctorView view) {
         this.client = client;
         this.setup = setup;
         this.view = view;
@@ -39,7 +38,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         ComboBox<Doctor.Position> position = new ComboBox<>("position");
         ComboBox<MedicalService> services = new ComboBox<>("medical services");
         position.setItems(Doctor.Position.values());
-        services.setItems(medicalServices);
+        services.setItems(client.getMedServiceList());
         add(firstName, lastName, position, new HorizontalLayout(addBtn, editBtn, timeBtn));
         if (setup.getDoctor() != null) {
             firstName.setPlaceholder(setup.getDoctor().getFirstName());
@@ -57,40 +56,22 @@ public class DoctorForm extends FormLayout implements BaseForm{
             exeMode = false;
             activateControls();
         });
-        timeBtn.addClickListener(event -> {
-            binder.setBean(setup.getDoctor());
-            tfProcessSet.clear();
-            prepareTfSet(view.getFrameStart());
-            prepareTfSet(view.getFrameEnd());
-            exeMode = false;
-        });
+        timeBtn.addClickListener(event -> activateTimeFrameControls());
     }
 
-    private void prepareTfSet(TextField[] array) {
-        int i = 0;
-        for (TextField field : array) {
-            int x = i;
-            field.setEnabled(true);
-            field.addValueChangeListener(action -> {
-                if (!tfOpenMode) activateTfControls();
-                TimeFrame tfx = view.getTfBinderList().get(x).getBean();
-                for (TimeFrame tf : tfProcessSet) {
-                    if (tf.getDate().equals(tfx.getDate())) tfProcessSet.remove(tf);
-                    tfProcessSet.add(tfx);
-                }
-            });
-            i ++;
-        }
-    }
-
-    public void activateTfControls() {
+    public void activateTimeFrameControls() {
         Button saveTfBtn   = new Button("Save");
         Button delTfButton = new Button("Delete");
         Button cancelTfBtn = new Button("Cancel");
-        buttonRow.add(saveTfBtn, delTfButton, cancelTfBtn);
-        add(buttonRow);
+        Button setBtn = new Button("print set"); // remove this one later
+        clearForm();
+        binder.setBean(setup.getDoctor());
+        tfProcessSet.clear();
         tfOpenMode = true;
+        prepareTfSet(view.getFrameStart());
+        prepareTfSet(view.getFrameEnd());
         saveTfBtn.addClickListener(event -> {
+            //for (TimeFrame tf : tfProcessSet) {}
             clearForm();
         });
         delTfButton.addClickListener(event -> {
@@ -99,6 +80,37 @@ public class DoctorForm extends FormLayout implements BaseForm{
             clearForm();
         });
         cancelTfBtn.addClickListener(event -> clearForm());
+        setBtn.addClickListener(event -> {
+            System.out.println(" ]] set button pressed ");
+            //getTfProcessSet().forEach(System.out::println);
+            Set<TimeFrame> tfSet = getTfProcessSet();
+            for (TimeFrame item : tfSet) {
+                System.out.println(item);
+            }
+        });
+        exeMode = false;
+        buttonRow.add(saveTfBtn, delTfButton, cancelTfBtn, setBtn);
+        add(buttonRow);
+    }
+
+    private void prepareTfSet(TextField[] array) {
+        int i = 0;
+        for (TextField field : array) {
+            int x = i;
+            field.setEnabled(true);
+            field.addValueChangeListener(action -> {
+                TimeFrame tfx = view.getTfBinderList().get(x).getBean();
+                for (TimeFrame tf : tfProcessSet) {
+                    if (tf.getDate().equals(tfx.getDate())) {
+                        tfProcessSet.remove(tf);
+                        System.out.println(" ]] about to exchange tf: " + tf);
+                    }
+                    tfProcessSet.add(tfx);
+                    System.out.println(" ]] added to set: " + tfx);
+                }
+            });
+            i ++;
+        }
     }
 
     @Override
@@ -139,5 +151,9 @@ public class DoctorForm extends FormLayout implements BaseForm{
             lastName.setPlaceholder(setup.getDoctor().getLastName());
         }
         tfOpenMode = false;
+    }
+
+    public Set<TimeFrame> getTfProcessSet() {
+        return tfProcessSet;
     }
 }

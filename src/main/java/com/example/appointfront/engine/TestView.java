@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class TestView extends VerticalLayout { // this thing to be removed later
 
     private static BackendClient client;
+    private static DoctorForm docForm;
 
     public TestView(BackendClient client) {
         TestView.client = client;
@@ -31,8 +32,10 @@ public class TestView extends VerticalLayout { // this thing to be removed later
 
     public static void addFunctionality(HorizontalLayout header) {
         Button b1 = new Button("tmp test button-1");
-        header.add(b1);
+        Button b2 = new Button("tmp test TF set");
         b1.addClickListener(event -> client.getTestObjects().forEach(System.out::println));
+        b2.addClickListener(event -> docForm.getTfProcessSet().forEach(System.out::println));
+        header.add(b1, b2);
     }
 }
 /*
