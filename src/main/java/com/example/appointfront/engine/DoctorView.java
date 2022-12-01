@@ -40,6 +40,7 @@ public class DoctorView extends HorizontalLayout {
     private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private List<Grid<TableEntry>> timetables = new ArrayList<>();
+    private Label lockLabel = new Label("timetable unlocked");
     private LocalDate[] date4tfForm;
     HorizontalLayout weekTables = new HorizontalLayout();
 
@@ -58,7 +59,7 @@ public class DoctorView extends HorizontalLayout {
     }
 
     void createTables() { // - this f. is too long fixme
-        Label lockLabel = new Label("timetable unlocked");
+        Button lockBtn = new Button("lock");
         Label formLabel = new Label();
         String formHeaderTxt;
         if (setup.isAdmission()) form = new DoctorForm(client, setup, DoctorView.this);
@@ -101,7 +102,12 @@ public class DoctorView extends HorizontalLayout {
         }
         container.add(weekTables, createTimeForm());
         container.setWidth("72%");
-        VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), lockLabel, formLabel, (Component) form);
+        lockBtn.addClickListener(event -> { // 2 B removed later
+            setup.setTimetableLock(!setup.isTimetableLock());
+            lockTimetables(setup.isTimetableLock());
+        });
+        VerticalLayout containerVertical = new VerticalLayout(
+                buildNavPanel(), lockLabel, lockBtn, formLabel, (Component) form);
         containerVertical.setSizeFull();
         add(container, containerVertical);
     }
@@ -221,7 +227,14 @@ public class DoctorView extends HorizontalLayout {
         binder.setBean(doctor);
     }
 
+    // (i) this is the way to add external control gauge in form of setup.timetableLock, but instead internal
+    // functionality of grid should be utilized e.isEnabled()
     public void lockTimetables(boolean lock) {
-        timetables.forEach(e -> e.setEnabled(lock));
+        if (setup.isTimetableLock()) lockLabel.setText("timetable locked");
+        else lockLabel.setText("timetable unlocked");
+        timetables.forEach(e -> {
+            e.setEnabled(!lock);
+            e.deselectAll();
+        });
     }
 }

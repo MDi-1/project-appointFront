@@ -25,6 +25,9 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final HorizontalLayout buttonRow = new HorizontalLayout();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private final Set<TimeFrame> tfProcessSet = new HashSet<>();
+    private final Button addBtn = new Button("Add");
+    private final Button editBtn = new Button("Edit Personal Data");
+    private final Button timeBtn = new Button("Edit Timeframes");
 
     public DoctorForm(BackendClient client, Setup setup, DoctorView view) {
         this.client = client;
@@ -32,9 +35,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
         this.view = view;
         addClassName("doctor-form");
         binder.bindInstanceFields(this);
-        Button addBtn = new Button("Add");
-        Button editBtn = new Button("Edit Personal Data");
-        Button timeBtn = new Button("Edit Timeframes");
         ComboBox<Doctor.Position> position = new ComboBox<>("position");
         ComboBox<MedicalService> services = new ComboBox<>("medical services");
         position.setItems(Doctor.Position.values());
@@ -65,6 +65,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         Button cancelTfBtn = new Button("Cancel");
         Button setBtn = new Button("print set"); // remove this one later
         clearForm();
+        toggleLocks();
         binder.setBean(setup.getDoctor());
         tfProcessSet.clear();
         tfOpenMode = true;
@@ -91,6 +92,14 @@ public class DoctorForm extends FormLayout implements BaseForm{
         exeMode = false;
         buttonRow.add(saveTfBtn, delTfButton, cancelTfBtn, setBtn);
         add(buttonRow);
+    }
+
+    public void toggleLocks() { // (i) first line of this f. is the example how to make toggle switch.
+        setup.setTimetableLock(!setup.isTimetableLock());
+        view.lockTimetables(setup.isTimetableLock());
+        addBtn.setEnabled(false);
+        editBtn.setEnabled(false);
+        timeBtn.setEnabled(false);
     }
 
     private void prepareTfSet(TextField[] array) {
