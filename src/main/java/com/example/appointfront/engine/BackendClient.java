@@ -170,8 +170,9 @@ public class BackendClient {
         }
     }
 
-    public TimeFrame updateTimeframe(Long tfId) {
-        return null;
+    public void updateTimeframe(TimeFrame tf) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "timeFrame").build().encode().toUri();
+        restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(tf), TimeFrame.class);
     }
 
     public void deleteTimeFrame(Long tfId) {

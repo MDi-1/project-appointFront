@@ -34,7 +34,7 @@ public class TestView extends VerticalLayout { // this thing to be removed later
         Button b1 = new Button("tmp test button-1");
         Button b2 = new Button("tmp test TF set");
         b1.addClickListener(event -> client.getTestObjects().forEach(System.out::println));
-        b2.addClickListener(event -> docForm.getTfProcessSet().forEach(System.out::println));
+        b2.addClickListener(event -> docForm.getTfProcessList().forEach(System.out::println));
         header.add(b1, b2);
     }
 }

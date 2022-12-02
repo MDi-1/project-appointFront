@@ -10,8 +10,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DoctorForm extends FormLayout implements BaseForm{
 
@@ -24,7 +24,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final TextField lastName = new TextField("last name");
     private final HorizontalLayout buttonRow = new HorizontalLayout();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
-    private final Set<TimeFrame> tfProcessSet = new HashSet<>();
+    private final List<TimeFrame> tfProcessList = new ArrayList<>();
     private final Button addBtn = new Button("Add");
     private final Button editBtn = new Button("Edit Personal Data");
     private final Button timeBtn = new Button("Edit Timeframes");
@@ -65,58 +65,53 @@ public class DoctorForm extends FormLayout implements BaseForm{
         Button cancelTfBtn = new Button("Cancel");
         Button setBtn = new Button("print set"); // remove this one later
         clearForm();
-        toggleLocks();
+        toggleLocks(true);
         binder.setBean(setup.getDoctor());
-        tfProcessSet.clear();
+        tfProcessList.clear();
         tfOpenMode = true;
         prepareTfSet(view.getFrameStart());
         prepareTfSet(view.getFrameEnd());
-        saveTfBtn.addClickListener(event -> {
-            //for (TimeFrame tf : tfProcessSet) {}
-            clearForm();
-        });
+        saveTfBtn.addClickListener(event -> executeTimeFrames());
         delTfButton.addClickListener(event -> {
             Doctor doctor = binder.getBean();
             //client.deleteTf(doctor.getId());
             clearForm();
         });
         cancelTfBtn.addClickListener(event -> clearForm());
-        setBtn.addClickListener(event -> {
-            System.out.println(" ]] set button pressed ");
-            //getTfProcessSet().forEach(System.out::println);
-            Set<TimeFrame> tfSet = getTfProcessSet();
-            for (TimeFrame item : tfSet) {
-                System.out.println(item);
-            }
-        });
+        setBtn.addClickListener(event -> getTfProcessList().forEach(System.out::println));
         exeMode = false;
         buttonRow.add(saveTfBtn, delTfButton, cancelTfBtn, setBtn);
         add(buttonRow);
     }
 
-    public void toggleLocks() { // (i) first line of this f. is the example how to make toggle switch.
-        setup.setTimetableLock(!setup.isTimetableLock());
+    // (i) this f. WAS the example how to make toggle switch when it looked like this:
+    // setup.setTimetableLock(!setup.isTimetableLock());
+    public void toggleLocks(boolean lock) {
+        clearForm();
+        setup.setTimetableLock(lock);
         view.lockTimetables(setup.isTimetableLock());
-        addBtn.setEnabled(false);
-        editBtn.setEnabled(false);
-        timeBtn.setEnabled(false);
+        addBtn.setEnabled(!lock);
+        editBtn.setEnabled(!lock);
+        timeBtn.setEnabled(!lock);
     }
 
-    private void prepareTfSet(TextField[] array) {
+    void prepareTfSet(TextField[] array) {
         int i = 0;
         for (TextField field : array) {
             int x = i;
             field.setEnabled(true);
             field.addValueChangeListener(action -> {
                 TimeFrame tfx = view.getTfBinderList().get(x).getBean();
-                for (TimeFrame tf : tfProcessSet) {
+                TimeFrame tfSubtract = null;
+                for (TimeFrame tf : tfProcessList) {
                     if (tf.getDate().equals(tfx.getDate())) {
-                        tfProcessSet.remove(tf);
+                        tfSubtract = tf;
                         System.out.println(" ]] about to exchange tf: " + tf);
                     }
-                    tfProcessSet.add(tfx);
-                    System.out.println(" ]] added to set: " + tfx);
-                }
+                } // for some reason f.remove() does not work on Set. 2 B done later - do it on Set instead of List
+                tfProcessList.remove(tfSubtract);
+                tfProcessList.add(tfx);
+                System.out.println(" ]] added to set: " + tfx);
             });
             i ++;
         }
@@ -152,6 +147,21 @@ public class DoctorForm extends FormLayout implements BaseForm{
         clearForm();
     }
 
+    void executeTimeFrames() {
+        for (TimeFrame item : tfProcessList) {
+            if (item.getId() != null) {
+                client.updateTimeframe(item);
+            }
+            else {
+                TimeFrame response = client.createTimeFrame(item);
+                System.out.println(response);
+            }
+        }
+        tfProcessList.clear();
+        clearForm();
+        toggleLocks(false);
+    }
+
     public void clearForm() {
         buttonRow.removeAll();
         remove(buttonRow);
@@ -162,7 +172,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         tfOpenMode = false;
     }
 
-    public Set<TimeFrame> getTfProcessSet() {
-        return tfProcessSet;
+    public List<TimeFrame> getTfProcessList() {
+        return tfProcessList;
     }
 }
