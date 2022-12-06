@@ -136,7 +136,7 @@ public class DoctorView extends HorizontalLayout {
             long appId = 0;
             if (tfStart == null) status = "n/a";
             else {
-                if (time.isBefore(tfStart) || time.isAfter(tfEnd)) status = "off";
+                if (time.isBefore(tfStart) || time.isAfter(tfEnd) || time.equals(tfEnd)) status = "off";
                 else status = time.getHour() + ":00 AVAILABLE";
                 for (Appointment singleApp : appointments) {
                     LocalDateTime appDateTime = LocalDateTime.parse(
