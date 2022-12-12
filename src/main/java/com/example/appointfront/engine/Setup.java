@@ -17,5 +17,6 @@ public class Setup {
     private Patient patient;
     private TableEntry entry;
     private TableEntry entryProcessed;
-    private LocalDate targetDay = LocalDate.of(2022, 9, 15); // temporary value for target day in createTables
+    private LocalDate targetDay;
+    private LocalDate startingDay = LocalDate.of(2022, 9, 15); // temporary value for target day in createTables
 }

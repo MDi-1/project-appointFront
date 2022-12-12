@@ -237,4 +237,8 @@ public class DoctorView extends HorizontalLayout {
             e.deselectAll();
         });
     }
+
+    public void setTargetDate(LocalDate targetDate) {
+        this.targetDate = targetDate;
+    }
 }

@@ -19,7 +19,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final DoctorView view;
     private final Setup setup;
     private boolean exeMode;
-    private boolean tfOpenMode;
     private final TextField firstName = new TextField("first name");
     private final TextField lastName = new TextField("last name");
     private final HorizontalLayout buttonRow = new HorizontalLayout();
@@ -68,7 +67,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
         toggleLocks(true);
         binder.setBean(setup.getDoctor());
         tfProcessList.clear();
-        tfOpenMode = true;
         prepareTfSet(view.getFrameStart());
         prepareTfSet(view.getFrameEnd());
         saveTfBtn.addClickListener(event -> executeTimeFrames());
@@ -169,7 +167,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
             firstName.setPlaceholder(setup.getDoctor().getFirstName());
             lastName.setPlaceholder(setup.getDoctor().getLastName());
         }
-        tfOpenMode = false;
     }
 
     public List<TimeFrame> getTfProcessList() {

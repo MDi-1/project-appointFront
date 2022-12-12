@@ -3,6 +3,7 @@ package com.example.appointfront.engine;
 import com.example.appointfront.data.Appointment;
 import com.example.appointfront.data.Doctor;
 import com.example.appointfront.data.MedicalService;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -11,41 +12,54 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Route(value="user", layout = MainLayout.class)
 @PageTitle("User | Tiny Clinic")
 @UIScope
 public class UserView extends VerticalLayout {
 
-    private Setup setup;
-    private final BackendClient backendClient;
-    private DoctorView doctorView;
+    private final Setup setup;
+    private final BackendClient client;
+    private final DoctorView doctorView;
+    private Button delApp = new Button("Delete Appointment");
+    private Button go2App = new Button("Show in Timetable");
+    private Button confirm = new Button("Confirm");
+    private Button cancel = new Button("Cancel");
+    private List<Doctor> listOfDoctors = new ArrayList<>();
+    private HorizontalLayout appButtonRow = new HorizontalLayout();
 
-    public UserView(BackendClient backendClient, Setup setup) {
-        this.backendClient = backendClient;
+    public UserView(BackendClient client, Setup setup) {
+        this.client = client;
         this.setup = setup;
-        doctorView = new DoctorView(backendClient, setup);
+        doctorView = new DoctorView(client, setup);
         HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
+        Label companyDetails = new Label("Company, Street, Postal code, City, Phone number");
         mainTables.setSizeFull();
-        add(new UserForm(), mainTables, new Label("Company, Street, Postal code, City, Phone number"));
+        add(new UserForm(setup, client), mainTables, appButtonRow, companyDetails);
     }
 
     VerticalLayout makeAppTab() {
         Grid<Appointment> appointmentGrid = new Grid<>(Appointment.class);
-        appointmentGrid.setItems(backendClient.getAllAppointments());
+        appointmentGrid.setItems(client.getAppsByPatient());
         appointmentGrid.setColumns("startDateTime", "price");
-        appointmentGrid.addColumn(apt -> backendClient.getDoctorList()
+        appointmentGrid.addColumn(apt -> client.getDoctorList()
                 .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getFirstName()
         ).setHeader("doctors' name");
-        appointmentGrid.addColumn(apt -> backendClient.getDoctorList()
+        appointmentGrid.addColumn(apt -> client.getDoctorList()
                 .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getLastName()
         ).setHeader("doctors' surname");
+        appointmentGrid.asSingleSelect().addValueChangeListener(event -> activateAppButtons(event.getValue()));
         return new VerticalLayout(new Label("List of recent / incoming appointments"), appointmentGrid);
     }
 
     VerticalLayout makeServiceTab() {
         Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
         serviceGrid.setColumns("description");
-        serviceGrid.setItems(backendClient.getMedServiceList());
+        serviceGrid.setItems(client.getMedServiceList());
         VerticalLayout serviceTab = new VerticalLayout(new Label("Pick service to make an appointment"), serviceGrid);
         serviceTab.setWidth("50%");
         return serviceTab;
@@ -53,13 +67,45 @@ public class UserView extends VerticalLayout {
 
     VerticalLayout makeDocTab() {
         Grid<Doctor> doctorGrid = new Grid<>(Doctor.class);
+        listOfDoctors = client.getDoctorList();
         doctorGrid.setColumns("firstName", "lastName", "position");
-        doctorGrid.setItems(backendClient.getDoctorList());
+        doctorGrid.setItems(listOfDoctors);
         doctorGrid.asSingleSelect().addValueChangeListener(event -> doctorView.enterDoctorManagement(event.getValue()));
         // seems pointless to call enterDoctorManagement() to go to docView class and do nothing but set doc in
         // backend client
         VerticalLayout docTab = new VerticalLayout(new Label("...or pick doctor to make an appointment"), doctorGrid);
         docTab.setWidth("60%");
         return docTab;
+    }
+
+    void activateAppButtons(Appointment appointment) {
+        confirm.setEnabled(false);
+        appButtonRow.add(delApp, go2App, confirm, cancel);
+        delApp.addClickListener(event -> {
+            confirm.setEnabled(true);
+            go2App.setEnabled(false);
+        });
+        go2App.addClickListener(event -> {
+            clearAppButtons();
+            LocalDate parsedDate = LocalDate.parse(appointment.getStartDateTime().substring(0, 10));
+            System.out.println(parsedDate);
+            setup.setTargetDay(parsedDate);
+            Doctor d = null;
+            for (Doctor doc : listOfDoctors) {
+                if (doc.getId() == appointment.getDoctorId()) d = doc;
+            }
+            doctorView.enterDoctorManagement(d);
+        });
+        confirm.addClickListener(event -> {
+            client.deleteAppointment(appointment.getId());
+            clearAppButtons();
+        });
+        cancel.addClickListener(event -> clearAppButtons());
+    }
+
+    void clearAppButtons() {
+        go2App.setEnabled(true);
+        confirm.setEnabled(false);
+        appButtonRow.removeAll();
     }
 }

@@ -129,6 +129,19 @@ public class BackendClient {
         }
     }
 
+    public List<Appointment> getAppsByPatient() {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/patientApps/")
+                .path(String.valueOf(setup.getPatient().getId())) // path parameter comes here
+                .build().encode().toUri();
+        try {
+            Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
+            return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
     public Appointment createAppointment(Appointment app) {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment").build().encode().toUri();
         try {
@@ -194,5 +207,28 @@ public class BackendClient {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/")
                 .path(String.valueOf(id)).build().encode().toUri();
         return restTemplate.getForObject(url, Patient.class);
+    }
+
+    public Patient createPatient(Patient patient) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient").build().encode().toUri();
+        try {
+            return restTemplate.postForObject(url, patient, Patient.class);
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    public void updatePatient(Patient patient) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient").build().encode().toUri();
+        restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(patient), Patient.class);
+    }
+
+    public void deletePatient(int patientId) {
+        String id = String.valueOf(patientId);
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/")
+                .path(id)
+                .build().encode().toUri();
+        restTemplate.delete(url);
     }
 }

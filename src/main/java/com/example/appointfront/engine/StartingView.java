@@ -24,6 +24,7 @@ public class StartingView extends HorizontalLayout {
         Button managerBtn = new Button("Log in as manager");
         Button adminButton = new Button("Log in as service administrator");
         Grid<Patient> table = new Grid<>(Patient.class);
+        setup.setTargetDay(setup.getStartingDay());
         table.setItems(client.getAllPatients());
         table.setColumns("firstName", "lastName");
         table.asSingleSelect().addValueChangeListener(event -> setup.setPatient(event.getValue()));
