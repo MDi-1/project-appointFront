@@ -13,7 +13,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,17 +42,20 @@ public class UserView extends VerticalLayout {
     }
 
     VerticalLayout makeAppTab() {
-        Grid<Appointment> appointmentGrid = new Grid<>(Appointment.class);
-        appointmentGrid.setItems(client.getAppsByPatient());
-        appointmentGrid.setColumns("startDateTime", "price");
-        appointmentGrid.addColumn(apt -> client.getDoctorList()
-                .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getFirstName()
-        ).setHeader("doctors' name");
-        appointmentGrid.addColumn(apt -> client.getDoctorList()
-                .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getLastName()
-        ).setHeader("doctors' surname");
-        appointmentGrid.asSingleSelect().addValueChangeListener(event -> activateAppButtons(event.getValue()));
-        return new VerticalLayout(new Label("List of recent / incoming appointments"), appointmentGrid);
+        Label appHead = new Label("List of recent / incoming appointments");
+        if (setup.getPatient() != null) {
+            Grid<Appointment> appointmentGrid = new Grid<>(Appointment.class);
+            appointmentGrid.setItems(client.getAppsByPatient());
+            appointmentGrid.setColumns("startDateTime", "price");
+            appointmentGrid.addColumn(apt -> client.getDoctorList()
+                    .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getFirstName()
+            ).setHeader("doctors' name");
+            appointmentGrid.addColumn(apt -> client.getDoctorList()
+                    .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getLastName()
+            ).setHeader("doctors' surname");
+            appointmentGrid.asSingleSelect().addValueChangeListener(event -> activateAppButtons(event.getValue()));
+            return new VerticalLayout(appHead, appointmentGrid);
+        } else return new VerticalLayout(appHead, new Label("log in as patient to see the appointment list"));
     }
 
     VerticalLayout makeServiceTab() {

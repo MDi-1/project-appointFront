@@ -9,9 +9,9 @@ import com.vaadin.flow.data.binder.Binder;
 
 public class UserForm extends FormLayout implements BaseForm{
 
-    private final Setup setup;
     private final BackendClient client;
-    private boolean exeMode;
+    private boolean lockMode;
+    private boolean saveMode;
     private TextField firstName = new TextField("first name");
     private TextField lastName = new TextField("last name");
     private Button editBtn = new Button("Edit");
@@ -23,7 +23,6 @@ public class UserForm extends FormLayout implements BaseForm{
 
     public UserForm(Setup setup, BackendClient client) {
         this.client = client;
-        this.setup = setup;
         binder.bindInstanceFields(this);
         if (setup.getPatient() != null) {
             firstName.setPlaceholder(setup.getPatient().getFirstName());
@@ -35,40 +34,45 @@ public class UserForm extends FormLayout implements BaseForm{
             add(firstName, lastName, new HorizontalLayout(editBtn, saveBtn, deleteBtn, canceBtn));
         }
         addBtn.addClickListener(event -> {
-            exeMode = true;
+            saveMode = false;
             activateControls();
         });
         editBtn.addClickListener(event -> {
-            exeMode = true;
+            saveMode = true;
             activateControls();
-
         });
-    }
-
-    @Override
-    public void activateControls() {
-        switchControls(exeMode);
         saveBtn.addClickListener(event -> executeItem());
         deleteBtn.addClickListener(event -> delete());
         canceBtn.addClickListener(event -> {
             binder.setBean(setup.getPatient());
             clearForm();
         });
+        switchControls(lockMode);
+    }
+
+    @Override
+    public void activateControls() {
+        lockMode = true;
+        switchControls(lockMode);
     }
 
     @Override
     public void executeItem() {
-        client.createPatient(binder.getBean());
+        if (saveMode) client.updatePatient(binder.getBean());
+        else client.createPatient(binder.getBean());
+        clearForm();
     }
 
     public void delete() {
         client.deletePatient(binder.getBean().getId());
+        clearForm();
     }
 
     @Override
     public void clearForm() {
-        switchControls(exeMode);
-        exeMode = false;
+        lockMode = false;
+        saveMode = false;
+        switchControls(lockMode);
     }
 
     void switchControls(boolean mode) {

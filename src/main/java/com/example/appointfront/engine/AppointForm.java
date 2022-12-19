@@ -31,6 +31,7 @@ public class AppointForm extends FormLayout implements BaseForm{
         this.setup = setup;
         addClassName("appointment-form");
         add(container);
+        confirm.addClickListener(event -> pressConfirm());
     }
 
     @Override
@@ -64,15 +65,19 @@ public class AppointForm extends FormLayout implements BaseForm{
     }
 
     public void processApp(TableEntry entry){
+        System.out.println(" ]] processApp f. called");
         setup.setEntryProcessed(entry);
         container.add(promptButtons);
         promptButtons.add(confirm, back2);
-        confirm.addClickListener(event -> {
-            executeItem();
-            container.remove(question, promptButtons);
-            // statement to update tables - to be added
-        });
         back2.addClickListener(event -> container.remove(question, promptButtons));
+    }
+
+    private void pressConfirm() {
+        System.out.println("confirm button pressed");
+        executeItem();
+        promptButtons.removeAll();
+        container.remove(question, promptButtons);
+        // statement to update tables - to be added
     }
 
     // mode: true - create App; false - delete App; third option - do not execute this f. (click into back2 btn)

@@ -21,6 +21,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private boolean exeMode;
     private final TextField firstName = new TextField("first name");
     private final TextField lastName = new TextField("last name");
+    private ComboBox<Doctor.Position> position = new ComboBox<>("position");
     private final HorizontalLayout buttonRow = new HorizontalLayout();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private final List<TimeFrame> tfProcessList = new ArrayList<>();
@@ -34,7 +35,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
         this.view = view;
         addClassName("doctor-form");
         binder.bindInstanceFields(this);
-        ComboBox<Doctor.Position> position = new ComboBox<>("position");
         ComboBox<MedicalService> services = new ComboBox<>("medical services");
         position.setItems(Doctor.Position.values());
         services.setItems(client.getMedServiceList());
@@ -135,13 +135,8 @@ public class DoctorForm extends FormLayout implements BaseForm{
     @Override
     public void executeItem() {
         Doctor doctor = binder.getBean();
-        if (exeMode) {
-            Doctor doc = client.createDoctor(doctor);
-            System.out.println(" ]] Project-Appoint [[ doctor created: " + doc);
-        } else {
-            Doctor doc = client.updateDoctor(doctor);
-            System.out.println(" ]] Project-Appoint [[ doctor updated: " + doc);
-        }
+        if (exeMode) client.createDoctor(doctor);
+        else client.updateDoctor(doctor);
         clearForm();
     }
 
