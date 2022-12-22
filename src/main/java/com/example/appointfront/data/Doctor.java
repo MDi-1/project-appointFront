@@ -18,8 +18,8 @@ public class Doctor {
     @JsonProperty("id")
     private int id;
 
-    @JsonProperty("firstName")
-    private String firstName;
+    @JsonProperty("name")
+    private String name;
 
     @JsonProperty("lastName")
     private String lastName;
@@ -36,8 +36,8 @@ public class Doctor {
     @JsonProperty("medServiceIds")
     private List<Long> medServiceIds;
 
-    public Doctor(String firstName, String lastName, Position position) {
-        this.firstName = firstName;
+    public Doctor(String name, String lastName, Position position) {
+        this.name = name;
         this.lastName = lastName;
         this.position = position;
     }

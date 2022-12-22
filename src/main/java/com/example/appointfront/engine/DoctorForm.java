@@ -40,7 +40,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         services.setItems(client.getMedServiceList());
         add(firstName, lastName, position, new HorizontalLayout(addBtn, editBtn, timeBtn));
         if (setup.getDoctor() != null) {
-            firstName.setPlaceholder(setup.getDoctor().getFirstName());
+            firstName.setPlaceholder(setup.getDoctor().getName());
             lastName.setPlaceholder(setup.getDoctor().getLastName());
         }
         addBtn.addClickListener(event -> {
@@ -159,7 +159,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         buttonRow.removeAll();
         remove(buttonRow);
         if (setup.getDoctor() != null) {
-            firstName.setPlaceholder(setup.getDoctor().getFirstName());
+            firstName.setPlaceholder(setup.getDoctor().getName());
             lastName.setPlaceholder(setup.getDoctor().getLastName());
         }
     }

@@ -41,7 +41,7 @@ public class AppointForm extends FormLayout implements BaseForm{
         Button btnAcceptDeny = new Button("Appoint");
         HorizontalLayout buttons = new HorizontalLayout(btnAcceptDeny, back1);
         btnAcceptDeny.addClickListener(event -> processApp(setup.getEntry()));
-        String doctorName = setup.getDoctor().getFirstName() + " " + setup.getDoctor().getLastName();
+        String doctorName = setup.getDoctor().getName() + " " + setup.getDoctor().getLastName();
         String timeString = " at " + setup.getEntry().getTime();
         container.add(buttons, question);
         if (setup.getEntry().getAttributedApp() == 0) {

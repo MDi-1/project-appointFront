@@ -65,7 +65,7 @@ public class DoctorView extends HorizontalLayout {
         if (setup.isAdmission()) form = new DoctorForm(client, setup, DoctorView.this);
         else form = new AppointForm(client, setup);
         if (setup.getDoctor() == null) formHeaderTxt = "none selected";
-        else formHeaderTxt = "selected: " + setup.getDoctor().getFirstName() + " " + setup.getDoctor().getLastName();
+        else formHeaderTxt = "selected: " + setup.getDoctor().getName() + " " + setup.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
         VerticalLayout container = new VerticalLayout();
         LocalDate[] date = new LocalDate[7];

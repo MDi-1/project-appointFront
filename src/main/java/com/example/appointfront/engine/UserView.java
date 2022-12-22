@@ -48,7 +48,7 @@ public class UserView extends VerticalLayout {
             appointmentGrid.setItems(client.getAppsByPatient());
             appointmentGrid.setColumns("startDateTime", "price");
             appointmentGrid.addColumn(apt -> client.getDoctorList()
-                    .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getFirstName()
+                    .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getName()
             ).setHeader("doctors' name");
             appointmentGrid.addColumn(apt -> client.getDoctorList()
                     .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getLastName()
@@ -70,7 +70,7 @@ public class UserView extends VerticalLayout {
     VerticalLayout makeDocTab() {
         Grid<Doctor> doctorGrid = new Grid<>(Doctor.class);
         listOfDoctors = client.getDoctorList();
-        doctorGrid.setColumns("firstName", "lastName", "position");
+        doctorGrid.setColumns("name", "lastName", "position");
         doctorGrid.setItems(listOfDoctors);
         doctorGrid.asSingleSelect().addValueChangeListener(event -> doctorView.enterDoctorManagement(event.getValue()));
         // seems pointless to call enterDoctorManagement() to go to docView class and do nothing but set doc in
