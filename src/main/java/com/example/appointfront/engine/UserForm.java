@@ -10,10 +10,11 @@ import com.vaadin.flow.data.binder.Binder;
 public class UserForm extends FormLayout implements BaseForm{
 
     private final BackendClient client;
+    private final Setup setup;
     private boolean lockMode;
     private boolean saveMode;
-    private TextField firstName = new TextField("first name");
-    private TextField lastName = new TextField("last name");
+    private final TextField firstName = new TextField("first name");
+    private final TextField lastName = new TextField("last name");
     private Button editBtn = new Button("Edit");
     private Button addBtn = new Button("Add");
     private Button saveBtn = new Button("Save");
@@ -21,17 +22,19 @@ public class UserForm extends FormLayout implements BaseForm{
     private Button canceBtn = new Button("Cancel");
     private Binder<Patient> binder = new Binder<>(Patient.class);
 
-    public UserForm(Setup setup, BackendClient client) {
+    public UserForm(BackendClient client, Setup setup) {
         this.client = client;
+        this.setup = setup;
+        addClassName("user-form");
         binder.bindInstanceFields(this);
-        if (setup.getPatient() != null) {
-            firstName.setPlaceholder(setup.getPatient().getFirstName());
-            lastName.setPlaceholder(setup.getPatient().getLastName());
-        }
         if (setup.isAdmission()) {
             add(firstName, lastName, new HorizontalLayout(addBtn, editBtn, saveBtn, deleteBtn, canceBtn));
         } else {
             add(firstName, lastName, new HorizontalLayout(editBtn, saveBtn, deleteBtn, canceBtn));
+        }
+        if (setup.getPatient() != null) {
+            firstName.setPlaceholder(setup.getPatient().getFirstName());
+            lastName.setPlaceholder(setup.getPatient().getLastName());
         }
         addBtn.addClickListener(event -> {
             saveMode = false;
@@ -53,13 +56,17 @@ public class UserForm extends FormLayout implements BaseForm{
     @Override
     public void activateControls() {
         lockMode = true;
+        if (saveMode) binder.setBean(setup.getPatient());
+        else binder.setBean(new Patient());
         switchControls(lockMode);
     }
 
     @Override
     public void executeItem() {
-        if (saveMode) client.updatePatient(binder.getBean());
-        else client.createPatient(binder.getBean());
+        Patient patient = binder.getBean();
+        System.out.println(patient);
+        if (saveMode) client.updatePatient(patient);
+        else client.createPatient(patient);
         clearForm();
     }
 
@@ -76,8 +83,6 @@ public class UserForm extends FormLayout implements BaseForm{
     }
 
     void switchControls(boolean mode) {
-        firstName.setEnabled(mode);
-        lastName.setEnabled(mode);
         addBtn.setEnabled(!mode);
         editBtn.setEnabled(!mode);
         saveBtn.setEnabled(mode);

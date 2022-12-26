@@ -19,7 +19,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final DoctorView view;
     private final Setup setup;
     private boolean exeMode;
-    private final TextField firstName = new TextField("first name");
+    private final TextField name = new TextField("first name");
     private final TextField lastName = new TextField("last name");
     private ComboBox<Doctor.Position> position = new ComboBox<>("position");
     private final HorizontalLayout buttonRow = new HorizontalLayout();
@@ -38,13 +38,13 @@ public class DoctorForm extends FormLayout implements BaseForm{
         ComboBox<MedicalService> services = new ComboBox<>("medical services");
         position.setItems(Doctor.Position.values());
         services.setItems(client.getMedServiceList());
-        add(firstName, lastName, position, new HorizontalLayout(addBtn, editBtn, timeBtn));
+        add(name, lastName, position, new HorizontalLayout(addBtn, editBtn, timeBtn));
         if (setup.getDoctor() != null) {
-            firstName.setPlaceholder(setup.getDoctor().getName());
+            name.setPlaceholder(setup.getDoctor().getName());
             lastName.setPlaceholder(setup.getDoctor().getLastName());
         }
         addBtn.addClickListener(event -> {
-            firstName.setPlaceholder("");
+            name.setPlaceholder("");
             lastName.setPlaceholder("");
             exeMode = true;
             activateControls();
@@ -122,7 +122,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         Button cancelBtn = new Button("Cancel");
         buttonRow.add(saveBtn, delBtn, cancelBtn);
         add(buttonRow);
-        firstName.focus();
+        name.focus();
         saveBtn.addClickListener(event -> executeItem());
         delBtn.addClickListener(event -> {
             Doctor doctor = binder.getBean();
@@ -135,6 +135,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     @Override
     public void executeItem() {
         Doctor doctor = binder.getBean();
+        System.out.println(doctor);
         if (exeMode) client.createDoctor(doctor);
         else client.updateDoctor(doctor);
         clearForm();
@@ -159,7 +160,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         buttonRow.removeAll();
         remove(buttonRow);
         if (setup.getDoctor() != null) {
-            firstName.setPlaceholder(setup.getDoctor().getName());
+            name.setPlaceholder(setup.getDoctor().getName());
             lastName.setPlaceholder(setup.getDoctor().getLastName());
         }
     }

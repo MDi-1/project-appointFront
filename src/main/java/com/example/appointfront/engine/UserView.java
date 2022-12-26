@@ -38,7 +38,7 @@ public class UserView extends VerticalLayout {
         HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
         Label companyDetails = new Label("Company, Street, Postal code, City, Phone number");
         mainTables.setSizeFull();
-        add(new UserForm(setup, client), mainTables, appButtonRow, companyDetails);
+        add(new UserForm(client, setup), mainTables, appButtonRow, companyDetails);
     }
 
     VerticalLayout makeAppTab() {
