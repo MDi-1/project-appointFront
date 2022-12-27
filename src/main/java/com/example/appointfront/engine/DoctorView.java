@@ -47,6 +47,14 @@ public class DoctorView extends HorizontalLayout {
     public DoctorView(BackendClient client, Setup setup) {
         this.client = client;
         this.setup = setup;
+        VerticalLayout container = new VerticalLayout();
+        Label formLabel = new Label();
+        String formHeaderTxt;
+        if (setup.isAdmission()) form = new DoctorForm(client, setup, DoctorView.this);
+        else form = new AppointForm(client, setup);
+        if (setup.getDoctor() == null) formHeaderTxt = "none selected";
+        else formHeaderTxt = "selected: " + setup.getDoctor().getName() + " " + setup.getDoctor().getLastName();
+        formLabel.setText(formHeaderTxt);
         if (setup.getDoctor() == null) {
             Optional<Doctor> firstDoc = client.getDoctorList().stream().findFirst();
             setup.setDoctor(Optional.of(firstDoc).get().orElseThrow(NotFoundException::new));
@@ -56,18 +64,14 @@ public class DoctorView extends HorizontalLayout {
         weekTables.setSizeFull();
         add(weekTables);
         createTables();
+        VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), lockLabel, formLabel, (Component) form);
+        containerVertical.setSizeFull();
+        container.add(weekTables, createTimeForm());
+        container.setWidth("72%");
+        add(container, containerVertical);
     }
 
     void createTables() { // - this f. is too long fixme
-        Button lockBtn = new Button("lock");
-        Label formLabel = new Label();
-        String formHeaderTxt;
-        if (setup.isAdmission()) form = new DoctorForm(client, setup, DoctorView.this);
-        else form = new AppointForm(client, setup);
-        if (setup.getDoctor() == null) formHeaderTxt = "none selected";
-        else formHeaderTxt = "selected: " + setup.getDoctor().getName() + " " + setup.getDoctor().getLastName();
-        formLabel.setText(formHeaderTxt);
-        VerticalLayout container = new VerticalLayout();
         LocalDate[] date = new LocalDate[7];
         String[] dayHeaders = new String[7];
         for (int n = 1; n < 8; n ++) {
@@ -100,16 +104,10 @@ public class DoctorView extends HorizontalLayout {
             timetables.add(timetable);
             weekTables.add(timetables.get(i));
         }
-        container.add(weekTables, createTimeForm());
-        container.setWidth("72%");
-        lockBtn.addClickListener(event -> { // 2 B removed later
-            setup.setTimetableLock(!setup.isTimetableLock());
-            lockTimetables(setup.isTimetableLock());
-        });
-        VerticalLayout containerVertical = new VerticalLayout(
-                buildNavPanel(), lockLabel, lockBtn, formLabel, (Component) form);
-        containerVertical.setSizeFull();
-        add(container, containerVertical);
+    }
+
+    public void refreshTables() {
+
     }
 
     TableEntry[] buildWeekDay(LocalDate weekdayDate, int weekdayArrayPosition) {  // - this f. is spaghetti #1 fixme

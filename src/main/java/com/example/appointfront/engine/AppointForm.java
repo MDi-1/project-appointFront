@@ -65,7 +65,6 @@ public class AppointForm extends FormLayout implements BaseForm{
     }
 
     public void processApp(TableEntry entry){
-        System.out.println(" ]] processApp f. called");
         setup.setEntryProcessed(entry);
         container.add(promptButtons);
         promptButtons.add(confirm, back2);
@@ -73,7 +72,6 @@ public class AppointForm extends FormLayout implements BaseForm{
     }
 
     private void pressConfirm() {
-        System.out.println("confirm button pressed");
         executeItem();
         promptButtons.removeAll();
         container.remove(question, promptButtons);
