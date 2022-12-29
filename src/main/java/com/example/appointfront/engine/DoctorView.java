@@ -42,6 +42,7 @@ public class DoctorView extends HorizontalLayout {
     private List<Grid<TableEntry>> timetables = new ArrayList<>();
     private List<Grid<TableEntry>> timetable = new ArrayList<>();
     private Label lockLabel = new Label("timetable unlocked");
+    String[] dayHeaders = new String[7];
     private LocalDate[] date4tfForm;
     HorizontalLayout weekTables = new HorizontalLayout();
 
@@ -72,22 +73,10 @@ public class DoctorView extends HorizontalLayout {
     }
 
     void createTables() { // - this f. is too long fixme
-        LocalDate[] date = new LocalDate[7];
-        String[] dayHeaders = new String[7];
-        for (int n = 1; n < 8; n ++) {
-            LocalDate day = setup.getTargetDay();
-            date[n - 1] = day.minusDays(day.getDayOfWeek().getValue() - n);
-            String dayOfWeek = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
-            String dateStamp = date[n - 1].format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-            dayHeaders[n - 1] =  dayOfWeek + "; " + dateStamp;
-        }
-        date4tfForm = Arrays.copyOfRange(date, 0, 5);
         setup.setTimetableLock(false);
         for (int i = 0; i < 5; i ++) {
             timetable.add(new Grid<>(TableEntry.class));
-            timetable.get(i).setItems(buildWeekDay(date[i], i)); // - this is spaghetti #1 fixme
             timetable.get(i).setColumns("status");
-            timetable.get(i).getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
             timetable.get(i).getColumnByKey("status").setSortable(false);
             timetable.get(i).setHeightFull();
             int y = i;
@@ -105,8 +94,23 @@ public class DoctorView extends HorizontalLayout {
         }
     }
 
-    public void refreshTables() {
+    public void refreshHeaders() { // fixme
+        LocalDate[] date = new LocalDate[7];
+        for (int n = 1; n < 8; n ++) {
+            LocalDate day = setup.getTargetDay();
+            date[n - 1] = day.minusDays(day.getDayOfWeek().getValue() - n);
+            String dayOfWeek = DayOfWeek.of(n).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+            String dateStamp = date[n - 1].format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            dayHeaders[n - 1] =  dayOfWeek + "; " + dateStamp;
+        }
+        date4tfForm = Arrays.copyOfRange(date, 0, 5);
+    }
 
+    public void refreshTables(LocalDate[] date) { // fixme
+        for (int i = 0; i < 5; i ++) {
+            timetable.get(i).setItems(buildWeekDay(date[i], i)); // - this is spaghetti #1 fixme
+            timetable.get(i).getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
+        }
     }
 
     TableEntry[] buildWeekDay(LocalDate weekdayDate, int weekdayArrayPosition) {  // - this f. is spaghetti #1 fixme
