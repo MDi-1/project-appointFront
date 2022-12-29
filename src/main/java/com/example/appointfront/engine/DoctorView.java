@@ -40,6 +40,7 @@ public class DoctorView extends HorizontalLayout {
     private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private List<Grid<TableEntry>> timetables = new ArrayList<>();
+    private List<Grid<TableEntry>> timetable = new ArrayList<>();
     private Label lockLabel = new Label("timetable unlocked");
     private LocalDate[] date4tfForm;
     HorizontalLayout weekTables = new HorizontalLayout();
@@ -62,13 +63,12 @@ public class DoctorView extends HorizontalLayout {
         addClassName("doctor-view");
         setSizeFull();
         weekTables.setSizeFull();
-        add(weekTables);
         createTables();
-        VerticalLayout containerVertical = new VerticalLayout(buildNavPanel(), lockLabel, formLabel, (Component) form);
-        containerVertical.setSizeFull();
+        VerticalLayout rightContainer = new VerticalLayout(buildNavPanel(), lockLabel, formLabel, (Component) form);
+        rightContainer.setSizeFull();
         container.add(weekTables, createTimeForm());
         container.setWidth("72%");
-        add(container, containerVertical);
+        add(container, rightContainer);
     }
 
     void createTables() { // - this f. is too long fixme
@@ -84,16 +84,16 @@ public class DoctorView extends HorizontalLayout {
         date4tfForm = Arrays.copyOfRange(date, 0, 5);
         setup.setTimetableLock(false);
         for (int i = 0; i < 5; i ++) {
-            Grid<TableEntry> timetable = new Grid<>(TableEntry.class);
-            timetable.setItems(buildWeekDay(date[i], i)); // - this is spaghetti #1 fixme
-            timetable.setColumns("status");
-            timetable.getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
-            timetable.getColumnByKey("status").setSortable(false);
-            timetable.setHeightFull();
+            timetable.add(new Grid<>(TableEntry.class));
+            timetable.get(i).setItems(buildWeekDay(date[i], i)); // - this is spaghetti #1 fixme
+            timetable.get(i).setColumns("status");
+            timetable.get(i).getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
+            timetable.get(i).getColumnByKey("status").setSortable(false);
+            timetable.get(i).setHeightFull();
             int y = i;
-            timetable.asSingleSelect().addValueChangeListener(event -> {
+            timetable.get(i).asSingleSelect().addValueChangeListener(event -> {
                 for (int k = 0; k < 5; k ++) {
-                    if (k != y) timetables.get(k).deselectAll();
+                    if (k != y) timetable.get(k).deselectAll();
                 }
                 TableEntry entry = event.getValue();
                 form.clearForm();               // main purpose of creating interface BaseForm was to call
@@ -101,8 +101,7 @@ public class DoctorView extends HorizontalLayout {
                 setup.setEntry(entry);
                 form.activateControls();
             });
-            timetables.add(timetable);
-            weekTables.add(timetables.get(i));
+            weekTables.add(timetable.get(i));
         }
     }
 
@@ -230,7 +229,7 @@ public class DoctorView extends HorizontalLayout {
     public void lockTimetables(boolean lock) {
         if (setup.isTimetableLock()) lockLabel.setText("timetable locked");
         else lockLabel.setText("timetable unlocked");
-        timetables.forEach(e -> {
+        timetable.forEach(e -> {
             e.setEnabled(!lock);
             e.deselectAll();
         });
