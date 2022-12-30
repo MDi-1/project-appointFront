@@ -39,7 +39,6 @@ public class DoctorView extends HorizontalLayout {
     private final TimeFrame[] weekTimeFrames = new TimeFrame[5];
     private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
-    private List<Grid<TableEntry>> timetables = new ArrayList<>();
     private List<Grid<TableEntry>> timetable = new ArrayList<>();
     private Label lockLabel = new Label("timetable unlocked");
     String[] dayHeaders = new String[7];
@@ -65,14 +64,20 @@ public class DoctorView extends HorizontalLayout {
         setSizeFull();
         weekTables.setSizeFull();
         createTables();
-        VerticalLayout rightContainer = new VerticalLayout(buildNavPanel(), lockLabel, formLabel, (Component) form);
+
+        // additional test button later 2B removed; fixme
+        Button forcedBtn = new Button("forced ref");
+        forcedBtn.addClickListener(event -> forceRefresh());
+
+        VerticalLayout rightContainer = new VerticalLayout(
+                buildNavPanel(), lockLabel, forcedBtn, formLabel, (Component) form);
         rightContainer.setSizeFull();
         container.add(weekTables, createTimeForm());
         container.setWidth("72%");
         add(container, rightContainer);
     }
 
-    void createTables() { // - this f. is too long fixme
+    void createTables() {
         setup.setTimetableLock(false);
         for (int i = 0; i < 5; i ++) {
             timetable.add(new Grid<>(TableEntry.class));
@@ -92,9 +97,11 @@ public class DoctorView extends HorizontalLayout {
             });
             weekTables.add(timetable.get(i));
         }
+        LocalDate[] dateArray = refreshHeaders();
+        refreshTables(dateArray);
     }
 
-    public void refreshHeaders() { // fixme
+    private LocalDate[] refreshHeaders() { // fixme
         LocalDate[] date = new LocalDate[7];
         for (int n = 1; n < 8; n ++) {
             LocalDate day = setup.getTargetDay();
@@ -104,16 +111,22 @@ public class DoctorView extends HorizontalLayout {
             dayHeaders[n - 1] =  dayOfWeek + "; " + dateStamp;
         }
         date4tfForm = Arrays.copyOfRange(date, 0, 5);
+        return date;
     }
 
-    public void refreshTables(LocalDate[] date) { // fixme
+    private void refreshTables(LocalDate[] date) { // fixme
         for (int i = 0; i < 5; i ++) {
             timetable.get(i).setItems(buildWeekDay(date[i], i)); // - this is spaghetti #1 fixme
             timetable.get(i).getColumnByKey("status").setHeader(dayHeaders[i]);  //-this is spaghetti #1 fixme
         }
     }
 
-    TableEntry[] buildWeekDay(LocalDate weekdayDate, int weekdayArrayPosition) {  // - this f. is spaghetti #1 fixme
+    void forceRefresh() {
+        LocalDate[] dateArray = refreshHeaders();
+        refreshTables(dateArray);
+    }
+
+    private TableEntry[] buildWeekDay(LocalDate weekdayDate, int weekdayArrayPosition) { //-this f. is spaghetti fixme
         int workDayHrsCount  = 12;
         TableEntry[] entries = new TableEntry[workDayHrsCount];
         List<TimeFrame> timeFrames;
@@ -160,17 +173,19 @@ public class DoctorView extends HorizontalLayout {
         Button fwd = new Button(">>");
         Button go2date = new Button("go to date");
         TextField field = new TextField(null, setup.getTargetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")));
+        // w tej funkcji trzeba odświeżyć tylko placeholder dla TextField i Setup.targetDay (może nawet z tym ostatnim
+        // nie trzeba nic robić, bo wystarczy lambda pozostawiona w tej funkcji.
         rwd.addClickListener(event -> {
             targetDate = setup.getTargetDay().minusDays(7L);
-            refresh();
+            refreshPage();
         });
         fwd.addClickListener(event -> {
             targetDate = setup.getTargetDay().plusDays(7L);
-            refresh();
+            refreshPage();
         });
         go2date.addClickListener(event -> {
             targetDate = LocalDate.parse(field.getValue(), DateTimeFormatter.ofPattern("dd-M-yyyy"));
-            refresh();
+            refreshPage();
         });
         HorizontalLayout horizontal = new HorizontalLayout(rwd, field, fwd);
         VerticalLayout navPanel = new VerticalLayout(horizontal, go2date);
@@ -201,7 +216,12 @@ public class DoctorView extends HorizontalLayout {
         } return new FormLayout(bottomBar);
     }
 
-    public void refresh() {//as soon as this project's finished refactor this f. to more civilized form to refresh view.
+    private void refreshTF() {
+
+    }
+
+    //as soon as this project's finished refactor this f. to more civilized form to refresh view.
+    public void refreshPage() {
         setup.setTargetDay(targetDate);
         UI.getCurrent().getPage().reload();
     }
@@ -216,12 +236,12 @@ public class DoctorView extends HorizontalLayout {
         return frameStart;
     }
 
-    public List<Binder<TimeFrame>> getTfBinderList() {
-        return tfBinderList;
-    }
-
     public TextField[] getFrameEnd() {
         return frameEnd;
+    }
+
+    public List<Binder<TimeFrame>> getTfBinderList() {
+        return tfBinderList;
     }
 
     public void setDocFromTab(Doctor doctor) {
