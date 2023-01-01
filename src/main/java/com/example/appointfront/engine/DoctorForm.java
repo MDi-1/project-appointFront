@@ -11,6 +11,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DoctorForm extends FormLayout implements BaseForm{
@@ -24,10 +25,15 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private ComboBox<Doctor.Position> position = new ComboBox<>("position");
     private final HorizontalLayout buttonRow = new HorizontalLayout();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
-    private final List<TimeFrame> tfProcessList = new ArrayList<>();
+    private static final List<TimeFrame> tfProcessList = new ArrayList<>();
     private final Button addBtn = new Button("Add");
     private final Button editBtn = new Button("Edit Personal Data");
     private final Button timeBtn = new Button("Edit Timeframes");
+    private final Button saveTfBtn   = new Button("Save");
+    private final Button delTfButton = new Button("Delete");
+    private final Button cancelTfBtn = new Button("Cancel");
+    private final Button setBtn = new Button("print set"); // remove this one later
+
 
     public DoctorForm(BackendClient client, Setup setup, DoctorView view) {
         this.client = client;
@@ -56,27 +62,23 @@ public class DoctorForm extends FormLayout implements BaseForm{
             activateControls();
         });
         timeBtn.addClickListener(event -> activateTimeFrameControls());
-    }
-
-    public void activateTimeFrameControls() {
-        Button saveTfBtn   = new Button("Save");
-        Button delTfButton = new Button("Delete");
-        Button cancelTfBtn = new Button("Cancel");
-        Button setBtn = new Button("print set"); // remove this one later
-        clearForm();
-        toggleLocks(true);
-        binder.setBean(setup.getDoctor());
-        tfProcessList.clear();
-        prepareTfSet(view.getFrameStart());
-        prepareTfSet(view.getFrameEnd());
-        saveTfBtn.addClickListener(event -> executeTimeFrames());
         delTfButton.addClickListener(event -> {
             Doctor doctor = binder.getBean();
             //client.deleteTf(doctor.getId());
             clearForm();
         });
         cancelTfBtn.addClickListener(event -> clearForm());
+        saveTfBtn.addClickListener(event -> executeTimeFrames());
         setBtn.addClickListener(event -> getTfProcessList().forEach(System.out::println));
+    }
+
+    public void activateTimeFrameControls() {
+        clearForm();
+        toggleLocks(true);
+        binder.setBean(setup.getDoctor());
+        tfProcessList.clear();
+        Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(true));
+        Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(true));
         exeMode = false;
         buttonRow.add(saveTfBtn, delTfButton, cancelTfBtn, setBtn);
         add(buttonRow);
@@ -98,19 +100,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
         for (TextField field : array) {
             int x = i;
             field.setEnabled(true);
-            field.addValueChangeListener(action -> {
-                TimeFrame tfx = view.getTfBinderList().get(x).getBean();
-                TimeFrame tfSubtract = null;
-                for (TimeFrame tf : tfProcessList) {
-                    if (tf.getDate().equals(tfx.getDate())) {
-                        tfSubtract = tf;
-                        System.out.println(" ]] about to exchange tf: " + tf);
-                    }
-                } // for some reason f.remove() does not work on Set. 2 B done later - do it on Set instead of List
-                tfProcessList.remove(tfSubtract);
-                tfProcessList.add(tfx);
-                System.out.println(" ]] added to set: " + tfx);
-            });
             i ++;
         }
     }
@@ -153,6 +142,8 @@ public class DoctorForm extends FormLayout implements BaseForm{
         }
         tfProcessList.clear();
         clearForm();
+        Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(false));
+        Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(false));
         toggleLocks(false);
     }
 
@@ -165,7 +156,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         }
     }
 
-    public List<TimeFrame> getTfProcessList() {
+    public static List<TimeFrame> getTfProcessList() {
         return tfProcessList;
     }
 }

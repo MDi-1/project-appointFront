@@ -26,6 +26,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
 
+import static com.example.appointfront.engine.DoctorForm.getTfProcessList;
+
 @Route(value = "doctor", layout = MainLayout.class)
 @PageTitle("Doctors | Tiny Clinic")
 public class DoctorView extends HorizontalLayout {
@@ -36,7 +38,7 @@ public class DoctorView extends HorizontalLayout {
     private LocalDate targetDate;
     private final TextField[] frameStart = new TextField[5];
     private final TextField[] frameEnd = new TextField[5];
-    private final TimeFrame[] weekTimeFrames = new TimeFrame[5];
+    private TimeFrame[] weekTimeFrames = new TimeFrame[5];
     private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private List<Grid<TableEntry>> timetable = new ArrayList<>();
@@ -67,8 +69,8 @@ public class DoctorView extends HorizontalLayout {
         createTables();
 
         // additional test button later 2B removed; fixme
-        Button forcedBtn = new Button("forced ref");
-        forcedBtn.addClickListener(event -> forceRefresh());
+        Button forcedBtn = new Button("weekTimeFrames");
+        forcedBtn.addClickListener(event -> Arrays.stream(weekTimeFrames).forEach(System.out::println));
 
         VerticalLayout rightContainer = new VerticalLayout(
                 buildNavPanel(), lockLabel, forcedBtn, formLabel, (Component) form);
@@ -123,6 +125,7 @@ public class DoctorView extends HorizontalLayout {
     }
 
     void forceRefresh() {
+        weekTimeFrames = new TimeFrame[5];
         refreshNavPanel();
         LocalDate[] dateArray = refreshHeaders();
         refreshTables(dateArray);
@@ -175,8 +178,6 @@ public class DoctorView extends HorizontalLayout {
         Button rwd = new Button("<<");
         Button fwd = new Button(">>");
         Button go2date = new Button("go to date");
-        // w tej funkcji trzeba odświeżyć tylko placeholder dla TextField i Setup.targetDay (może nawet z tym ostatnim
-        // nie trzeba nic robić, bo wystarczy lambda pozostawiona w tej funkcji.
         refreshNavPanel();
         rwd.addClickListener(event -> {
             targetDate = setup.getTargetDay().minusDays(7L);
@@ -198,9 +199,8 @@ public class DoctorView extends HorizontalLayout {
     }
 
     private void refreshNavPanel() {
-        setup.setTargetDay(targetDate);
-        String placeholder = setup.getTargetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy"));
-        navPanelField.setPlaceholder(placeholder);
+        if (targetDate != null) setup.setTargetDay(targetDate);
+        navPanelField.setPlaceholder(setup.getTargetDay().format(DateTimeFormatter.ofPattern("dd-M-yyyy")));
     }
 
     // (i) instead of writing new class for this form we can write the f. returning desired type;
@@ -212,14 +212,29 @@ public class DoctorView extends HorizontalLayout {
             tfBinderList.add(tfBinder);
             frameStart[i] = new TextField();
             frameEnd[i] = new TextField();
-            tfBinderList.get(i).bind(frameStart[i], "timeStart");
-            tfBinderList.get(i).bind(frameEnd[i], "timeEnd");
+            int x = i;
+            frameStart[i].addValueChangeListener(action -> tfProcessing(x));
+            frameEnd[i].addValueChangeListener(action -> tfProcessing(x));
             frameStart[i].setEnabled(false);
             frameEnd[i].setEnabled(false);
             bottomBar.add(new VerticalLayout(frameStart[i], frameEnd[i]));
         }
         refreshTimeForm();
         return new FormLayout(bottomBar);
+    }
+
+    private void tfProcessing(int x) {
+        TimeFrame tfx = getTfBinderList().get(x).getBean();
+        TimeFrame tfSubtract = null;
+        for (TimeFrame tf : getTfProcessList()) {
+            if (tf.getDate().equals(tfx.getDate())) {
+                tfSubtract = tf;
+                System.out.println(" ]] about to exchange tf: " + tf);
+            }
+        } // for some reason f.remove() does not work on Set. 2 B done later - do it on Set instead of List
+        getTfProcessList().remove(tfSubtract);
+        getTfProcessList().add(tfx);
+        System.out.println(" ]] added to set: " + tfx);
     }
 
     private void refreshTimeForm() {
@@ -229,6 +244,8 @@ public class DoctorView extends HorizontalLayout {
             } else {
                 tfBinderList.get(i).setBean(new TimeFrame(date4tfForm[i].toString(),"-","-",setup.getDoctor().getId()));
             }
+            tfBinderList.get(i).bind(frameStart[i], "timeStart");
+            tfBinderList.get(i).bind(frameEnd[i], "timeEnd");
         }
     }
 
