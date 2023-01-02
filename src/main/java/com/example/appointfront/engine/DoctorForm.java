@@ -67,7 +67,11 @@ public class DoctorForm extends FormLayout implements BaseForm{
             //client.deleteTf(doctor.getId());
             clearForm();
         });
-        cancelTfBtn.addClickListener(event -> clearForm());
+        cancelTfBtn.addClickListener(event -> {
+            Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(false));
+            Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(false));
+            clearForm();
+        });
         saveTfBtn.addClickListener(event -> executeTimeFrames());
         setBtn.addClickListener(event -> getTfProcessList().forEach(System.out::println));
     }
@@ -95,7 +99,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         timeBtn.setEnabled(!lock);
     }
 
-    void prepareTfSet(TextField[] array) {
+    void prepareTfSet(TextField[] array) { // 2 B deleted
         int i = 0;
         for (TextField field : array) {
             int x = i;

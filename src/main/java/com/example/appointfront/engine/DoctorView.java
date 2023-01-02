@@ -14,6 +14,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -212,11 +213,11 @@ public class DoctorView extends HorizontalLayout {
             tfBinderList.add(tfBinder);
             frameStart[i] = new TextField();
             frameEnd[i] = new TextField();
+            frameStart[i].setEnabled(false);
+            frameEnd[i].setEnabled(false);
             int x = i;
             frameStart[i].addValueChangeListener(action -> tfProcessing(x));
             frameEnd[i].addValueChangeListener(action -> tfProcessing(x));
-            frameStart[i].setEnabled(false);
-            frameEnd[i].setEnabled(false);
             bottomBar.add(new VerticalLayout(frameStart[i], frameEnd[i]));
         }
         refreshTimeForm();
@@ -224,6 +225,7 @@ public class DoctorView extends HorizontalLayout {
     }
 
     private void tfProcessing(int x) {
+        if (!frameStart[x].isEnabled()) return;
         TimeFrame tfx = getTfBinderList().get(x).getBean();
         TimeFrame tfSubtract = null;
         for (TimeFrame tf : getTfProcessList()) {
