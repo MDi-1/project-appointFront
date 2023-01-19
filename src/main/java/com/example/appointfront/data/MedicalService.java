@@ -10,12 +10,14 @@ import lombok.NoArgsConstructor;
 @Data
 public class MedicalService {
 
+    public enum ServiceName { Physician, Dermatologist, Gynecologist, Gastroenterologist, Laryngologist, Orthopedist }
+
     @JsonProperty("id")
     private Long id;
 
+    @JsonProperty("serviceName")
+    private MedicalService.ServiceName serviceName;
+
     @JsonProperty("description")
     private String description;
-
-    @JsonProperty("doctorId")
-    private int doctorId;
 }

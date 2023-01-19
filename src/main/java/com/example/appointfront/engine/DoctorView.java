@@ -1,9 +1,6 @@
 package com.example.appointfront.engine;
 
-import com.example.appointfront.data.Appointment;
-import com.example.appointfront.data.Doctor;
-import com.example.appointfront.data.TableEntry;
-import com.example.appointfront.data.TimeFrame;
+import com.example.appointfront.data.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,7 +11,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -56,7 +52,7 @@ public class DoctorView extends HorizontalLayout {
         Label formLabel = new Label();
         String formHeaderTxt;
         if (setup.isAdmission()) form = new DoctorForm(client, setup, DoctorView.this);
-        else form = new AppointForm(client, setup);
+        else form = new AppointForm(client, setup, DoctorView.this);
         if (setup.getDoctor() == null) formHeaderTxt = "none selected";
         else formHeaderTxt = "selected: " + setup.getDoctor().getName() + " " + setup.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);
@@ -69,12 +65,8 @@ public class DoctorView extends HorizontalLayout {
         weekTables.setSizeFull();
         createTables();
 
-        // additional test button later 2B removed; fixme
-        Button forcedBtn = new Button("weekTimeFrames");
-        forcedBtn.addClickListener(event -> Arrays.stream(weekTimeFrames).forEach(System.out::println));
-
         VerticalLayout rightContainer = new VerticalLayout(
-                buildNavPanel(), lockLabel, forcedBtn, formLabel, (Component) form);
+                buildNavPanel(), lockLabel, formLabel, (Component) form);
         rightContainer.setSizeFull();
         container.add(weekTables, createTimeForm());
         container.setWidth("72%");
@@ -154,23 +146,28 @@ public class DoctorView extends HorizontalLayout {
         for (int n = 0; n < workDayHrsCount; n ++) {
             LocalTime time = LocalTime.of(n + 6, 0);
             String status;
-            long appId = 0;
+            Patient patient = null;
+            Long appId = null;
             if (tfStart == null) status = "n/a";
             else {
                 if (time.isBefore(tfStart) || time.isAfter(tfEnd) || time.equals(tfEnd)) status = "off";
-                else status = time.getHour() + ":00 AVAILABLE";
+                else status = time.getHour() + ":00 -AVAILABLE-";
                 for (Appointment singleApp : appointments) {
                     LocalDateTime appDateTime = LocalDateTime.parse(
                             singleApp.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
                     LocalDate appDate = LocalDate.from(appDateTime);
                     LocalTime appTime = LocalTime.from(appDateTime);
                     if (weekdayDate.equals(appDate) && time.equals(appTime)) {
-                        status = time.getHour() + ":00 busy";
+                        patient = setup.getPatients().stream().filter(e -> e.getId().equals(singleApp.getPatientId()))
+                                .findFirst().orElseThrow(IllegalArgumentException::new);
                         appId = singleApp.getId();
+                        if (patient.equals(setup.getPatient())) {
+                            status = time.getHour() + ":00 Appointed";
+                        } else status = "busy";
                     }
                 }
             }
-            entries[n] = new TableEntry(weekdayDate, status, time, 15L, setup.getPatient(), setup.getDoctor(), appId);
+            entries[n] = new TableEntry(weekdayDate, status, time, 15L, patient, setup.getDoctor(), appId);
         }
         return entries;
     }
@@ -244,17 +241,12 @@ public class DoctorView extends HorizontalLayout {
             if (weekTimeFrames[i] != null) {
                 tfBinderList.get(i).setBean(weekTimeFrames[i]);
             } else {
-                tfBinderList.get(i).setBean(new TimeFrame(date4tfForm[i].toString(),"-","-",setup.getDoctor().getId()));
+                tfBinderList.get(i).setBean(new TimeFrame(
+                        date4tfForm[i].toString(),"-","-", TimeFrame.TfStatus.Present, setup.getDoctor().getId()));
             }
             tfBinderList.get(i).bind(frameStart[i], "timeStart");
             tfBinderList.get(i).bind(frameEnd[i], "timeEnd");
         }
-    }
-
-    //as soon as this project's finished refactor this f. to more civilized form to refresh view.
-    public void refreshPage() {
-        setup.setTargetDay(targetDate);
-        UI.getCurrent().getPage().reload();
     }
 
     public void enterDoctorManagement(Doctor doctor) {

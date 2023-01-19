@@ -22,7 +22,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private boolean exeMode;
     private final TextField name = new TextField("first name");
     private final TextField lastName = new TextField("last name");
-    private ComboBox<Doctor.Position> position = new ComboBox<>("position");
     private final HorizontalLayout buttonRow = new HorizontalLayout();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private static final List<TimeFrame> tfProcessList = new ArrayList<>();
@@ -30,9 +29,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final Button editBtn = new Button("Edit Personal Data");
     private final Button timeBtn = new Button("Edit Timeframes");
     private final Button saveTfBtn   = new Button("Save");
-    private final Button delTfButton = new Button("Delete");
     private final Button cancelTfBtn = new Button("Cancel");
-    private final Button setBtn = new Button("print set"); // remove this one later
 
 
     public DoctorForm(BackendClient client, Setup setup, DoctorView view) {
@@ -41,13 +38,17 @@ public class DoctorForm extends FormLayout implements BaseForm{
         this.view = view;
         addClassName("doctor-form");
         binder.bindInstanceFields(this);
-        ComboBox<MedicalService> services = new ComboBox<>("medical services");
+        ComboBox<Doctor.Position> position = new ComboBox<>("position");
+        ComboBox<MedicalService.ServiceName> services = new ComboBox<>("medical services");
         position.setItems(Doctor.Position.values());
-        services.setItems(client.getMedServiceList());
-        add(name, lastName, position, new HorizontalLayout(addBtn, editBtn, timeBtn));
+        services.setItems(MedicalService.ServiceName.values());
+        add(name, lastName, new HorizontalLayout(position, services), new HorizontalLayout(addBtn, editBtn, timeBtn));
         if (setup.getDoctor() != null) {
             name.setPlaceholder(setup.getDoctor().getName());
             lastName.setPlaceholder(setup.getDoctor().getLastName());
+            position.setPlaceholder(setup.getDoctor().getPosition().name());
+            services.setPlaceholder( null //fixme
+                    );
         }
         addBtn.addClickListener(event -> {
             name.setPlaceholder("");
@@ -62,18 +63,12 @@ public class DoctorForm extends FormLayout implements BaseForm{
             activateControls();
         });
         timeBtn.addClickListener(event -> activateTimeFrameControls());
-        delTfButton.addClickListener(event -> {
-            Doctor doctor = binder.getBean();
-            //client.deleteTf(doctor.getId());
-            clearForm();
-        });
         cancelTfBtn.addClickListener(event -> {
             Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(false));
             Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(false));
             clearForm();
         });
         saveTfBtn.addClickListener(event -> executeTimeFrames());
-        setBtn.addClickListener(event -> getTfProcessList().forEach(System.out::println));
     }
 
     public void activateTimeFrameControls() {
@@ -84,7 +79,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(true));
         Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(true));
         exeMode = false;
-        buttonRow.add(saveTfBtn, delTfButton, cancelTfBtn, setBtn);
+        buttonRow.add(saveTfBtn, cancelTfBtn);
         add(buttonRow);
     }
 
@@ -97,15 +92,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
         addBtn.setEnabled(!lock);
         editBtn.setEnabled(!lock);
         timeBtn.setEnabled(!lock);
-    }
-
-    void prepareTfSet(TextField[] array) { // 2 B deleted
-        int i = 0;
-        for (TextField field : array) {
-            int x = i;
-            field.setEnabled(true);
-            i ++;
-        }
     }
 
     @Override
@@ -135,12 +121,19 @@ public class DoctorForm extends FormLayout implements BaseForm{
     }
 
     void executeTimeFrames() {
-        for (TimeFrame item : tfProcessList) {
-            if (item.getId() != null) {
-                client.updateTimeframe(item);
-            }
-            else {
-                TimeFrame response = client.createTimeFrame(item);
+        for (TimeFrame timeFrame : tfProcessList) {
+            if (timeFrame.getId() != null) {
+                if (timeFrame.getTimeStart().equals("x") && timeFrame.getTimeEnd().equals("x")) {
+                    client.deleteTimeFrame(timeFrame.getId());
+                    break;
+                }
+                if (timeFrame.getTimeStart().equals("off") && timeFrame.getTimeEnd().equals("off")) {
+                    timeFrame.setStatus(TimeFrame.TfStatus.Day_Off);
+                }
+                client.updateTimeframe(timeFrame);
+            } else {
+                System.out.println(" ]] timeframe 2 B posted :" + timeFrame);
+                TimeFrame response = client.createTimeFrame(timeFrame);
                 System.out.println(response);
             }
         }
@@ -149,6 +142,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(false));
         Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(false));
         toggleLocks(false);
+        view.forceRefresh();
     }
 
     public void clearForm() {

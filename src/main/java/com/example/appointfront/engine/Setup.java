@@ -6,6 +6,7 @@ import com.example.appointfront.data.TableEntry;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Component
@@ -19,4 +20,5 @@ public class Setup {
     private TableEntry entryProcessed;
     private LocalDate targetDay;
     private LocalDate startingDay = LocalDate.of(2022, 9, 15); // temporary value for target day in createTables
+    private List<Patient> patients;
 }

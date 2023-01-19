@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class TimeFrame {
 
+    public enum TfStatus {  Present, Day_Off  }
+
     @JsonProperty("id")
     private Long id;
 
@@ -22,13 +24,17 @@ public class TimeFrame {
     @JsonProperty("timeEnd")
     private String timeEnd;
 
-    @JsonProperty("doctorId")
-    private int doctorId;
+    @JsonProperty("status")
+    private TimeFrame.TfStatus status;
 
-    public TimeFrame(String date, String timeStart, String timeEnd, int doctorId) {
+    @JsonProperty("doctorId")
+    private Long doctorId;
+
+    public TimeFrame(String date, String timeStart, String timeEnd, TfStatus status, Long doctorId) {
         this.date = date;
         this.timeStart = timeStart;
         this.timeEnd = timeEnd;
+        this.status = status;
         this.doctorId = doctorId;
     }
 }

@@ -11,6 +11,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.util.List;
+
 @Route(value= "start", layout = MainLayout.class)
 @PageTitle("Start | Tiny Clinic")
 public class StartingView extends HorizontalLayout {
@@ -19,13 +21,15 @@ public class StartingView extends HorizontalLayout {
 
     public StartingView(BackendClient client, Setup setup, InitHeader header) {
         this.header = header;
+        List<Patient> patients = client.getAllPatients();
         Label label = new Label("Click one of buttons to log in as sample patient or as administrator");
         Button patientBtn = new Button("Log in as patient");
         Button managerBtn = new Button("Log in as manager");
         Button adminButton = new Button("Log in as service administrator");
         Grid<Patient> table = new Grid<>(Patient.class);
         setup.setTargetDay(setup.getStartingDay());
-        table.setItems(client.getAllPatients());
+        setup.setPatients(patients);
+        table.setItems(patients);
         table.setColumns("firstName", "lastName");
         table.asSingleSelect().addValueChangeListener(event -> setup.setPatient(event.getValue()));
         VerticalLayout loginBox = new VerticalLayout(label, patientBtn, managerBtn, adminButton);
@@ -35,7 +39,7 @@ public class StartingView extends HorizontalLayout {
         add(loginBox, table);
         loginBox.setAlignItems(Alignment.CENTER);
         patientBtn.addClickListener(event -> {
-            if (setup.getPatient() == null) setup.setPatient(client.getPatientById(17)); //unnecessarily hardcoded 17
+            if (setup.getPatient() == null) setup.setPatient(client.getPatientById(17L)); //unnecessarily hardcoded 17
             setup.setAdmission(false);
             this.header.updateLoggedUser();
             UI.getCurrent().navigate("user");

@@ -17,15 +17,15 @@ public class Appointment {
     private String startDateTime;
 
     @JsonProperty("price")
-    private long price;
+    private int price;
 
     @JsonProperty("doctorId")
-    private int doctorId;
+    private Long doctorId;
 
     @JsonProperty("patientId")
-    private int patientId;
+    private Long patientId;
 
-    public Appointment(String startDateTime, int doctorId, int patientId) {
+    public Appointment(String startDateTime, Long doctorId, Long patientId) {
         this.startDateTime = startDateTime;
         this.doctorId = doctorId;
         this.patientId = patientId;

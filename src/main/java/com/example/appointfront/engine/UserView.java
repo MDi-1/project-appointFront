@@ -15,6 +15,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Route(value="user", layout = MainLayout.class)
 @PageTitle("User | Tiny Clinic")
@@ -48,11 +49,11 @@ public class UserView extends VerticalLayout {
             appointmentGrid.setItems(client.getAppsByPatient());
             appointmentGrid.setColumns("startDateTime", "price");
             appointmentGrid.addColumn(apt -> client.getDoctorList()
-                    .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getName()
-            ).setHeader("doctors' name");
+                    .stream().filter(doc -> Objects.equals(doc.getId(), apt.getDoctorId()))
+                    .findAny().get().getName()).setHeader("doctors' name");
             appointmentGrid.addColumn(apt -> client.getDoctorList()
-                    .stream().filter(doc -> doc.getId() == apt.getDoctorId()).findAny().get().getLastName()
-            ).setHeader("doctors' surname");
+                    .stream().filter(doc -> Objects.equals(doc.getId(), apt.getDoctorId()))
+                    .findAny().get().getLastName()).setHeader("doctors' surname");
             appointmentGrid.asSingleSelect().addValueChangeListener(event -> activateAppButtons(event.getValue()));
             return new VerticalLayout(appHead, appointmentGrid);
         } else return new VerticalLayout(appHead, new Label("log in as patient to see the appointment list"));

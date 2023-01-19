@@ -19,32 +19,39 @@ public class AppointForm extends FormLayout implements BaseForm{
 
     private Setup setup;
     private BackendClient client;
-    VerticalLayout container = new VerticalLayout();
-    HorizontalLayout promptButtons = new HorizontalLayout();
-    Label question = new Label();
-    Button confirm = new Button("confirm");
-    Button back2 = new Button("back");
+    private DoctorView view;
+    private VerticalLayout container = new VerticalLayout();
+    private HorizontalLayout promptButtons = new HorizontalLayout();
+    private final Label question = new Label();
+    private final Button confirm = new Button("confirm");
+    private final Button back2 = new Button("back");
+    private final Button back1 = new Button("Back");
+    private final Button btnAcceptDeny = new Button("Appoint");
+
     private boolean exeMode;
 
-    public AppointForm(BackendClient client, Setup setup) {
+    public AppointForm(BackendClient client, Setup setup, DoctorView view) {
         this.client = client;
         this.setup = setup;
+        this.view = view;
         addClassName("appointment-form");
         add(container);
         confirm.addClickListener(event -> pressConfirm());
+        btnAcceptDeny.addClickListener(event -> processApp(setup.getEntry()));
+        back1.addClickListener(event -> clearForm());
     }
 
     @Override
     public void activateControls() {
-        if (setup.getEntry().getStatus().equals("n/a") || setup.getEntry().getStatus().equals("off")) return;
-        Button back1 = new Button("Back");
-        Button btnAcceptDeny = new Button("Appoint");
+        if (setup.getEntry().getStatus().equals("n/a")
+                || setup.getEntry().getStatus().equals("off")
+                || setup.getEntry().getStatus().equals("busy")
+        ) return;
         HorizontalLayout buttons = new HorizontalLayout(btnAcceptDeny, back1);
-        btnAcceptDeny.addClickListener(event -> processApp(setup.getEntry()));
         String doctorName = setup.getDoctor().getName() + " " + setup.getDoctor().getLastName();
         String timeString = " at " + setup.getEntry().getTime();
         container.add(buttons, question);
-        if (setup.getEntry().getAttributedApp() == 0) {
+        if (setup.getEntry().getAttributedApp() == null) {
             btnAcceptDeny.setText("Appoint");
             question.setText("Are You sure to make an appointment with doctor " + doctorName + timeString);
             exeMode = true;
@@ -54,7 +61,6 @@ public class AppointForm extends FormLayout implements BaseForm{
             exeMode = false;
         }
         setup.setTargetDay(setup.getEntry().getWeekday());
-        back1.addClickListener(event -> clearForm());
     }
 
     @Override
@@ -75,6 +81,7 @@ public class AppointForm extends FormLayout implements BaseForm{
         executeItem();
         promptButtons.removeAll();
         container.remove(question, promptButtons);
+        view.forceRefresh();
         // statement to update tables - to be added
     }
 

@@ -97,12 +97,23 @@ public class BackendClient {
         }
     }
 
-    void deleteDoctor(int docId) {
+    void deleteDoctor(Long docId) {
         String id = String.valueOf(docId);
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/")
                 .path(id)
                 .build().encode().toUri();
         restTemplate.delete(url);
+    }
+
+    public List<MedicalService> getAllServices() {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/getAll").build().encode().toUri();
+        try {
+            MedicalService[] response = restTemplate.getForObject(url, MedicalService[].class);
+            return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     public List<Appointment> getAllAppointments() {
@@ -188,8 +199,12 @@ public class BackendClient {
         restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(tf), TimeFrame.class);
     }
 
-    public void deleteTimeFrame(Long tfId) { // todo
-
+    public void deleteTimeFrame(Long tfId) {
+        String id = String.valueOf(tfId);
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "timeFrame/")
+                .path(id)
+                .build().encode().toUri();
+        restTemplate.delete(url);
     }
 
     public List<Patient> getAllPatients() {
@@ -203,7 +218,7 @@ public class BackendClient {
         }
     }
 
-    public Patient getPatientById(int id) {
+    public Patient getPatientById(Long id) {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/")
                 .path(String.valueOf(id)).build().encode().toUri();
         return restTemplate.getForObject(url, Patient.class);
@@ -224,7 +239,7 @@ public class BackendClient {
         restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(patient), Patient.class);
     }
 
-    public void deletePatient(int patientId) {
+    public void deletePatient(Long patientId) {
         String id = String.valueOf(patientId);
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/")
                 .path(id)
