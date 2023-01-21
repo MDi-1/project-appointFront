@@ -25,12 +25,13 @@ public class UserView extends VerticalLayout {
     private final Setup setup;
     private final BackendClient client;
     private final DoctorView doctorView;
-    private Button delApp = new Button("Delete Appointment");
-    private Button go2App = new Button("Show in Timetable");
-    private Button confirm = new Button("Confirm");
-    private Button cancel = new Button("Cancel");
+    private final Button delApp = new Button("Delete Appointment");
+    private final Button go2App = new Button("Show in Timetable");
+    private final Button confirm = new Button("Confirm");
+    private final Button cancel = new Button("Cancel");
     private List<Doctor> listOfDoctors = new ArrayList<>();
-    private HorizontalLayout appButtonRow = new HorizontalLayout();
+    private List<MedicalService> services = new ArrayList<>();
+    private final HorizontalLayout appButtonRow = new HorizontalLayout();
 
     public UserView(BackendClient client, Setup setup) {
         this.client = client;
@@ -61,7 +62,7 @@ public class UserView extends VerticalLayout {
 
     VerticalLayout makeServiceTab() {
         Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
-        serviceGrid.setColumns("description");
+        serviceGrid.setColumns("serviceName");
         serviceGrid.setItems(client.getMedServiceList());
         VerticalLayout serviceTab = new VerticalLayout(new Label("Pick service to make an appointment"), serviceGrid);
         serviceTab.setWidth("50%");
@@ -94,8 +95,8 @@ public class UserView extends VerticalLayout {
             System.out.println(parsedDate);
             setup.setTargetDay(parsedDate);
             Doctor d = null;
-            for (Doctor doc : listOfDoctors) {
-                if (doc.getId() == appointment.getDoctorId()) d = doc;
+            for (Doctor doctor : listOfDoctors) {
+                if (doctor.getId() == appointment.getDoctorId()) d = doctor;
             }
             doctorView.enterDoctorManagement(d);
         });

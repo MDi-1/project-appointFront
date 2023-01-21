@@ -20,4 +20,8 @@ public class MedicalService {
 
     @JsonProperty("description")
     private String description;
+
+    public MedicalService(ServiceName serviceName) {
+        this.serviceName = serviceName;
+    }
 }

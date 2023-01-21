@@ -105,17 +105,6 @@ public class BackendClient {
         restTemplate.delete(url);
     }
 
-    public List<MedicalService> getAllServices() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/getAll").build().encode().toUri();
-        try {
-            MedicalService[] response = restTemplate.getForObject(url, MedicalService[].class);
-            return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
-        } catch (RestClientException e) {
-            LOGGER.error(e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
-
     public List<Appointment> getAllAppointments() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/getAll").build().encode().toUri();
         try {
