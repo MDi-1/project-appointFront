@@ -20,6 +20,8 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final DoctorView view;
     private final Setup setup;
     private boolean exeMode;
+    private final ComboBox<Doctor.Position> position = new ComboBox<>("position");
+    private final ComboBox<MedicalService.ServiceName> services = new ComboBox<>("medical services");
     private final TextField name = new TextField("first name");
     private final TextField lastName = new TextField("last name");
     private final HorizontalLayout buttonRow = new HorizontalLayout();
@@ -38,17 +40,22 @@ public class DoctorForm extends FormLayout implements BaseForm{
         this.view = view;
         addClassName("doctor-form");
         binder.bindInstanceFields(this);
-        ComboBox<Doctor.Position> position = new ComboBox<>("position");
-        ComboBox<MedicalService.ServiceName> services = new ComboBox<>("medical services");
         position.setItems(Doctor.Position.values());
         services.setItems(MedicalService.ServiceName.values());
-        add(name, lastName, new HorizontalLayout(position, services), new HorizontalLayout(addBtn, editBtn, timeBtn));
+        add(
+                new HorizontalLayout(name, lastName),
+                new HorizontalLayout(position, services),
+                new HorizontalLayout(addBtn, editBtn, timeBtn)
+        );
         if (setup.getDoctor() != null) {
             name.setPlaceholder(setup.getDoctor().getName());
             lastName.setPlaceholder(setup.getDoctor().getLastName());
             position.setPlaceholder(setup.getDoctor().getPosition().name());
             services.setPlaceholder( null //fixme
                     );
+
+            Long serviceId = setup
+                    .getDoctor().getMedServiceIds().stream().findFirst().orElseThrow(IllegalArgumentException::new);
         }
         addBtn.addClickListener(event -> {
             name.setPlaceholder("");
@@ -114,7 +121,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     @Override
     public void executeItem() {
         Doctor doctor = binder.getBean();
-        System.out.println(doctor);
+        System.out.println(doctor.toString1());
         if (exeMode) client.createDoctor(doctor);
         else client.updateDoctor(doctor);
         clearForm();

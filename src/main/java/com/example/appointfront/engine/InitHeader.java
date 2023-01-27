@@ -7,7 +7,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.stereotype.Component;
-import static com.example.appointfront.engine.TestView.addFunctionality;
+import static com.example.appointfront.engine.TechnicalView.addFunctionality;
 
 @Component
 @UIScope

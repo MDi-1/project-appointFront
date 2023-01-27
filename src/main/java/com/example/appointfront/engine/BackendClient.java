@@ -66,6 +66,27 @@ public class BackendClient {
         }
     }
 
+    public MedicalService createMedicalService(MedicalService service) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService").build().encode().toUri();
+        try {
+            return restTemplate.postForObject(url, service, MedicalService.class);
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    public void updateMedicalService(MedicalService service) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService").build().encode().toUri();
+        restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(service), MedicalService.class);
+    }
+
+    public void deleteMedicalService(Long msId) {
+        String id = String.valueOf(msId);
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/").path(id).build().encode().toUri();
+        restTemplate.delete(url);
+    }
+
     public List<Doctor> getDoctorList() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/getAll").build().encode().toUri();
         try {
@@ -87,14 +108,9 @@ public class BackendClient {
         }
     }
 
-    Doctor updateDoctor(Doctor doctor) { // fixme
+    void updateDoctor(Doctor doctor) { // fixme
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor").build().encode().toUri();
-        try {
-            return null;
-        } catch (RestClientException e) {
-            LOGGER.error(e.getMessage(), e);
-            return null;
-        }
+        restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(doctor), Doctor.class);
     }
 
     void deleteDoctor(Long docId) {

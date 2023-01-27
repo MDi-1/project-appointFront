@@ -1,31 +1,23 @@
 package com.example.appointfront.engine;
 
-import com.example.appointfront.data.Doctor;
-import com.example.appointfront.data.MedicalService;
 import com.example.appointfront.data.TestDto;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-@Route(value = "test", layout = MainLayout.class)
+@Route(value = "admin", layout = MainLayout.class)
 @PageTitle("admin | Tiny Clinic")
 @Component
-public class TestView extends HorizontalLayout {
+public class TechnicalView extends VerticalLayout {
 
     private static BackendClient client;
 
-    public TestView(BackendClient client) {
-        TestView.client = client;
+    public TechnicalView(BackendClient client) {
+        TechnicalView.client = client;
         Grid<TestDto> table = new Grid<>(TestDto.class);
         Button buttonAdd = new Button("add test object");
         Button buttonPut = new Button("update test obj id = 109");
@@ -41,7 +33,7 @@ public class TestView extends HorizontalLayout {
         table.getColumnByKey("name").setFlexGrow(1);
         VerticalLayout buttonLayout = new VerticalLayout(buttonAdd, buttonPut);
         HorizontalLayout maintenanceLayout = new HorizontalLayout(table, buttonLayout);
-        add(buildServiceArea(), maintenanceLayout);
+        add(new MServiceForm(client), maintenanceLayout);
     }
 
     public static void addFunctionality(HorizontalLayout header) {
@@ -50,35 +42,6 @@ public class TestView extends HorizontalLayout {
         b1.addClickListener(event -> client.getTestObjects().forEach(System.out::println));
         b2.addClickListener(event -> DoctorForm.getTfProcessList().forEach(System.out::println));
         header.add(b1, b2);
-    }
-
-    private HorizontalLayout buildServiceArea() {
-        Button addService = new Button("add service");
-        Button modifyService = new Button("modify service");
-        Button deleteService = new Button("delete service");
-        Button cancel = new Button("cancel");
-        List<MedicalService> services = client.getMedServiceList();
-        Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
-        serviceGrid.setItems(services);
-        serviceGrid.setMinWidth("520px"); // critical to prevent squashing by buttonContainer
-        serviceGrid.setMaxWidth("580px");
-        serviceGrid.getColumnByKey("id").setAutoWidth(true);
-        addService.addClickListener(event -> {
-            MedicalService s = new MedicalService(MedicalService.ServiceName.Dermatologist);
-        });
-        modifyService.addClickListener(event -> {});
-        deleteService.addClickListener(event -> {});
-        cancel.addClickListener(event -> {});
-        VerticalLayout buttonContainer = new VerticalLayout(addService, modifyService, deleteService, cancel);
-        return new HorizontalLayout(new VerticalLayout(serviceGrid, buildServiceForm()), buttonContainer);
-    }
-
-    private FormLayout buildServiceForm() {
-        Binder<MedicalService> msBinder = new Binder<>();
-        TextField description = new TextField("description");
-        ComboBox<Doctor> doctorBox = new ComboBox<>("associated doctor");
-        ComboBox<MedicalService.ServiceName> name = new ComboBox<>("service name");
-        return new FormLayout(new HorizontalLayout(name, doctorBox), description);
     }
 }
 

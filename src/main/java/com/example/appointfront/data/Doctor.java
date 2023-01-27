@@ -26,8 +26,8 @@ public class Doctor {
     @JsonProperty("position")
     private Doctor.Position position;
 
-    @JsonProperty("timeframeId")
-    private Long timeframeId;
+    @JsonProperty("timeframeIds")
+    private List<Long> timeframeIds;
 
     @JsonProperty("appointmentIds")
     private List<Long> appointmentIds;
@@ -39,5 +39,16 @@ public class Doctor {
         this.name = name;
         this.lastName = lastName;
         this.position = position;
+    }
+
+    public String toString1() {
+        return "Doctor:(" + "id=" + id + ", name='" + name + '\'' + ", lastName='" + lastName + '\'' +
+                ", position=" + position + ", timeframeId=" + timeframeIds +
+                ", appointmentIds=" + appointmentIds + ", medServiceIds=" + medServiceIds + ')';
+    }
+
+    @Override
+    public String toString() {
+        return name + " " + lastName;
     }
 }

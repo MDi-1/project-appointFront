@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -20,6 +22,9 @@ public class MedicalService {
 
     @JsonProperty("description")
     private String description;
+
+    @JsonProperty("doctorIds")
+    private List<Long> doctorIds;
 
     public MedicalService(ServiceName serviceName) {
         this.serviceName = serviceName;
