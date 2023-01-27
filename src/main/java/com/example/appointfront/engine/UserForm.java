@@ -27,7 +27,7 @@ public class UserForm extends FormLayout implements BaseForm{
         this.setup = setup;
         addClassName("user-form");
         binder.bindInstanceFields(this);
-        if (setup.isAdmission()) {
+        if (setup.getAdmission() > 1) {
             add(firstName, lastName, new HorizontalLayout(addBtn, editBtn, saveBtn, deleteBtn, canceBtn));
         } else {
             add(firstName, lastName, new HorizontalLayout(editBtn, saveBtn, deleteBtn, canceBtn));

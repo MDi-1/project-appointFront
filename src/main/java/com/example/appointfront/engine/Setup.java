@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 public class Setup {
 
-    private boolean admission;
+    private int admission;
     private boolean timetableLock;
     private Doctor doctor;
     private Patient patient;

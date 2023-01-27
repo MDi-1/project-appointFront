@@ -9,6 +9,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
+
 @Route(value = "admin", layout = MainLayout.class)
 @PageTitle("admin | Tiny Clinic")
 @Component
@@ -16,24 +18,28 @@ public class TechnicalView extends VerticalLayout {
 
     private static BackendClient client;
 
-    public TechnicalView(BackendClient client) {
+    public TechnicalView(BackendClient client, Setup setup) {
         TechnicalView.client = client;
-        Grid<TestDto> table = new Grid<>(TestDto.class);
-        Button buttonAdd = new Button("add test object");
-        Button buttonPut = new Button("update test obj id = 109");
-        TestDto t1 = new TestDto("final amendment");
-        TestDto t2 = new TestDto(109L, "test object two: modified");
-        buttonAdd.addClickListener(event -> System.out.println(client.createTestObject(t1)));
-        buttonPut.addClickListener(event -> client.updateTestObject(t2));
-        table.setItems(client.getTestObjects());
-        table.setMinWidth("520px"); // critical to prevent squashing by buttonContainer
-        table.setMaxWidth("580px");
-        table.getColumnByKey("id").setAutoWidth(true);
-        table.getColumnByKey("name").setAutoWidth(true);
-        table.getColumnByKey("name").setFlexGrow(1);
-        VerticalLayout buttonLayout = new VerticalLayout(buttonAdd, buttonPut);
-        HorizontalLayout maintenanceLayout = new HorizontalLayout(table, buttonLayout);
-        add(new MServiceForm(client), maintenanceLayout);
+        if (setup.getAdmission() > 2) {
+            Grid<TestDto> table = new Grid<>(TestDto.class);
+            Button buttonAdd = new Button("add test object");
+            Button buttonPut = new Button("update test obj id = 109");
+            TestDto t1 = new TestDto("final amendment");
+            TestDto t2 = new TestDto(109L, "test object two: modified");
+            buttonAdd.addClickListener(event -> System.out.println(client.createTestObject(t1)));
+            buttonPut.addClickListener(event -> client.updateTestObject(t2));
+            table.setItems(client.getTestObjects());
+            table.setMinWidth("520px"); // critical to prevent squashing by buttonContainer
+            table.setMaxWidth("580px");
+            table.getColumnByKey("id").setAutoWidth(true);
+            table.getColumnByKey("name").setAutoWidth(true);
+            table.getColumnByKey("name").setFlexGrow(1);
+            VerticalLayout buttonLayout = new VerticalLayout(buttonAdd, buttonPut);
+            HorizontalLayout maintenanceLayout = new HorizontalLayout(table, buttonLayout);
+            add(new MServiceForm(client), maintenanceLayout);
+        } else {
+            Label denial = new Label("Access Denied; You must have")
+        }
     }
 
     public static void addFunctionality(HorizontalLayout header) {
