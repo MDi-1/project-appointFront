@@ -29,8 +29,6 @@ public class UserView extends VerticalLayout {
     private final Button go2App = new Button("Show in Timetable");
     private final Button confirm = new Button("Confirm");
     private final Button cancel = new Button("Cancel");
-    private List<Doctor> listOfDoctors = new ArrayList<>();
-    private List<MedicalService> services = new ArrayList<>();
     private final HorizontalLayout appButtonRow = new HorizontalLayout();
 
     public UserView(BackendClient client, Setup setup) {
@@ -62,8 +60,9 @@ public class UserView extends VerticalLayout {
 
     VerticalLayout makeServiceTab() {
         Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
+        setup.setMedicalServices(client.getMedServiceList());
         serviceGrid.setColumns("serviceName");
-        serviceGrid.setItems(client.getMedServiceList());
+        serviceGrid.setItems(setup.getMedicalServices());
         VerticalLayout serviceTab = new VerticalLayout(new Label("Pick service to make an appointment"), serviceGrid);
         serviceTab.setWidth("50%");
         return serviceTab;
@@ -71,9 +70,10 @@ public class UserView extends VerticalLayout {
 
     VerticalLayout makeDocTab() {
         Grid<Doctor> doctorGrid = new Grid<>(Doctor.class);
-        listOfDoctors = client.getDoctorList();
+        List<Doctor> doctors = client.getDoctorList();
+        setup.setDoctors(doctors);
         doctorGrid.setColumns("name", "lastName", "position");
-        doctorGrid.setItems(listOfDoctors);
+        doctorGrid.setItems(doctors);
         doctorGrid.asSingleSelect().addValueChangeListener(event -> doctorView.enterDoctorManagement(event.getValue()));
         // seems pointless to call enterDoctorManagement() to go to docView class and do nothing but set doc in
         // backend client
@@ -95,7 +95,7 @@ public class UserView extends VerticalLayout {
             System.out.println(parsedDate);
             setup.setTargetDay(parsedDate);
             Doctor d = null;
-            for (Doctor doctor : listOfDoctors) {
+            for (Doctor doctor : setup.getDoctors()) {
                 if (doctor.getId() == appointment.getDoctorId()) d = doctor;
             }
             doctorView.enterDoctorManagement(d);

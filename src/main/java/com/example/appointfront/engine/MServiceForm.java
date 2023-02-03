@@ -12,6 +12,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MServiceForm extends FormLayout {
 
@@ -21,18 +22,29 @@ public class MServiceForm extends FormLayout {
     private final ComboBox<MedicalService.ServiceName> serviceName = new ComboBox<>("serviceName");
     private final Binder<MedicalService> binder = new Binder<>(MedicalService.class);
 
-    public MServiceForm(BackendClient client) {
+    public MServiceForm(BackendClient client, Setup setup) {
         configureFields(client);
         Button addService = new Button("add service");
         Button saveService = new Button("save service");
         Button deleteService = new Button("delete service");
         Button cancel = new Button("cancel");
+        List<MedicalService> msList = client.getMedServiceList();
         Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
-        serviceGrid.setItems(client.getMedServiceList());
+        serviceGrid.setItems(msList);
         serviceGrid.setMinWidth("520px"); // critical to prevent squashing by buttons on the side.
-        serviceGrid.setMaxWidth("580px");
+        serviceGrid.removeColumnByKey("Doctor Ids");
         serviceGrid.getColumnByKey("id").setAutoWidth(true);
         serviceGrid.asSingleSelect().addValueChangeListener(e -> binder.setBean(e.getValue()));
+        /*
+        serviceGrid.addColumn(row -> {
+            setup.getDoctors().stream().filter(e -> e.getId().equals(
+                    msList.stream().map(MedicalService::getDoctorIds).anyMatch()
+            ))
+            return null;
+                }).setHeader("Doctor");
+
+         */
+
         addService.addClickListener(event -> {
             binder.setBean(new MedicalService());
             serviceGrid.setItems(client.getMedServiceList());

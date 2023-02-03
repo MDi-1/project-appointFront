@@ -3,17 +3,21 @@ package com.example.appointfront.engine;
 import com.example.appointfront.data.TestDto;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import java.awt.*;
 
 @Route(value = "admin", layout = MainLayout.class)
 @PageTitle("admin | Tiny Clinic")
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE) // thanx to @Scope the view is refreshed on navigating to it, done by
+// calling again constructor. Without it statement 'if (setup.getAdmission() > 2)...' wouldn't work, since this view
+// would be created only once during application startup. NOTE - this is Spring annotation, not Vaadin.
 public class TechnicalView extends VerticalLayout {
 
     private static BackendClient client;
@@ -36,9 +40,10 @@ public class TechnicalView extends VerticalLayout {
             table.getColumnByKey("name").setFlexGrow(1);
             VerticalLayout buttonLayout = new VerticalLayout(buttonAdd, buttonPut);
             HorizontalLayout maintenanceLayout = new HorizontalLayout(table, buttonLayout);
-            add(new MServiceForm(client), maintenanceLayout);
+            add(new MServiceForm(client, setup), maintenanceLayout);
         } else {
-            Label denial = new Label("Access Denied; You must have")
+            Label txt = new Label("Access Denied; You need to log in as administrator to access this page");
+            add(txt);
         }
     }
 

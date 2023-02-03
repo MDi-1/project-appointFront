@@ -14,12 +14,10 @@ import static com.example.appointfront.engine.TechnicalView.addFunctionality;
 public class InitHeader extends HorizontalLayout {
 
     private final Setup setup;
-    private final BackendClient client;
     private final Label label = new Label("patient Name Surname");
 
-    public InitHeader(Setup setup, BackendClient client) {
+    public InitHeader(Setup setup) {
         this.setup = setup;
-        this.client = client;
         H1 logo = new H1("Tiny clinic app");
         HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, label);
         logo.addClassName("logo");

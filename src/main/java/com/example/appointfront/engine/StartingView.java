@@ -13,7 +13,7 @@ import com.vaadin.flow.router.Route;
 
 import java.util.List;
 
-@Route(value= "start", layout = MainLayout.class)
+@Route(value= "", layout = MainLayout.class)
 @PageTitle("Start | Tiny Clinic")
 public class StartingView extends HorizontalLayout {
 

@@ -39,43 +39,64 @@ public class DoctorForm extends FormLayout implements BaseForm{
         this.setup = setup;
         this.view = view;
         addClassName("doctor-form");
+        Button saveBtn = new Button("Save");
+        Button delBtn  = new Button("Delete");
+        Button cancelBtn = new Button("Cancel");
+        buttonRow.add(saveBtn, delBtn, cancelBtn);
+        saveBtn.addClickListener(event -> executeItem()); // click listeners cannot be added multiple times - fixme
+        delBtn.addClickListener(event -> {
+            Doctor doctor = binder.getBean();
+            client.deleteDoctor(doctor.getId());
+            clearForm();
+        });
+        cancelBtn.addClickListener(event -> clearForm());
         binder.bindInstanceFields(this);
-        position.setItems(Doctor.Position.values());
-        services.setItems(MedicalService.ServiceName.values());
         add(
                 new HorizontalLayout(name, lastName),
                 new HorizontalLayout(position, services),
                 new HorizontalLayout(addBtn, editBtn, timeBtn)
         );
-        if (setup.getDoctor() != null) {
-            name.setPlaceholder(setup.getDoctor().getName());
-            lastName.setPlaceholder(setup.getDoctor().getLastName());
-            position.setPlaceholder(setup.getDoctor().getPosition().name());
-            services.setPlaceholder( null //fixme
-                    );
-
-            Long serviceId = setup
-                    .getDoctor().getMedServiceIds().stream().findFirst().orElseThrow(IllegalArgumentException::new);
-        }
-        addBtn.addClickListener(event -> {
-            name.setPlaceholder("");
-            lastName.setPlaceholder("");
-            exeMode = true;
-            activateControls();
-            binder.setBean(new Doctor());
-        });
-        editBtn.addClickListener(event -> {
-            binder.setBean(setup.getDoctor());
-            exeMode = false;
-            activateControls();
-        });
+        if (setup.getDoctor() != null) setDocFormPlaceholders();
+        addBtn.addClickListener(event -> configEventAdd());
+        editBtn.addClickListener(event -> configEventEdit());
         timeBtn.addClickListener(event -> activateTimeFrameControls());
-        cancelTfBtn.addClickListener(event -> {
-            Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(false));
-            Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(false));
-            clearForm();
-        });
+        cancelTfBtn.addClickListener(event -> configEventCancel());
         saveTfBtn.addClickListener(event -> executeTimeFrames());
+    }
+
+    private void setDocFormPlaceholders() {
+        Long foundId = null; // bez sensu
+        if (setup.getDoctor().getMedServiceIds() != null) {
+            foundId = setup.getDoctor().getMedServiceIds().stream()
+                    .findFirst().orElse(null);
+        }
+        Long finalFoundId = foundId;
+        String mServiceName = String
+                .valueOf(setup.getMedicalServices().stream().filter(e -> e.getId().equals(finalFoundId)).findFirst());
+        name.setPlaceholder(setup.getDoctor().getName());
+        lastName.setPlaceholder(setup.getDoctor().getLastName());
+        position.setPlaceholder(setup.getDoctor().getPosition().name());
+        services.setPlaceholder(mServiceName);
+    }
+
+    private void configEventAdd() {
+        name.setPlaceholder("");
+        lastName.setPlaceholder("");
+        exeMode = true;
+        activateControls();
+        binder.setBean(new Doctor());
+    }
+
+    private void configEventEdit() {
+        binder.setBean(setup.getDoctor());
+        exeMode = false;
+        activateControls();
+    }
+
+    private void configEventCancel() {
+        Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(false));
+        Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(false));
+        clearForm();
     }
 
     public void activateTimeFrameControls() {
@@ -103,25 +124,16 @@ public class DoctorForm extends FormLayout implements BaseForm{
 
     @Override
     public void activateControls() {
-        Button saveBtn = new Button("Save");
-        Button delBtn  = new Button("Delete");
-        Button cancelBtn = new Button("Cancel");
-        buttonRow.add(saveBtn, delBtn, cancelBtn);
-        add(buttonRow);
         name.focus();
-        saveBtn.addClickListener(event -> executeItem());
-        delBtn.addClickListener(event -> {
-            Doctor doctor = binder.getBean();
-            client.deleteDoctor(doctor.getId());
-            clearForm();
-        });
-        cancelBtn.addClickListener(event -> clearForm());
+        position.setItems(Doctor.Position.values());
+        services.setItems(MedicalService.ServiceName.values());
+        add(buttonRow);
     }
 
     @Override
     public void executeItem() {
         Doctor doctor = binder.getBean();
-        System.out.println(doctor.toString1());
+        System.out.println("  ]] executing toString1() [[ ->  " + doctor.toString1());
         if (exeMode) client.createDoctor(doctor);
         else client.updateDoctor(doctor);
         clearForm();
@@ -139,7 +151,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
                 }
                 client.updateTimeframe(timeFrame);
             } else {
-                System.out.println(" ]] timeframe 2 B posted :" + timeFrame);
                 TimeFrame response = client.createTimeFrame(timeFrame);
                 System.out.println(response);
             }
