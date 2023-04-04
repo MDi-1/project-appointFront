@@ -229,6 +229,11 @@ public class BackendClient {
         return restTemplate.getForObject(url, Patient.class);
     }
 
+    public String getEv() {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/getEv").build().encode().toUri();
+        return restTemplate.getForObject(url, String.class);
+    }
+
     public Patient createPatient(Patient patient) {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient").build().encode().toUri();
         try {

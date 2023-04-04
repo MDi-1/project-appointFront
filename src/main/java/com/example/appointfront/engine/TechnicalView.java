@@ -20,10 +20,7 @@ import org.springframework.stereotype.Component;
 // would be created only once during application startup. NOTE - this is Spring annotation, not Vaadin.
 public class TechnicalView extends VerticalLayout {
 
-    private static BackendClient client;
-
     public TechnicalView(BackendClient client, Setup setup) {
-        TechnicalView.client = client;
         if (setup.getAdmission() > 2) {
             Grid<TestDto> table = new Grid<>(TestDto.class);
             Button buttonAdd = new Button("add test object");
@@ -46,19 +43,4 @@ public class TechnicalView extends VerticalLayout {
             add(txt);
         }
     }
-
-    public static void addFunctionality(HorizontalLayout header) {
-        Button b1 = new Button("tmp test button-1");
-        Button b2 = new Button("tmp test TF set");
-        b1.addClickListener(event -> client.getTestObjects().forEach(System.out::println));
-        b2.addClickListener(event -> DoctorForm.getTfProcessList().forEach(System.out::println));
-        header.add(b1, b2);
-    }
 }
-
-/*
-This class served as exercise of creating some code to be imported to MainLayout in form of static import
-(to avoid creation of instance field for BackendClient in MainLayout). The following conditions must be met for this:
-printTestList() needs to be made static, instance field 'client' needs to be static, there has to be @Component
-annotation for this class.
- */
