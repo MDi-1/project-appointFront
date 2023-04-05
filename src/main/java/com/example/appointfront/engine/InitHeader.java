@@ -38,6 +38,7 @@ public class InitHeader extends HorizontalLayout {
         Button b1 = new Button("tmp test button-1");
         Button b2 = new Button("tmp test TF set");
         b1.addClickListener(event -> client.getEv());
+        b2.addClickListener(event -> client.createEv());
         header.add(b1, b2);
     }
     /*

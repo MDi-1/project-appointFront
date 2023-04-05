@@ -230,7 +230,12 @@ public class BackendClient {
     }
 
     public String getEv() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "patient/getEv").build().encode().toUri();
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/getEv").build().encode().toUri();
+        return restTemplate.getForObject(url, String.class);
+    }
+
+    public String createEv() {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/createEv").build().encode().toUri();
         return restTemplate.getForObject(url, String.class);
     }
 
