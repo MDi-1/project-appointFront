@@ -1,5 +1,6 @@
 package com.example.appointfront.engine;
 
+import com.example.appointfront.data.Appointment;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
@@ -38,7 +39,7 @@ public class InitHeader extends HorizontalLayout {
         Button b1 = new Button("tmp test button-1");
         Button b2 = new Button("tmp test TF set");
         b1.addClickListener(event -> client.getEv());
-        b2.addClickListener(event -> client.createEv());
+        b2.addClickListener(event -> client.createEv(new Appointment(null, "2022-09-16T10:00", 200, 3L, 14L)));
         header.add(b1, b2);
     }
     /*

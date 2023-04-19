@@ -26,6 +26,9 @@ public class Doctor {
     @JsonProperty("position")
     private Doctor.Position position;
 
+    @JsonProperty("go_calendar_sync")
+    private boolean goCalendarSync;
+
     @JsonProperty("timeframeIds")
     private List<Long> timeframeIds;
 
@@ -43,7 +46,7 @@ public class Doctor {
 
     public String toString1() {
         return "Doctor:(" + "id=" + id + ", name='" + name + '\'' + ", lastName='" + lastName + '\'' +
-                ", position=" + position + ", timeframeId=" + timeframeIds +
+                ", position=" + position + ", isGoCalSync=" + goCalendarSync + ", timeframeId=" + timeframeIds +
                 ", appointmentIds=" + appointmentIds + ", medServiceIds=" + medServiceIds + ')';
     }
 

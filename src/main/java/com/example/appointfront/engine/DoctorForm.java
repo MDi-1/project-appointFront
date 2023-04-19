@@ -21,13 +21,13 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final Setup setup;
     private boolean exeMode;
     private final ComboBox<Doctor.Position> position = new ComboBox<>("position");
-    private final ComboBox<MedicalService.ServiceName> services = new ComboBox<>("medical services");
+    private final ComboBox<MedicalService.ServiceName> ms = new ComboBox<>("medical services");
     private final TextField name = new TextField("first name");
     private final TextField lastName = new TextField("last name");
     private final HorizontalLayout buttonRow = new HorizontalLayout();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private static final List<TimeFrame> tfProcessList = new ArrayList<>();
-    private final Button addBtn = new Button("Add");
+    private final Button addBtn  = new Button("Add");
     private final Button editBtn = new Button("Edit Personal Data");
     private final Button timeBtn = new Button("Edit Timeframes");
     private final Button saveTfBtn   = new Button("Save");
@@ -43,43 +43,35 @@ public class DoctorForm extends FormLayout implements BaseForm{
         Button delBtn  = new Button("Delete");
         Button cancelBtn = new Button("Cancel");
         buttonRow.add(saveBtn, delBtn, cancelBtn);
-        saveBtn.addClickListener(event -> executeItem()); // click listeners cannot be added multiple times - fixme
-        delBtn.addClickListener(event -> {
-            Doctor doctor = binder.getBean();
-            client.deleteDoctor(doctor.getId());
-            clearForm();
-        });
-        cancelBtn.addClickListener(event -> clearForm());
-        binder.bindInstanceFields(this);
         add(
                 new HorizontalLayout(name, lastName),
-                new HorizontalLayout(position, services),
+                new HorizontalLayout(position, ms),
                 new HorizontalLayout(addBtn, editBtn, timeBtn)
         );
+        saveBtn.addClickListener(event -> executeItem()); // click listeners cannot be added multiple times - fixme
+        delBtn.addClickListener(event -> {
+            client.deleteDoctor(binder.getBean().getId());
+            clearForm();
+        });
+        binder.bindInstanceFields(this);
+        cancelBtn.addClickListener(event -> clearForm());
         if (setup.getDoctor() != null) setDocFormPlaceholders();
-        addBtn.addClickListener(event -> configEventAdd());
-        editBtn.addClickListener(event -> configEventEdit());
+        addBtn.addClickListener(event -> configActionAdd());
+        editBtn.addClickListener(event -> configActionEdit());
         timeBtn.addClickListener(event -> activateTimeFrameControls());
-        cancelTfBtn.addClickListener(event -> configEventCancel());
+        cancelTfBtn.addClickListener(event -> configActionCancel());
         saveTfBtn.addClickListener(event -> executeTimeFrames());
     }
 
     private void setDocFormPlaceholders() {
-        Long foundId = null; // bez sensu
-        if (setup.getDoctor().getMedServiceIds() != null) {
-            foundId = setup.getDoctor().getMedServiceIds().stream()
-                    .findFirst().orElse(null);
-        }
-        Long finalFoundId = foundId;
-        String mServiceName = String
-                .valueOf(setup.getMedicalServices().stream().filter(e -> e.getId().equals(finalFoundId)).findFirst());
+        Long msId = setup.getDoctor().getMedServiceIds().stream().findFirst().orElse(null);
         name.setPlaceholder(setup.getDoctor().getName());
         lastName.setPlaceholder(setup.getDoctor().getLastName());
-        position.setPlaceholder(setup.getDoctor().getPosition().name());
-        services.setPlaceholder(mServiceName);
+        if (setup.getDoctor().getPosition() != null) position.setPlaceholder(setup.getDoctor().getPosition().name());
+        ms.setPlaceholder(String.valueOf(setup.getMsList().stream().filter(e -> e.getId().equals(msId)).findFirst()));
     }
 
-    private void configEventAdd() {
+    private void configActionAdd() {
         name.setPlaceholder("");
         lastName.setPlaceholder("");
         exeMode = true;
@@ -87,13 +79,13 @@ public class DoctorForm extends FormLayout implements BaseForm{
         binder.setBean(new Doctor());
     }
 
-    private void configEventEdit() {
+    private void configActionEdit() {
         binder.setBean(setup.getDoctor());
         exeMode = false;
         activateControls();
     }
 
-    private void configEventCancel() {
+    private void configActionCancel() {
         Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(false));
         Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(false));
         clearForm();
@@ -126,7 +118,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     public void activateControls() {
         name.focus();
         position.setItems(Doctor.Position.values());
-        services.setItems(MedicalService.ServiceName.values());
+        ms.setItems(MedicalService.ServiceName.values());
         add(buttonRow);
     }
 

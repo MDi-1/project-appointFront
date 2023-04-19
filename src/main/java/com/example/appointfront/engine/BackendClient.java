@@ -234,9 +234,11 @@ public class BackendClient {
         return restTemplate.getForObject(url, String.class);
     }
 
-    public String createEv() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/createEv").build().encode().toUri();
-        return restTemplate.getForObject(url, String.class);
+    // (i) it is possible to make f. return void and ignore response DTO from restTemplate.postForObject() by supplying
+    // third parameter as String.class and not assigning returned object from restTemplate.postForObject() to anything
+    public void createEv(Appointment appointment) {
+        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/createEv").build().encode().toUri();
+        restTemplate.postForObject(url, appointment, String.class);
     }
 
     public Patient createPatient(Patient patient) {

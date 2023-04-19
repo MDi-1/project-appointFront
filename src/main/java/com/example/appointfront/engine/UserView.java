@@ -13,7 +13,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,9 +59,9 @@ public class UserView extends VerticalLayout {
 
     VerticalLayout makeServiceTab() {
         Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
-        setup.setMedicalServices(client.getMedServiceList());
+        setup.setMsList(client.getMedServiceList());
         serviceGrid.setColumns("serviceName");
-        serviceGrid.setItems(setup.getMedicalServices());
+        serviceGrid.setItems(setup.getMsList());
         VerticalLayout serviceTab = new VerticalLayout(new Label("Pick service to make an appointment"), serviceGrid);
         serviceTab.setWidth("50%");
         return serviceTab;
