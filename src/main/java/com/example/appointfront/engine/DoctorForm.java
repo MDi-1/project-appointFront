@@ -120,7 +120,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         position.setItems(Doctor.Position.values());
         ms.setItems(MedicalService.ServiceName.values());
         add(buttonRow);
-    }
+    } // assigning med.services to docs does not seem to work fixme
 
     @Override
     public void executeItem() {

@@ -32,7 +32,7 @@ public class MServiceForm extends FormLayout {
         Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
         serviceGrid.setItems(msList);
         serviceGrid.setMinWidth("520px"); // critical to prevent squashing by buttons on the side.
-        serviceGrid.removeColumnByKey("Doctor Ids");
+        serviceGrid.removeColumnByKey("doctorIds");
         serviceGrid.getColumnByKey("id").setAutoWidth(true);
         serviceGrid.asSingleSelect().addValueChangeListener(e -> binder.setBean(e.getValue()));
         /*
