@@ -22,9 +22,9 @@ public class UserForm extends FormLayout implements BaseForm{
     private Button canceBtn = new Button("Cancel");
     private Binder<Patient> binder = new Binder<>(Patient.class);
 
-    public UserForm(BackendClient client, Setup setup) {
+    public UserForm(BackendClient client) {
         this.client = client;
-        this.setup = setup;
+        setup = Setup.SINGLETON_INSTANCE;
         addClassName("user-form");
         binder.bindInstanceFields(this);
         if (setup.getAdmission() > 1) {

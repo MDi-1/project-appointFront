@@ -4,7 +4,6 @@ import com.example.appointfront.data.*;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -20,8 +19,7 @@ import java.util.*;
 @Component
 public class BackendClient {
 
-    @Autowired
-    private Setup setup;
+    private Setup setup = Setup.SINGLETON_INSTANCE;
     private final RestTemplate restTemplate;
     @Value("${endpoint.prefix}")
     private String endpointPrefix;

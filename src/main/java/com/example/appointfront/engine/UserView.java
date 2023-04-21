@@ -30,14 +30,14 @@ public class UserView extends VerticalLayout {
     private final Button cancel = new Button("Cancel");
     private final HorizontalLayout appButtonRow = new HorizontalLayout();
 
-    public UserView(BackendClient client, Setup setup) {
+    public UserView(BackendClient client) {
         this.client = client;
-        this.setup = setup;
-        doctorView = new DoctorView(client, setup);
+        setup = Setup.SINGLETON_INSTANCE;
+        doctorView = new DoctorView(client);
         HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
         Label companyDetails = new Label("Company, Street, Postal code, City, Phone number");
         mainTables.setSizeFull();
-        add(new UserForm(client, setup), mainTables, appButtonRow, companyDetails);
+        add(new UserForm(client), mainTables, appButtonRow, companyDetails);
     }
 
     VerticalLayout makeAppTab() {

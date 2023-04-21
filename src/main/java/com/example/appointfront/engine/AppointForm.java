@@ -30,9 +30,9 @@ public class AppointForm extends FormLayout implements BaseForm{
 
     private boolean exeMode;
 
-    public AppointForm(BackendClient client, Setup setup, DoctorView view) {
+    public AppointForm(BackendClient client, DoctorView view) {
         this.client = client;
-        this.setup = setup;
+        setup = Setup.SINGLETON_INSTANCE;
         this.view = view;
         addClassName("appointment-form");
         add(container);

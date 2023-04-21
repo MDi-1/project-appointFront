@@ -20,7 +20,8 @@ import org.springframework.stereotype.Component;
 // would be created only once during application startup. NOTE - this is Spring annotation, not Vaadin.
 public class TechnicalView extends VerticalLayout {
 
-    public TechnicalView(BackendClient client, Setup setup) {
+    public TechnicalView(BackendClient client) {
+        Setup setup = Setup.SINGLETON_INSTANCE;
         if (setup.getAdmission() > 2) {
             Grid<TestDto> table = new Grid<>(TestDto.class);
             Button buttonAdd = new Button("add test object");
@@ -37,7 +38,7 @@ public class TechnicalView extends VerticalLayout {
             table.getColumnByKey("name").setFlexGrow(1);
             VerticalLayout buttonLayout = new VerticalLayout(buttonAdd, buttonPut);
             HorizontalLayout maintenanceLayout = new HorizontalLayout(table, buttonLayout);
-            add(new MServiceForm(client, setup), maintenanceLayout);
+            add(new MServiceForm(client), maintenanceLayout);
         } else {
             Label txt = new Label("Access Denied; You need to log in as administrator to access this page");
             add(txt);
