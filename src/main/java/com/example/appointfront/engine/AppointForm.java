@@ -27,13 +27,12 @@ public class AppointForm extends FormLayout implements BaseForm{
     private final Button back2 = new Button("back");
     private final Button back1 = new Button("Back");
     private final Button btnAcceptDeny = new Button("Appoint");
-
     private boolean exeMode;
 
     public AppointForm(BackendClient client, DoctorView view) {
         this.client = client;
-        setup = Setup.SINGLETON_INSTANCE;
         this.view = view;
+        setup = Setup.SINGLETON_INSTANCE;
         addClassName("appointment-form");
         add(container);
         confirm.addClickListener(event -> pressConfirm());

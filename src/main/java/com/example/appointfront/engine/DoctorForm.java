@@ -18,7 +18,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
 
     private final BackendClient client;
     private final DoctorView view;
-    private Setup setup;
+    private final Setup setup;
     private boolean exeMode;
     private final ComboBox<Doctor.Position> position = new ComboBox<>("position");
     private final ComboBox<MedicalService.ServiceName> ms = new ComboBox<>("medical services");
@@ -36,8 +36,8 @@ public class DoctorForm extends FormLayout implements BaseForm{
 
     public DoctorForm(BackendClient client, DoctorView view) {
         this.client = client;
-        setup = Setup.SINGLETON_INSTANCE;
         this.view = view;
+        setup = Setup.SINGLETON_INSTANCE;
         addClassName("doctor-form");
         Button saveBtn = new Button("Save");
         Button delBtn  = new Button("Delete");

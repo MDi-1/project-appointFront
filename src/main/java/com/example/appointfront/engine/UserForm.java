@@ -10,21 +10,22 @@ import com.vaadin.flow.data.binder.Binder;
 public class UserForm extends FormLayout implements BaseForm{
 
     private final BackendClient client;
-    private final Setup setup;
+    private final Setup setup = Setup.SINGLETON_INSTANCE;
     private boolean lockMode;
     private boolean saveMode;
+    private final Button editBtn = new Button("Edit");
+    private final Button addBtn = new Button("Add");
+    private final Button saveBtn = new Button("Save");
+    private final Button deleteBtn = new Button("Delete");
+    private final Button canceBtn = new Button("Cancel");
+    private final Binder<Patient> binder = new Binder<>(Patient.class);
+    // .bindInstanceFields(this) does not allow to make these two fields "firstName" and "lastName" as local ones,
+    // thus Intellij suggestion is improper
     private final TextField firstName = new TextField("first name");
     private final TextField lastName = new TextField("last name");
-    private Button editBtn = new Button("Edit");
-    private Button addBtn = new Button("Add");
-    private Button saveBtn = new Button("Save");
-    private Button deleteBtn = new Button("Delete");
-    private Button canceBtn = new Button("Cancel");
-    private Binder<Patient> binder = new Binder<>(Patient.class);
 
     public UserForm(BackendClient client) {
         this.client = client;
-        setup = Setup.SINGLETON_INSTANCE;
         addClassName("user-form");
         binder.bindInstanceFields(this);
         if (setup.getAdmission() > 1) {
@@ -36,6 +37,11 @@ public class UserForm extends FormLayout implements BaseForm{
             firstName.setPlaceholder(setup.getPatient().getFirstName());
             lastName.setPlaceholder(setup.getPatient().getLastName());
         }
+        setupButtons();
+        switchControls(lockMode);
+    }
+
+    private void setupButtons() {
         addBtn.addClickListener(event -> {
             saveMode = false;
             activateControls();
@@ -45,12 +51,14 @@ public class UserForm extends FormLayout implements BaseForm{
             activateControls();
         });
         saveBtn.addClickListener(event -> executeItem());
-        deleteBtn.addClickListener(event -> delete());
+        deleteBtn.addClickListener(event -> {
+            client.deletePatient(binder.getBean().getId());
+            clearForm();
+        });
         canceBtn.addClickListener(event -> {
             binder.setBean(setup.getPatient());
             clearForm();
         });
-        switchControls(lockMode);
     }
 
     @Override
@@ -67,11 +75,6 @@ public class UserForm extends FormLayout implements BaseForm{
         System.out.println(patient);
         if (saveMode) client.updatePatient(patient);
         else client.createPatient(patient);
-        clearForm();
-    }
-
-    public void delete() {
-        client.deletePatient(binder.getBean().getId());
         clearForm();
     }
 

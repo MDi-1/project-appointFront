@@ -29,9 +29,9 @@ import static com.example.appointfront.engine.DoctorForm.getTfProcessList;
 @PageTitle("Doctors | Tiny Clinic")
 public class DoctorView extends HorizontalLayout {
 
-    private Setup setup;
-    private BaseForm form;
-    private BackendClient client;
+    private final Setup setup;
+    private final BaseForm form;
+    private final BackendClient client;
     private LocalDate targetDate;
     private final TextField[] frameStart = new TextField[5];
     private final TextField[] frameEnd = new TextField[5];
@@ -39,11 +39,11 @@ public class DoctorView extends HorizontalLayout {
     private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private List<Grid<TableEntry>> timetable = new ArrayList<>();
-    private Label lockLabel = new Label("timetable unlocked");
-    private String[] dayHeaders = new String[7];
+    private final Label lockLabel = new Label("timetable unlocked");
+    private final String[] dayHeaders = new String[7];
     private LocalDate[] date4tfForm;
-    private HorizontalLayout weekTables = new HorizontalLayout();
-    private TextField navPanelField = new TextField();
+    private final HorizontalLayout weekTables = new HorizontalLayout();
+    private final TextField navPanelField = new TextField();
 
     public DoctorView(BackendClient client) {
         this.client = client;
