@@ -18,9 +18,9 @@ public class InitHeader extends HorizontalLayout {
     private final Label label = new Label("patient Name Surname");
     private static BackendClient client;
 
-    public InitHeader(BackendClient client) {
+    public InitHeader(Setup setup, BackendClient client) {
         InitHeader.client = client;
-        setup = Setup.SINGLETON_INSTANCE;
+        this.setup = setup;
         H1 logo = new H1("Tiny clinic app");
         HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, label);
         logo.addClassName("logo");

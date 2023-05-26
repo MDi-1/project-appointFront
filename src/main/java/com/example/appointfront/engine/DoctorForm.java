@@ -16,9 +16,9 @@ import java.util.List;
 
 public class DoctorForm extends FormLayout implements BaseForm{
 
+    private final Setup setup;
     private final BackendClient client;
     private final DoctorView view;
-    private final Setup setup;
     private boolean exeMode;
     private final ComboBox<Doctor.Position> position = new ComboBox<>("position");
     private final ComboBox<MedicalService.ServiceName> ms = new ComboBox<>("medical services");
@@ -34,10 +34,10 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final Button cancelTfBtn = new Button("Cancel");
 
 
-    public DoctorForm(BackendClient client, DoctorView view) {
+    public DoctorForm(Setup setup, BackendClient client, DoctorView view) {
+        this.setup = setup;
         this.client = client;
         this.view = view;
-        setup = Setup.SINGLETON_INSTANCE;
         addClassName("doctor-form");
         Button saveBtn = new Button("Save");
         Button delBtn  = new Button("Delete");

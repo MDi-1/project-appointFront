@@ -23,7 +23,6 @@ public class MServiceForm extends FormLayout {
     private final Binder<MedicalService> binder = new Binder<>(MedicalService.class);
 
     public MServiceForm(BackendClient client) {
-        Setup setup = Setup.SINGLETON_INSTANCE;
         configureFields(client);
         Button addService = new Button("add service");
         Button saveService = new Button("save service");

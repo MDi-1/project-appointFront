@@ -20,8 +20,7 @@ import org.springframework.stereotype.Component;
 // would be created only once during application startup. NOTE - this is Spring annotation, not Vaadin.
 public class TechnicalView extends VerticalLayout {
 
-    public TechnicalView(BackendClient client) {
-        Setup setup = Setup.SINGLETON_INSTANCE;
+    public TechnicalView(Setup setup, BackendClient client) {
         if (setup.getAdmission() > 2) {
             Grid<TestDto> table = new Grid<>(TestDto.class);
             Button buttonAdd = new Button("add test object");

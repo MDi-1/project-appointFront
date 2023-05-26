@@ -30,25 +30,33 @@ public class UserView extends VerticalLayout {
     private final Button cancel = new Button("Cancel");
     private final HorizontalLayout appButtonRow = new HorizontalLayout();
 
-    public UserView(BackendClient client) {
+    public UserView(Setup setup, BackendClient client) {
         this.client = client;
-        setup = Setup.SINGLETON_INSTANCE;
-        doctorView = new DoctorView(client);
+        this.setup = setup;
+        doctorView = new DoctorView(setup, client);
         HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
         Label companyDetails = new Label("Company, Street, Postal code, City, Phone number");
         mainTables.setSizeFull();
-        add(new UserForm(client), mainTables, appButtonRow, companyDetails);
+        add(new UserForm(setup, client), mainTables, appButtonRow, companyDetails);
     }
 
     VerticalLayout makeAppTab() {
         Label appHead = new Label("List of recent / incoming appointments");
+
+
+
+
         if (setup.getPatient() != null) {
             Grid<Appointment> appointmentGrid = new Grid<>(Appointment.class);
             appointmentGrid.setItems(client.getAppsByPatient());
             appointmentGrid.setColumns("startDateTime", "price");
             appointmentGrid.addColumn(apt -> client.getDoctorList()
-                    .stream().filter(doc -> Objects.equals(doc.getId(), apt.getDoctorId()))
-                    .findAny().get().getName()).setHeader("doctors' name");
+                    .stream()
+                    .filter(doc -> Objects.equals(doc.getId(), apt.getDoctorId()))
+                    .findAny()
+                    .get()
+                    .getName())
+                    .setHeader("doctors' name");
             appointmentGrid.addColumn(apt -> client.getDoctorList()
                     .stream().filter(doc -> Objects.equals(doc.getId(), apt.getDoctorId()))
                     .findAny().get().getLastName()).setHeader("doctors' surname");

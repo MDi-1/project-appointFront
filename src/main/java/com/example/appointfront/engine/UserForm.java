@@ -9,8 +9,8 @@ import com.vaadin.flow.data.binder.Binder;
 
 public class UserForm extends FormLayout implements BaseForm{
 
+    private final Setup setup;
     private final BackendClient client;
-    private final Setup setup = Setup.SINGLETON_INSTANCE;
     private boolean lockMode;
     private boolean saveMode;
     private final Button editBtn = new Button("Edit");
@@ -24,8 +24,9 @@ public class UserForm extends FormLayout implements BaseForm{
     private final TextField firstName = new TextField("first name");
     private final TextField lastName = new TextField("last name");
 
-    public UserForm(BackendClient client) {
+    public UserForm(Setup setup, BackendClient client) {
         this.client = client;
+        this.setup = setup;
         addClassName("user-form");
         binder.bindInstanceFields(this);
         if (setup.getAdmission() > 1) {
