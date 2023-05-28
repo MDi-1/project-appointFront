@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 public class AppointForm extends FormLayout implements BaseForm{
 
-    private Setup setup;
     private BackendClient client;
     private DoctorView view;
     private VerticalLayout container = new VerticalLayout();
@@ -29,8 +28,7 @@ public class AppointForm extends FormLayout implements BaseForm{
     private final Button btnAcceptDeny = new Button("Appoint");
     private boolean exeMode;
 
-    public AppointForm(Setup setup, BackendClient client, DoctorView view) {
-        this.setup = setup;
+    public AppointForm(BackendClient client, DoctorView view) {
         this.client = client;
         this.view = view;
         addClassName("appointment-form");

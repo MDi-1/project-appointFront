@@ -19,8 +19,9 @@ public class StartingView extends HorizontalLayout {
 
     private final InitHeader header;
 
-    public StartingView(Setup setup, BackendClient client, InitHeader header) {
+    public StartingView(BackendClient client, InitHeader header) {
         this.header = header;
+        Setup setup = Setup.SINGLETON_INSTANCE;
         List<Patient> patients = client.getAllPatients();
         Label label = new Label("Click one of buttons to log in as sample patient or as administrator");
         Button patientBtn = new Button("Log in as patient");

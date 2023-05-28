@@ -45,14 +45,14 @@ public class DoctorView extends HorizontalLayout {
     private final HorizontalLayout weekTables = new HorizontalLayout();
     private final TextField navPanelField = new TextField();
 
-    public DoctorView(Setup setup, BackendClient client) {
+    public DoctorView(BackendClient client) {
         this.client = client;
-        this.setup = setup;
+        setup = Setup.SINGLETON_INSTANCE;
         VerticalLayout container = new VerticalLayout();
         Label formLabel = new Label();
         String formHeaderTxt;
-        if (setup.getAdmission() > 1) form = new DoctorForm(setup, client, DoctorView.this);
-        else form = new AppointForm(setup, client, DoctorView.this);
+        if (setup.getAdmission() > 1) form = new DoctorForm(client, DoctorView.this);
+        else form = new AppointForm(client, DoctorView.this);
         if (setup.getDoctor() == null) formHeaderTxt = "none selected";
         else formHeaderTxt = "selected: " + setup.getDoctor().getName() + " " + setup.getDoctor().getLastName();
         formLabel.setText(formHeaderTxt);

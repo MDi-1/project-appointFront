@@ -16,7 +16,6 @@ import java.util.List;
 
 public class DoctorForm extends FormLayout implements BaseForm{
 
-    private final Setup setup;
     private final BackendClient client;
     private final DoctorView view;
     private boolean exeMode;
@@ -34,8 +33,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final Button cancelTfBtn = new Button("Cancel");
 
 
-    public DoctorForm(Setup setup, BackendClient client, DoctorView view) {
-        this.setup = setup;
+    public DoctorForm(BackendClient client, DoctorView view) {
         this.client = client;
         this.view = view;
         addClassName("doctor-form");
