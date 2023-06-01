@@ -26,7 +26,7 @@ public class TechnicalView extends VerticalLayout {
             Grid<TestDto> table = new Grid<>(TestDto.class);
             Button buttonAdd = new Button("add test object");
             Button buttonPut = new Button("update test obj id = 109");
-            TestDto t1 = new TestDto("final amendment");
+            TestDto t1 = new TestDto(null, "second test object", true, TestDto.RankLabel.SECOND, 2);
             TestDto t2 = new TestDto(109L, "test object two: modified");
             buttonAdd.addClickListener(event -> System.out.println(client.createTestObject(t1)));
             buttonPut.addClickListener(event -> client.updateTestObject(t2));

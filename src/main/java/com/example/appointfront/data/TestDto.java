@@ -9,12 +9,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class TestDto {
+    public enum RankLabel { FIRST, SECOND, THIRD, FOURTH }
 
     @JsonProperty("id")
     private Long id;
 
     @JsonProperty("name")
     private String name;
+
+    @JsonProperty("trueOrFalse")
+    private boolean trueOrFalse;
+
+    @JsonProperty("rankLabel")
+    private RankLabel rankLabel;
 
     private Integer testId;
 
@@ -26,7 +33,4 @@ public class TestDto {
         this.id = id;
         this.name = name;
     }
-
-    @Override
-    public String toString() { return "TestDto{" +"id=" +id +", name='" +name +'\'' +", testId=" +testId +'}'; }
 }
