@@ -31,7 +31,7 @@ public class MServiceForm extends FormLayout {
         List<MedicalService> msList = client.getMedServiceList();
         Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
         serviceGrid.setItems(msList);
-        serviceGrid.setMinWidth("520px"); // critical to prevent squashing by buttons on the side.
+        serviceGrid.setMinWidth("520px"); // necessary on screen to prevent squashing by buttons on the side.
         serviceGrid.removeColumnByKey("doctorIds");
         serviceGrid.getColumnByKey("id").setAutoWidth(true);
         serviceGrid.asSingleSelect().addValueChangeListener(e -> binder.setBean(e.getValue()));
@@ -56,12 +56,10 @@ public class MServiceForm extends FormLayout {
                 ms.setDoctorIds(new ArrayList<>());
                 ms.getDoctorIds().add(docId);
             }
-            System.out.println(ms);
             MedicalService response = null;
             if (ms.getId() == null) response = client.createMedicalService(ms);
             else client.updateMedicalService(ms);
-            System.out.println(" ]] response = " + response);
-            serviceGrid.setItems(client.getMedServiceList()); // refresh
+            serviceGrid.setItems(client.getMedServiceList());
             binder.removeBean();
         });
         deleteService.addClickListener(event -> {
@@ -80,10 +78,7 @@ public class MServiceForm extends FormLayout {
         binder.bindInstanceFields(this);
         description.setWidthFull();
         doctorBox.setItems(client.getDoctorList());
-        doctorBox.addValueChangeListener(e -> {
-            docId = e.getValue().getId();
-            System.out.println(docId);
-        });
+        doctorBox.addValueChangeListener(e -> docId = e.getValue().getId());
         serviceName.setItems(MedicalService.ServiceName.values());
     }
 }

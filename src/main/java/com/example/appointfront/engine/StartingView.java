@@ -40,7 +40,7 @@ public class StartingView extends HorizontalLayout {
         add(loginBox, table);
         loginBox.setAlignItems(Alignment.CENTER);
         patientBtn.addClickListener(event -> {
-            if (setup.getPatient() == null) setup.setPatient(client.getPatientById(17L)); //unnecessarily hardcoded 17
+            if (setup.getPatient() == null) setup.setPatient(client.getPatientById(patients.get(0).getId()));
             setup.setAdmission(1);
             this.header.updateLoggedUser();
             UI.getCurrent().navigate("user");

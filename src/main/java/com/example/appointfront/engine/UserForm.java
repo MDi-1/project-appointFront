@@ -71,7 +71,6 @@ public class UserForm extends FormLayout implements BaseForm{
     @Override
     public void executeItem() {
         Patient patient = binder.getBean();
-        System.out.println(patient);
         if (saveMode) client.updatePatient(patient);
         else client.createPatient(patient);
         clearForm();

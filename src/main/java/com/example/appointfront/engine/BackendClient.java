@@ -25,33 +25,6 @@ public class BackendClient {
     private List<Appointment> doctorAppList;
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
-    public List<TestDto> getTestObjects() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "test/getAll").build().encode().toUri();
-        try {
-            TestDto[] response = restTemplate.getForObject(url, TestDto[].class);
-            List<TestDto> testList = Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
-            int i = 1;
-            for (TestDto item : testList) {
-                item.setTestId(i);
-                i++;
-            }
-            return testList;
-        } catch (RestClientException e) {
-            LOGGER.error(e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
-
-    public TestDto createTestObject(TestDto dto) {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "test").build().encode().toUri();
-        return restTemplate.postForObject(url, dto, TestDto.class);
-    }
-
-    public void updateTestObject(TestDto dto) {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "test").build().encode().toUri();
-        restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), TestDto.class);
-    } // it'd be nice to use return value of exchange() f. for later processing... maybe
-
     public List<MedicalService> getMedServiceList() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "medService/getAll").build().encode().toUri();
         try {
@@ -131,7 +104,7 @@ public class BackendClient {
 
     public List<Appointment> getAppsByDoc() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/doctorApps/")
-                .path(String.valueOf(setup.getDoctor().getId())) // path parameter comes here
+                .path(String.valueOf(setup.getDoctor().getId()))
                 .build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
@@ -144,7 +117,7 @@ public class BackendClient {
 
     public List<Appointment> getAppsByPatient() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/patientApps/")
-                .path(String.valueOf(setup.getPatient().getId())) // path parameter comes here
+                .path(String.valueOf(setup.getPatient().getId()))
                 .build().encode().toUri();
         try {
             Appointment[] response = restTemplate.getForObject(url, Appointment[].class);

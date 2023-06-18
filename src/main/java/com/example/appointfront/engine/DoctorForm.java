@@ -46,7 +46,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
                 new HorizontalLayout(position, ms),
                 new HorizontalLayout(addBtn, editBtn, timeBtn)
         );
-        saveBtn.addClickListener(event -> executeItem()); // click listeners cannot be added multiple times - fixme
+        saveBtn.addClickListener(event -> executeItem());
         delBtn.addClickListener(event -> {
             client.deleteDoctor(binder.getBean().getId());
             clearForm();
@@ -137,12 +137,11 @@ public class DoctorForm extends FormLayout implements BaseForm{
                     break;
                 }
                 if (timeFrame.getTimeStart().equals("off") && timeFrame.getTimeEnd().equals("off")) {
-                    timeFrame.setStatus(TimeFrame.TfStatus.Day_Off);
+                    timeFrame.setTfStatus(TimeFrame.TfStatus.Day_Off);
                 }
                 client.updateTimeframe(timeFrame);
             } else {
                 TimeFrame response = client.createTimeFrame(timeFrame);
-                System.out.println(response);
             }
         }
         tfProcessList.clear();

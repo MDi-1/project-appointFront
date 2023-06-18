@@ -8,11 +8,9 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @NoArgsConstructor
 public class AppointForm extends FormLayout implements BaseForm{
@@ -79,7 +77,6 @@ public class AppointForm extends FormLayout implements BaseForm{
         promptButtons.removeAll();
         container.remove(question, promptButtons);
         view.forceRefresh();
-        // statement to update tables - to be added
     }
 
     // mode: true - create App; false - delete App; third option - do not execute this f. (click into back2 btn)
@@ -88,24 +85,13 @@ public class AppointForm extends FormLayout implements BaseForm{
         LocalDate date = setup.getTargetDay(); // client should probably store just Entry field instead of separate date
         LocalDateTime dateTime = date.atTime(setup.getEntry().getTime());
         if (exeMode) {
-            Appointment newApp = new Appointment(
-                    dateTime.toString(), setup.getDoctor().getId(), setup.getPatient().getId());
-            Appointment response = client.createAppointment(newApp);
-            System.out.println(response); // fixme
+            client.createAppointment(
+                    new Appointment(dateTime.toString(), setup.getDoctor().getId(), setup.getPatient().getId()));
         } else {
-            List<Appointment> appList = client.getDoctorAppList();
-            for (Appointment item : appList) {
-                LocalDateTime parsedTime = LocalDateTime.parse(
-                        item.getStartDateTime(),DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
-                if (parsedTime.equals(dateTime)) client.deleteAppointment(item.getId());
-            }
-            /* Futile attempts - do it later
-            LocalDateTime parsedTime1 = appList.stream()
-                    .filter(i -> LocalDateTime.parse(i, DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm")).equals(dateTime))
-                    .findFirst()
-                    .orElseThrow(NullPointerException::new);
-            System.out.println("]] Project Appoint: " + parsedTime1 + "____" + dateTime);
-            */
+            client.getDoctorAppList().stream()
+                    .filter(e -> LocalDateTime.parse(
+                            e.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm")).equals(dateTime))
+                    .forEach(e -> client.deleteAppointment(e.getId()));
         }
     }
 }

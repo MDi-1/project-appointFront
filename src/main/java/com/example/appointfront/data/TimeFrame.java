@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class TimeFrame {
 
-    public enum TfStatus {  Present, Day_Off  }
+    public enum TfStatus { Present, Day_Off, Holiday } // is holiday never used? fixme
 
     @JsonProperty("id")
     private Long id;
@@ -25,16 +25,16 @@ public class TimeFrame {
     private String timeEnd;
 
     @JsonProperty("status")
-    private TimeFrame.TfStatus status;
+    private TimeFrame.TfStatus tfStatus;
 
-    @JsonProperty("doctorId")
-    private Long doctorId;
+    @JsonProperty("ownersId")
+    private Long ownersId;
 
-    public TimeFrame(String date, String timeStart, String timeEnd, TfStatus status, Long doctorId) {
+    public TimeFrame(String date, String timeStart, String timeEnd, TfStatus status, Long ownersId) {
         this.date = date;
         this.timeStart = timeStart;
         this.timeEnd = timeEnd;
-        this.status = status;
-        this.doctorId = doctorId;
+        this.tfStatus = status;
+        this.ownersId = ownersId;
     }
 }

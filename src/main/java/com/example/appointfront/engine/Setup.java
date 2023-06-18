@@ -6,7 +6,6 @@ import com.example.appointfront.data.Patient;
 import com.example.appointfront.data.TableEntry;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -35,5 +34,7 @@ public enum Setup {
     private List<Patient> patients;
     @Setter
     private List<MedicalService> msList;
-    private final LocalDate startingDay = LocalDate.of(2022, 9, 15); // temporary value for target day in createTables
+    private final LocalDate startingDay = LocalDate.now();
+    static final int COMPANY_STARTING_HOUR = 6;
+    static final int WORKDAY_HOURS_AMOUNT  = 12;
 }
