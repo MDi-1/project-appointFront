@@ -44,12 +44,6 @@ public class Doctor {
         this.position = position;
     }
 
-    public String toString1() {
-        return "Doctor:(" + "id=" + id + ", name='" + name + '\'' + ", lastName='" + lastName + '\'' +
-                ", position=" + position + ", isGoCalSync=" + goCalendarSync + ", timeframeId=" + timeframeIds +
-                ", appointmentIds=" + appointmentIds + ", medServiceIds=" + medServiceIds + ')';
-    }
-
     @Override
     public String toString() {
         return name + " " + lastName;

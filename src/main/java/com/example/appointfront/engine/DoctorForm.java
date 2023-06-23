@@ -123,7 +123,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
     @Override
     public void executeItem() {
         Doctor doctor = binder.getBean();
-        System.out.println("  ]] executing toString1() [[ ->  " + doctor.toString1());
         if (exeMode) client.createDoctor(doctor);
         else client.updateDoctor(doctor);
         clearForm();

@@ -68,7 +68,7 @@ public class BackendClient {
         }
     }
 
-    Doctor createDoctor(Doctor doctor) {
+    public Doctor createDoctor(Doctor doctor) {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor").build().encode().toUri();
         try {
             return restTemplate.postForObject(url, doctor, Doctor.class);
@@ -78,12 +78,12 @@ public class BackendClient {
         }
     }
 
-    void updateDoctor(Doctor doctor) { // fixme
+    public void updateDoctor(Doctor doctor) { // fixme
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor").build().encode().toUri();
         restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(doctor), Doctor.class);
     }
 
-    void deleteDoctor(Long docId) {
+    public void deleteDoctor(Long docId) {
         String id = String.valueOf(docId);
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor/")
                 .path(id)

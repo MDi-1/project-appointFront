@@ -37,7 +37,7 @@ public class UserForm extends FormLayout implements BaseForm{
             lastName.setPlaceholder(setup.getPatient().getLastName());
         }
         setupButtons();
-        switchControls(lockMode);
+        lockControls(lockMode);
     }
 
     private void setupButtons() {
@@ -65,7 +65,7 @@ public class UserForm extends FormLayout implements BaseForm{
         lockMode = true;
         if (saveMode) binder.setBean(setup.getPatient());
         else binder.setBean(new Patient());
-        switchControls(lockMode);
+        lockControls(lockMode);
     }
 
     @Override
@@ -80,10 +80,10 @@ public class UserForm extends FormLayout implements BaseForm{
     public void clearForm() {
         lockMode = false;
         saveMode = false;
-        switchControls(lockMode);
+        lockControls(lockMode);
     }
 
-    void switchControls(boolean mode) {
+    void lockControls(boolean mode) {
         addBtn.setEnabled(!mode);
         editBtn.setEnabled(!mode);
         saveBtn.setEnabled(mode);
