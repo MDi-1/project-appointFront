@@ -85,8 +85,8 @@ public class AppointForm extends FormLayout implements BaseForm{
         LocalDate date = setup.getTargetDay(); // client should probably store just Entry field instead of separate date
         LocalDateTime dateTime = date.atTime(setup.getEntry().getTime());
         if (exeMode) {
-            client.createAppointment(
-                    new Appointment(dateTime.toString(), setup.getDoctor().getId(), setup.getPatient().getId()));
+            client.createAppointment(new Appointment(
+                    dateTime.toString(), setup.getDoctor().getId(), setup.getPatient().getId()));
         } else {
             client.getDoctorAppList().stream()
                     .filter(e -> LocalDateTime.parse(

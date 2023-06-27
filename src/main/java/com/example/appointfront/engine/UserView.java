@@ -21,7 +21,6 @@ import java.util.Objects;
 @UIScope
 public class UserView extends VerticalLayout {
 
-    private final Setup setup;
     private final BackendClient client;
     private final DoctorView doctorView;
     private final Button delApp = new Button("Delete Appointment");
@@ -32,7 +31,6 @@ public class UserView extends VerticalLayout {
 
     public UserView(BackendClient client) {
         this.client = client;
-        setup = Setup.SINGLETON_INSTANCE;
         doctorView = new DoctorView(client);
         HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
         Label companyDetails = new Label("Company, Street, Postal code, City, Phone number");
@@ -42,7 +40,7 @@ public class UserView extends VerticalLayout {
 
     VerticalLayout makeAppTab() {
         Label appHead = new Label("List of recent / incoming appointments");
-        if (setup.getPatient() != null) {
+        if (Setup.SINGLETON_INSTANCE.getPatient() != null) {
             Grid<Appointment> appointmentGrid = new Grid<>(Appointment.class);
             appointmentGrid.setItems(client.getAppsByPatient());
             appointmentGrid.setColumns("startDateTime", "price");
@@ -59,9 +57,15 @@ public class UserView extends VerticalLayout {
 
     VerticalLayout makeServiceTab() {
         Grid<MedicalService> serviceGrid = new Grid<>(MedicalService.class);
-        setup.setMsList(client.getMedServiceList());
+        List<MedicalService> msList = client.getMedServiceList();
+        Setup.SINGLETON_INSTANCE.setMsList(msList);
         serviceGrid.setColumns("serviceName");
-        serviceGrid.setItems(setup.getMsList());
+        serviceGrid.setItems(Setup.SINGLETON_INSTANCE.getMsList());
+        serviceGrid.asSingleSelect().addValueChangeListener(event -> {
+            Doctor found1stDoc = event.getValue().getDoctorIds().stream().findFirst()
+                    .map(e -> Setup.SINGLETON_INSTANCE.getDoctors().get(0)).orElseThrow(IllegalArgumentException::new);
+            doctorView.enterDoctorManagement(found1stDoc);
+        });
         VerticalLayout serviceTab = new VerticalLayout(new Label("Pick service to make an appointment"), serviceGrid);
         serviceTab.setWidth("50%");
         return serviceTab;
@@ -70,7 +74,7 @@ public class UserView extends VerticalLayout {
     VerticalLayout makeDocTab() {
         Grid<Doctor> doctorGrid = new Grid<>(Doctor.class);
         List<Doctor> doctors = client.getDoctorList();
-        setup.setDoctors(doctors);
+        Setup.SINGLETON_INSTANCE.setDoctors(doctors);
         doctorGrid.setColumns("name", "lastName", "position");
         doctorGrid.setItems(doctors);
         doctorGrid.asSingleSelect().addValueChangeListener(event -> doctorView.enterDoctorManagement(event.getValue()));
@@ -92,12 +96,12 @@ public class UserView extends VerticalLayout {
             clearAppButtons();
             LocalDate parsedDate = LocalDate.parse(appointment.getStartDateTime().substring(0, 10));
             System.out.println(parsedDate);
-            setup.setTargetDay(parsedDate);
-            Doctor d = null;
-            for (Doctor doctor : setup.getDoctors()) {
-                if (doctor.getId() == appointment.getDoctorId()) d = doctor;
+            Setup.SINGLETON_INSTANCE.setTargetDay(parsedDate);
+            Doctor selectedDoctor = null;
+            for (Doctor doctor : Setup.SINGLETON_INSTANCE.getDoctors()) {
+                if (doctor.getId() == appointment.getDoctorId()) selectedDoctor = doctor;
             }
-            doctorView.enterDoctorManagement(d);
+            doctorView.enterDoctorManagement(selectedDoctor);
         });
         confirm.addClickListener(event -> {
             client.deleteAppointment(appointment.getId());

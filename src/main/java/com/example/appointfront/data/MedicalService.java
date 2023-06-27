@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 @AllArgsConstructor
@@ -23,10 +22,15 @@ public class MedicalService {
     @JsonProperty("description")
     private String description;
 
+    @JsonProperty("price")
+    private int price;
+
     @JsonProperty("doctorIds")
     private List<Long> doctorIds;
 
-    public MedicalService(ServiceName serviceName) {
+    public MedicalService(ServiceName serviceName, String description, int price) {
         this.serviceName = serviceName;
+        this.description = description;
+        this.price = price;
     }
 }
