@@ -17,10 +17,7 @@ import java.util.List;
 @PageTitle("Start | Tiny Clinic")
 public class StartingView extends HorizontalLayout {
 
-    private final InitHeader header;
-
-    public StartingView(BackendClient client, InitHeader header) {
-        this.header = header;
+    public StartingView(BackendClient client) {
         Setup setup = Setup.SINGLETON_INSTANCE;
         List<Patient> patients = client.getAllPatients();
         Label label = new Label("Click one of buttons to log in as sample patient or as administrator");
@@ -28,7 +25,7 @@ public class StartingView extends HorizontalLayout {
         Button managerBtn = new Button("Log in as manager");
         Button adminButton = new Button("Log in as service administrator");
         Grid<Patient> table = new Grid<>(Patient.class);
-        setup.setTargetDay(setup.getStartingDay());
+        setup.setTargetDay(Setup.STARTING_DAY);
         setup.setPatients(patients);
         table.setItems(patients);
         table.setColumns("firstName", "lastName");
@@ -42,7 +39,7 @@ public class StartingView extends HorizontalLayout {
         patientBtn.addClickListener(event -> {
             if (setup.getPatient() == null) setup.setPatient(client.getPatientById(patients.get(0).getId()));
             setup.setAdmission(1);
-            this.header.updateLoggedUser();
+            InitHeader.updateLoggedUser();
             UI.getCurrent().navigate("user");
         });
         managerBtn.addClickListener(event -> {

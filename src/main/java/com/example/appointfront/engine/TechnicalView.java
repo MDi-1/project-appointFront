@@ -18,7 +18,7 @@ public class TechnicalView extends VerticalLayout {
 
     public TechnicalView(BackendClient client) {
         Setup setup = Setup.SINGLETON_INSTANCE;
-        if (setup.getAdmission() > 2) add(new MServiceForm(client));
+        if (setup.getAdmission() > 2) add(new MedServiceForm(client));
         else add(new Label("Access Denied; You need to log in as administrator to access this page"));
     }
 }

@@ -23,7 +23,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
 
-import static com.example.appointfront.engine.DoctorForm.getTfProcessList;
+import static com.example.appointfront.data.TimeFrame.TfStatus.Present;
+import static com.example.appointfront.engine.Setup.WORKDAY_HOURS_AMOUNT;
 
 @Route(value = "doctor", layout = MainLayout.class)
 @PageTitle("Doctors | Tiny Clinic")
@@ -33,15 +34,15 @@ public class DoctorView extends HorizontalLayout {
     private final BaseForm form;
     private final BackendClient client;
     private LocalDate targetDate;
+    private LocalDate[] date4tfForm;
+    private TimeFrame[] weekTimeFrames = new TimeFrame[5];
     private final TextField[] frameStart = new TextField[5];
     private final TextField[] frameEnd = new TextField[5];
-    private TimeFrame[] weekTimeFrames = new TimeFrame[5];
     private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
     private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private final List<Grid<TableEntry>> timetable = new ArrayList<>();
     private final Label lockLabel = new Label("timetable unlocked");
     private final String[] dayHeaders = new String[7];
-    private LocalDate[] date4tfForm;
     private final HorizontalLayout weekTables = new HorizontalLayout();
     private final TextField navPanelField = new TextField();
 
@@ -71,13 +72,12 @@ public class DoctorView extends HorizontalLayout {
     }
 
     void createTables() {
-        setup.setTimetableLock(false);
         for (int i = 0; i < 5; i ++) {
+            int y = i;
             timetable.add(new Grid<>(TableEntry.class));
             timetable.get(i).setColumns("status");
             timetable.get(i).getColumnByKey("status").setSortable(false);
             timetable.get(i).setHeightFull();
-            int y = i;
             timetable.get(i).asSingleSelect().addValueChangeListener(event -> {
                 for (int k = 0; k < 5; k ++) {
                     if (k != y) timetable.get(k).deselectAll();
@@ -86,6 +86,7 @@ public class DoctorView extends HorizontalLayout {
                 form.clearForm();               // main purpose of creating interface BaseForm was to call
                 if (entry == null) return;      // f. as clearForm() or activateControls() from within this class
                 setup.setEntry(entry);
+                setup.setTargetDay(entry.getWeekday()); // this looks stupid
                 form.activateControls();
             });
             weekTables.add(timetable.get(i));
@@ -98,7 +99,7 @@ public class DoctorView extends HorizontalLayout {
         LocalDate[] date = new LocalDate[7];
         for (int n = 1; n < 8; n ++) {
             LocalDate day = setup.getTargetDay();
-            while(day.getDayOfWeek().equals(DayOfWeek.SATURDAY) || day.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+            while (day.getDayOfWeek().equals(DayOfWeek.SATURDAY) || day.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
                 day = day.plusDays(1L);
             }
             date[n - 1] = day.minusDays(day.getDayOfWeek().getValue() - n);
@@ -112,7 +113,7 @@ public class DoctorView extends HorizontalLayout {
 
     private void refreshTables(LocalDate[] date) { // fixme
         for (int i = 0; i < 5; i ++) {
-            TableEntry[] entries = new TableEntry[Setup.WORKDAY_HOURS_AMOUNT];
+            TableEntry[] entries = new TableEntry[WORKDAY_HOURS_AMOUNT];
             LocalTime tfStart = null, tfEnd = null;
             if (setup.getDoctor() != null) {
                 client.setDoctorAppList(client.getAppsByDoc());
@@ -122,9 +123,9 @@ public class DoctorView extends HorizontalLayout {
                         tfEnd   = LocalTime.parse(tf.getTimeEnd());
                         weekTimeFrames[i] = tf;
                     }
-                }
-            }
-            for (int n =0; n<Setup.WORKDAY_HOURS_AMOUNT; n++) entries[n] =createTableEntry(date[i], n, tfStart, tfEnd);
+                } // is it really need to B 'n' as second argument in createTableEntry?? ----------┐ fixme
+            } // it better be just index of entries array.                                         │
+            for (int n = 0; n < WORKDAY_HOURS_AMOUNT; n ++) entries[n] = createTableEntry(date[i], n, tfStart, tfEnd);
             timetable.get(i).setItems(entries);
             timetable.get(i).getColumnByKey("status").setHeader(dayHeaders[i]);
         }
@@ -138,8 +139,8 @@ public class DoctorView extends HorizontalLayout {
         refreshTimeForm();
     }
 
-    TableEntry createTableEntry(LocalDate date, int iterator, LocalTime tfStart, LocalTime tfEnd) {
-        LocalTime time = LocalTime.of(iterator + Setup.COMPANY_STARTING_HOUR, 0);
+    TableEntry createTableEntry(LocalDate entryDate, int workHourIterator, LocalTime tfStart, LocalTime tfEnd) {
+        LocalTime time = LocalTime.of(workHourIterator + Setup.EARLIEST_STARTING_HOUR, 0);
         String status;
         Patient patient = null;
         Long appId = null;
@@ -150,10 +151,8 @@ public class DoctorView extends HorizontalLayout {
             for (Appointment singleApp : client.getDoctorAppList()) {
                 LocalDateTime appDateTime = LocalDateTime.parse(
                         singleApp.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
-                if (date.equals(LocalDate.from(appDateTime)) && time.equals(LocalTime.from(appDateTime))) {
-                    patient = setup.getPatients()
-                            .stream()
-                            .filter(e -> e.getId().equals(singleApp.getPatientId()))
+                if (entryDate.equals(LocalDate.from(appDateTime)) && time.equals(LocalTime.from(appDateTime))) {
+                    patient = setup.getPatients().stream().filter(e -> e.getId().equals(singleApp.getPatientId()))
                             .findFirst().orElseThrow(IllegalArgumentException::new);
                     appId = singleApp.getId();
                     if (patient.equals(setup.getPatient())) status = time.getHour() + ":00 Appointed";
@@ -161,7 +160,7 @@ public class DoctorView extends HorizontalLayout {
                 }
             }
         }
-        return new TableEntry(date, status, time, patient, setup.getDoctor(), appId);
+        return new TableEntry(entryDate, status, time, patient, setup.getDoctor(), appId);
     }
 
     FormLayout buildNavPanel() {
@@ -204,43 +203,41 @@ public class DoctorView extends HorizontalLayout {
             frameEnd[i] = new TextField();
             frameStart[i].setEnabled(false);
             frameEnd[i].setEnabled(false);
-            int x = i;
-            frameStart[i].addValueChangeListener(action -> tfProcessing(x));
-            frameEnd[i].addValueChangeListener(action -> tfProcessing(x));
+            int finalVar = i;
+            frameStart[i].addValueChangeListener(action -> tfProcessing(finalVar));
+            frameEnd[i].addValueChangeListener(action -> tfProcessing(finalVar));
             bottomBar.add(new VerticalLayout(frameStart[i], frameEnd[i]));
         }
         refreshTimeForm();
         return new FormLayout(bottomBar);
     }
 
+    // FIXME: 08.07.2023 
     private void tfProcessing(int x) {
         if (!frameStart[x].isEnabled()) return;
-        TimeFrame tfx = getTfBinderList().get(x).getBean();
+        TimeFrame tfx = tfBinderList.get(x).getBean();
         TimeFrame tfSubtract = null;
-        for (TimeFrame tf : getTfProcessList()) {
+        for (TimeFrame tf : DoctorForm.getTfProcessList()) {
             if (tf.getDate().equals(tfx.getDate())) {
                 tfSubtract = tf;
             }
         } // for some reason f.remove() does not work on Set. 2 B done later - do it on Set instead of List
-        getTfProcessList().remove(tfSubtract);
-        getTfProcessList().add(tfx);
+        DoctorForm.getTfProcessList().remove(tfSubtract);
+        DoctorForm.getTfProcessList().add(tfx);
     }
 
     private void refreshTimeForm() {
         for (int i = 0; i < 5; i++) {
-            if (weekTimeFrames[i] != null) {
-                tfBinderList.get(i).setBean(weekTimeFrames[i]);
-            } else {
-                tfBinderList.get(i).setBean(new TimeFrame(
-                        date4tfForm[i].toString(),"-","-", TimeFrame.TfStatus.Present, setup.getDoctor().getId()));
-            }
+            TimeFrame tfDummy = new TimeFrame(date4tfForm[i].toString(), "-", "-", Present, setup.getDoctor().getId());
+            if (weekTimeFrames[i] != null) tfBinderList.get(i).setBean(weekTimeFrames[i]);
+            else tfBinderList.get(i).setBean(tfDummy);
             tfBinderList.get(i).bind(frameStart[i], "timeStart");
             tfBinderList.get(i).bind(frameEnd[i], "timeEnd");
         }
     }
 
     public void enterDoctorManagement(Doctor doctor) {
-        setDocFromTab(doctor);
+        binder.setBean(doctor); // this thing seems 2 B a dead code fixme
         setup.setDoctor(doctor);
         UI.getCurrent().navigate("doctor");
     }
@@ -253,18 +250,10 @@ public class DoctorView extends HorizontalLayout {
         return frameEnd;
     }
 
-    public List<Binder<TimeFrame>> getTfBinderList() { // "It's the only usage in all places" fixme ?
-        return tfBinderList;
-    }
-
-    public void setDocFromTab(Doctor doctor) {         // "It's the only usage in all places" fixme ?
-        binder.setBean(doctor);
-    }
-
     // (i) this is the way to add external control gauge in form of setup.timetableLock, but instead internal
     // functionality of grid should be utilized e.isEnabled()
-    public void lockTimetables(boolean lock) {         // "It's the only usage in all places" fixme ?
-        if (setup.isTimetableLock()) lockLabel.setText("timetable locked");
+    public void lockTimetables(boolean lock) {
+        if (lock) lockLabel.setText("timetable locked");
         else lockLabel.setText("timetable unlocked");
         timetable.forEach(e -> {
             e.setEnabled(!lock);

@@ -31,7 +31,7 @@ public class UserView extends VerticalLayout {
 
     public UserView(BackendClient client) {
         this.client = client;
-        doctorView = new DoctorView(client);
+        this.doctorView = new DoctorView(client);
         HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
         Label companyDetails = new Label("Company, Street, Postal code, City, Phone number");
         mainTables.setSizeFull();
@@ -94,13 +94,9 @@ public class UserView extends VerticalLayout {
         });
         go2App.addClickListener(event -> {
             clearAppButtons();
-            LocalDate parsedDate = LocalDate.parse(appointment.getStartDateTime().substring(0, 10));
-            System.out.println(parsedDate);
-            Setup.SINGLETON_INSTANCE.setTargetDay(parsedDate);
-            Doctor selectedDoctor = null;
-            for (Doctor doctor : Setup.SINGLETON_INSTANCE.getDoctors()) {
-                if (doctor.getId() == appointment.getDoctorId()) selectedDoctor = doctor;
-            }
+            Setup.SINGLETON_INSTANCE.setTargetDay(LocalDate.parse(appointment.getStartDateTime().substring(0, 10)));
+            Doctor selectedDoctor = Setup.SINGLETON_INSTANCE.getDoctors().stream()
+                    .filter(d -> d.getId().equals(appointment.getDoctorId())).findAny().orElse(null);
             doctorView.enterDoctorManagement(selectedDoctor);
         });
         confirm.addClickListener(event -> {

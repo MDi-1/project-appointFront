@@ -28,6 +28,9 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private static final List<TimeFrame> tfProcessList = new ArrayList<>();
     private final Button addBtn  = new Button("Add");
     private final Button editBtn = new Button("Edit Personal Data");
+    private final Button saveBtn = new Button("Save");
+    private final Button delBtn  = new Button("Delete");
+    private final Button cancelBtn = new Button("Cancel");
     private final Button timeBtn = new Button("Edit Timeframes");
     private final Button saveTfBtn   = new Button("Save");
     private final Button cancelTfBtn = new Button("Cancel");
@@ -37,10 +40,6 @@ public class DoctorForm extends FormLayout implements BaseForm{
         this.client = client;
         this.view = view;
         addClassName("doctor-form");
-        Button saveBtn = new Button("Save");
-        Button delBtn  = new Button("Delete");
-        Button cancelBtn = new Button("Cancel");
-        buttonRow.add(saveBtn, delBtn, cancelBtn);
         add(
                 new HorizontalLayout(name, lastName),
                 new HorizontalLayout(position, ms),
@@ -70,6 +69,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     }
 
     private void configActionAdd() {
+        buttonRow.add(saveBtn, delBtn, cancelBtn);
         name.setPlaceholder("");
         lastName.setPlaceholder("");
         exeMode = true;
@@ -78,6 +78,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     }
 
     private void configActionEdit() {
+        buttonRow.add(saveBtn, delBtn, cancelBtn);
         binder.setBean(setup.getDoctor());
         exeMode = false;
         activateControls();
@@ -86,7 +87,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private void configActionCancel() {
         Arrays.stream(view.getFrameStart()).forEach(e -> e.setEnabled(false));
         Arrays.stream(view.getFrameEnd()).forEach(e -> e.setEnabled(false));
-        clearForm();
+        toggleLocks(false);
     }
 
     public void activateTimeFrameControls() {
@@ -105,8 +106,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     // setup.setTimetableLock(!setup.isTimetableLock());
     public void toggleLocks(boolean lock) {
         clearForm();
-        setup.setTimetableLock(lock);
-        view.lockTimetables(setup.isTimetableLock());
+        view.lockTimetables(lock);
         addBtn.setEnabled(!lock);
         editBtn.setEnabled(!lock);
         timeBtn.setEnabled(!lock);
@@ -130,17 +130,17 @@ public class DoctorForm extends FormLayout implements BaseForm{
 
     void executeTimeFrames() {
         for (TimeFrame timeFrame : tfProcessList) {
-            if (timeFrame.getId() != null) {
-                if (timeFrame.getTimeStart().equals("x") && timeFrame.getTimeEnd().equals("x")) {
-                    client.deleteTimeFrame(timeFrame.getId());
-                    break;
-                }
+            if (timeFrame.getTimeStart().equals("x") && timeFrame.getTimeEnd().equals("x")) {
+                client.deleteTimeFrame(timeFrame.getId());
+            } else {
                 if (timeFrame.getTimeStart().equals("off") && timeFrame.getTimeEnd().equals("off")) {
                     timeFrame.setTfStatus(TimeFrame.TfStatus.Day_Off);
                 }
-                client.updateTimeframe(timeFrame);
-            } else {
-                TimeFrame response = client.createTimeFrame(timeFrame);
+                if (timeFrame.getId() != null) {
+                    client.updateTimeframe(timeFrame);
+                } else {
+                    client.createTimeFrame(timeFrame);
+                }
             }
         }
         tfProcessList.clear();

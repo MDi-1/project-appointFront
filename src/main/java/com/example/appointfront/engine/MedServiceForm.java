@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class MServiceForm extends FormLayout implements BaseForm{
+public class MedServiceForm extends FormLayout implements BaseForm{
 
     private Long docId;
     private final BackendClient client;
@@ -32,7 +32,7 @@ public class MServiceForm extends FormLayout implements BaseForm{
     private final Button deleteService = new Button("delete service");
     private final Button cancel = new Button("cancel");
 
-    public MServiceForm(BackendClient client) {
+    public MedServiceForm(BackendClient client) {
         this.client = client;
         configureFields();
         serviceGrid.asSingleSelect().addValueChangeListener(e -> {

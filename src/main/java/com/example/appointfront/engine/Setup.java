@@ -17,15 +17,11 @@ public enum Setup {
     @Setter
     private int admission;
     @Setter
-    private boolean timetableLock;
-    @Setter
     private Doctor doctor;
     @Setter
     private Patient patient;
     @Setter
     private TableEntry entry;
-    @Setter
-    private TableEntry entryProcessed;
     @Setter
     private LocalDate targetDay;
     @Setter
@@ -34,7 +30,7 @@ public enum Setup {
     private List<Patient> patients;
     @Setter
     private List<MedicalService> msList;
-    private final LocalDate startingDay = LocalDate.now();
-    static final int COMPANY_STARTING_HOUR = 6;
+    static final LocalDate STARTING_DAY = LocalDate.now();
+    static final int EARLIEST_STARTING_HOUR = 6;
     static final int WORKDAY_HOURS_AMOUNT  = 12;
 }

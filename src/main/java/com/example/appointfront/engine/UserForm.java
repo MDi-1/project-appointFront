@@ -20,8 +20,8 @@ public class UserForm extends FormLayout implements BaseForm{
     private final Binder<Patient> binder = new Binder<>(Patient.class);
     // .bindInstanceFields(this) does not allow to make these two fields "firstName" and "lastName" as local ones,
     // thus Intellij suggestion is improper
-    private final TextField firstName = new TextField("first name");
-    private final TextField lastName = new TextField("last name");
+    TextField firstName = new TextField("first name");
+    TextField lastName = new TextField("last name");
 
     public UserForm(BackendClient client) {
         this.client = client;
