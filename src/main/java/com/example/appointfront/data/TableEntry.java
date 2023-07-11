@@ -3,16 +3,14 @@ package com.example.appointfront.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Data
 public class TableEntry {
-    private LocalDate weekday;
+    private LocalDateTime entryDateTime;
     private String status;
-    private LocalTime time;
     private Patient patient;
     private Doctor doctor;
-    private Long attributedApp;
+    private Appointment attributedApp;
 }

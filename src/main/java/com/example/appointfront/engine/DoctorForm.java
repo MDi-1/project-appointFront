@@ -12,6 +12,7 @@ import com.vaadin.flow.data.binder.Binder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class DoctorForm extends FormLayout implements BaseForm{
@@ -20,7 +21,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
     private final DoctorView view;
     private boolean exeMode;
     private final ComboBox<Doctor.Position> position = new ComboBox<>("position");
-    private final ComboBox<MedicalService.ServiceName> ms = new ComboBox<>("medical services");
+    private final ComboBox<MedicalService> allMsComboBox = new ComboBox<>("serviceName");
     private final TextField name = new TextField("first name");
     private final TextField lastName = new TextField("last name");
     private final HorizontalLayout buttonRow = new HorizontalLayout();
@@ -42,7 +43,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         addClassName("doctor-form");
         add(
                 new HorizontalLayout(name, lastName),
-                new HorizontalLayout(position, ms),
+                new HorizontalLayout(position, allMsComboBox),
                 new HorizontalLayout(addBtn, editBtn, timeBtn)
         );
         saveBtn.addClickListener(event -> executeItem());
@@ -58,6 +59,7 @@ public class DoctorForm extends FormLayout implements BaseForm{
         timeBtn.addClickListener(event -> activateTimeFrameControls());
         cancelTfBtn.addClickListener(event -> configActionCancel());
         saveTfBtn.addClickListener(event -> executeTimeFrames());
+        allMsComboBox.setItemLabelGenerator(e -> String.valueOf(e.getServiceName()));
     }
 
     private void setDocFormPlaceholders() {
@@ -65,7 +67,8 @@ public class DoctorForm extends FormLayout implements BaseForm{
         name.setPlaceholder(setup.getDoctor().getName());
         lastName.setPlaceholder(setup.getDoctor().getLastName());
         if (setup.getDoctor().getPosition() != null) position.setPlaceholder(setup.getDoctor().getPosition().name());
-        ms.setPlaceholder(String.valueOf(setup.getMsList().stream().filter(e -> e.getId().equals(msId)).findFirst()));
+        if (setup.getMsList() == null) return;
+        allMsComboBox.setPlaceholder(setup.getCurrentDoctorMsList().get(0).getServiceName().toString());
     }
 
     private void configActionAdd() {
@@ -116,13 +119,16 @@ public class DoctorForm extends FormLayout implements BaseForm{
     public void activateControls() {
         name.focus();
         position.setItems(Doctor.Position.values());
-        ms.setItems(MedicalService.ServiceName.values());
+        allMsComboBox.setItems(setup.getMsList());
         add(buttonRow);
-    } // assigning med.services to docs does not seem to work fixme
+    }
 
     @Override
     public void executeItem() {
         Doctor doctor = binder.getBean();
+        MedicalService ms = allMsComboBox.getValue();
+        if (doctor.getMedServiceIds() != null) doctor.getMedServiceIds().add(ms.getId());
+        else doctor.setMedServiceIds(new ArrayList<>(Collections.singletonList(ms.getId())));
         if (exeMode) client.createDoctor(doctor);
         else client.updateDoctor(doctor);
         clearForm();

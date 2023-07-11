@@ -20,7 +20,7 @@ public class Appointment {
     @JsonProperty("price")
     private int price;
 
-    @JsonProperty("medicalService")
+    @JsonProperty("medicalServiceId")
     private Long medicalServiceId;
 
     @JsonProperty("ownersId")

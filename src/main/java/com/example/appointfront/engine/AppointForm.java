@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class AppointForm extends FormLayout implements BaseForm{
@@ -28,7 +26,7 @@ public class AppointForm extends FormLayout implements BaseForm{
     private final Button back1 = new Button("Back");
     private final Button btnAcceptDeny = new Button("Appoint");
     private final VerticalLayout formContainer = new VerticalLayout();
-    private final HorizontalLayout promptButtons = new HorizontalLayout();
+    private final HorizontalLayout promptButtons = new HorizontalLayout(confirm, back2);
     private final HorizontalLayout initialButtons = new HorizontalLayout(btnAcceptDeny, back1);
     private final ComboBox<MedicalService> msComboBox = new ComboBox<>("serviceName");
     private boolean exeMode;
@@ -38,40 +36,37 @@ public class AppointForm extends FormLayout implements BaseForm{
         this.view = view;
         addClassName("appointment-form");
         add(formContainer);
-        confirm.addClickListener(event -> pressConfirm());
-        btnAcceptDeny.addClickListener(event -> processApp());
+        btnAcceptDeny.addClickListener(event -> formContainer.add(promptButtons));
+        confirm.addClickListener(event -> executeItem());
         back1.addClickListener(event -> clearForm());
         back2.addClickListener(event -> formContainer.remove(question, promptButtons));
         if (setup.getDoctor() == null) return;
-        List<MedicalService> msList = setup.getDoctor().getMedServiceIds().stream()
-                .map(e -> setup.getMsList().stream()
-                        .filter(ms -> ms.getId().equals(e)).findFirst().orElseThrow(IllegalArgumentException::new))
-                .collect(Collectors.toList());
         msComboBox.setLabel("choose service type");
-        msComboBox.setItems(msList);
+        msComboBox.setItems(setup.getCurrentDoctorMsList());
         msComboBox.setItemLabelGenerator(e -> e.getServiceName().toString());
-        msComboBox.setValue(msList.get(0));
-        formContainer.add(msComboBox, priceTag);
+        msComboBox.setValue(setup.getCurrentDoctorMsList().get(0));
+        msComboBox.addValueChangeListener(e -> priceTag.setText("cost: " + msComboBox.getValue().getPrice()));
     }
 
 
     @Override
     public void activateControls() {
-        if (setup.getEntry().getStatus().equals("n/a")
-                || setup.getEntry().getStatus().equals("off")
-                || setup.getEntry().getStatus().equals("busy")
-        ) return;
+        TableEntry ent = setup.getEntry();
+        if (ent.getStatus().equals("n/a") || ent.getStatus().equals("off") || ent.getStatus().equals("busy")) return;
         String doctorName = setup.getDoctor().getName() + " " + setup.getDoctor().getLastName();
-        String timeString = " at " + setup.getEntry().getTime();
-        formContainer.add(initialButtons, question);
-        if (setup.getEntry().getAttributedApp() == null) {
-            priceTag.setText("");
+        String timeString = " at " + ent.getEntryDateTime().toLocalTime();
+        priceTag.setText("cost: " + msComboBox.getValue().getPrice());
+        msComboBox.setEnabled(true);
+        formContainer.add(msComboBox, priceTag, initialButtons, question);
+        if (ent.getAttributedApp() == null) {
             btnAcceptDeny.setText("Appoint");
             question.setText("Are You sure to make an appointment with doctor " + doctorName + timeString);
             exeMode = true;
         } else {
-            //msComboBox.setValue(setup.getEntry().getAttributedApp());
-            priceTag.setText("p_1");
+            Long msIdFromEntry = ent.getAttributedApp().getMedicalServiceId();
+            msComboBox.setValue(setup.getMsList().stream()
+                    .filter(e -> e.getId().equals(msIdFromEntry)).findFirst().orElse(null));
+            msComboBox.setEnabled(false);
             btnAcceptDeny.setText("Call Off");
             question.setText("Are You sure to call off an appointment with doctor " + doctorName + timeString);
             exeMode = false;
@@ -80,27 +75,15 @@ public class AppointForm extends FormLayout implements BaseForm{
 
     @Override
     public void clearForm() {
-        formContainer.remove(initialButtons, question);
+        formContainer.removeAll();
         setup.setEntry(null);
+        msComboBox.setEnabled(true);
     }
 
-    public void processApp(){
-        formContainer.add(promptButtons);
-        promptButtons.add(confirm, back2);
-    }
-
-    private void pressConfirm() {
-        executeItem();
-        promptButtons.removeAll();
-        formContainer.remove(question, promptButtons);
-        view.forceRefresh();
-    }
-
-    // mode: true - create App; false - delete App; third option - do not execute this f. (click into back2 btn)
     @Override
     public void executeItem() {
-        LocalDate date = setup.getTargetDay(); // client should probably store just Entry field instead of separate date
-        LocalDateTime dateTime = date.atTime(setup.getEntry().getTime());
+        LocalDate date = setup.getTargetDay();
+        LocalDateTime dateTime = date.atTime(setup.getEntry().getEntryDateTime().toLocalTime());
         if (exeMode) {
             client.createAppointment(new Appointment(
                     dateTime.toString(),
@@ -109,11 +92,11 @@ public class AppointForm extends FormLayout implements BaseForm{
                     setup.getPatient().getId()));
         } else {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm");
-            client.getDoctorAppList().stream()
+            client.getCurrentDoctorApps().stream()
                     .filter(app -> LocalDateTime.parse(app.getStartDateTime(), formatter).equals(dateTime))
                     .forEach(appointment -> client.deleteAppointment(appointment.getId()));
         }
+        formContainer.removeAll();
+        view.forceRefresh();
     }
-
-    public void findAttributedAppointment() {}
 }

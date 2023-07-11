@@ -18,10 +18,10 @@ public class UserForm extends FormLayout implements BaseForm{
     private final Button deleteBtn = new Button("Delete");
     private final Button canceBtn = new Button("Cancel");
     private final Binder<Patient> binder = new Binder<>(Patient.class);
-    // .bindInstanceFields(this) does not allow to make these two fields "firstName" and "lastName" as local ones,
-    // thus Intellij suggestion is improper
-    TextField firstName = new TextField("first name");
-    TextField lastName = new TextField("last name");
+    // (i) binder .bindInstanceFields(this) does not allow to make these two fields "firstName" and "lastName"
+    // as local ones, thus Intellij suggestion is improper
+    private TextField firstName = new TextField("first name");
+    private TextField lastName = new TextField("last name");
 
     public UserForm(BackendClient client) {
         this.client = client;

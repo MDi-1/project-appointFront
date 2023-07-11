@@ -6,8 +6,5 @@ public interface BaseForm {
 
     void activateControls();
     void executeItem();
-    void clearForm();   
-    // void getId(); // some return value to be invented here instead of "void"
+    void clearForm();
 }
-// > maybe, some day, when there is enough time - refactor executeItem() that this f. accepts form specific class from
-// data package. Use generics.

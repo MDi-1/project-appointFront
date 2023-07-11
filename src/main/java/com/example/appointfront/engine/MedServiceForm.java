@@ -12,9 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class MedServiceForm extends FormLayout implements BaseForm{
@@ -49,15 +47,11 @@ public class MedServiceForm extends FormLayout implements BaseForm{
         });
         saveService.addClickListener(event -> executeItem());
         cancel.addClickListener(event -> clearForm());
-        Button b_x = new Button("button x");                                            // 2 B deleted later fixme;
-        b_x.addClickListener(event -> temp_testFeedFunction());                         // 2 B deleted later fixme;
-        Label b_x_buttonHint = new Label("Hint: temporary button to feed test data");   // 2 B deleted later fixme;
-        Label saveButtonHint = new Label("Hint: save button adds or removes doctor from medical " +
+        Label saveButtonHint = new Label("Hint: [save] button adds or removes doctor from medical " +
                 "service entity whenever the one is selected from pull down menu");
         saveButtonHint.setMinWidth("1200px");
         add(new VerticalLayout(
-                new HorizontalLayout(serviceGrid, new VerticalLayout(addService, saveService, deleteService, cancel, b_x)),
-                b_x_buttonHint,
+                new HorizontalLayout(serviceGrid, new VerticalLayout(addService, saveService, deleteService, cancel)),
                 saveButtonHint,
                 new HorizontalLayout(serviceName, doctorBox, price, description))
         );
@@ -67,7 +61,7 @@ public class MedServiceForm extends FormLayout implements BaseForm{
         binder.bindInstanceFields(this);
         if (setup.getDoctors() == null) setup.setDoctors(client.getDoctorList());
         serviceGrid.setItems(client.getMedServiceList());
-        serviceGrid.setMinWidth("1100px"); // necessary on screen to prevent squashing by buttons on the side.
+        serviceGrid.setMinWidth("1100px"); // (i) necessary on screen to prevent squashing by buttons on the side.
         serviceGrid.removeColumnByKey("doctorIds");
         serviceGrid.addColumn(ms -> ms.getDoctorIds().stream()
                 .map(docId -> setup.getDoctors().stream()
@@ -84,12 +78,12 @@ public class MedServiceForm extends FormLayout implements BaseForm{
         price.setMin(50);
         price.setMax(990);
         serviceName.setItems(MedicalService.ServiceName.values());
-        lockMsFormControls(false);
+        unlockMsFormControls(false);
     }
 
     @Override
     public void activateControls() {
-        lockMsFormControls(true);
+        unlockMsFormControls(true);
     }
 
     @Override
@@ -119,57 +113,13 @@ public class MedServiceForm extends FormLayout implements BaseForm{
         serviceGrid.setItems(client.getMedServiceList());
         doctorBox.setValue(null);
         binder.removeBean();
-        lockMsFormControls(false);
+        unlockMsFormControls(false);
     }
 
-    public void lockMsFormControls(boolean buttonsActive) {
+    public void unlockMsFormControls(boolean buttonsActive) {
         addService.setEnabled(!buttonsActive);
         saveService.setEnabled(buttonsActive);
         deleteService.setEnabled(buttonsActive);
         cancel.setEnabled(buttonsActive);
-    }
-
-    void temp_testFeedFunction() {
-        addService.click();
-        binder.removeBean();
-        List<Long> oneList1 = setup.getDoctors().subList(0,1).stream().map(Doctor::getId).collect(Collectors.toList());
-        docId = oneList1.stream().findFirst().orElseThrow(IllegalArgumentException::new);
-        binder.setBean(new MedicalService(null, MedicalService.ServiceName.Physician, "description1", 150, oneList1));
-        temp_2secDelay();
-        saveService.click();
-
-        addService.click();
-        binder.removeBean();
-        List<Long> oneList2 = setup.getDoctors().subList(1,2).stream().map(Doctor::getId).collect(Collectors.toList());
-        docId = oneList2.stream().findFirst().orElseThrow(IllegalArgumentException::new);
-        binder.setBean(new MedicalService(null, MedicalService.ServiceName.Gynecologist, "description2", 180, oneList2));
-        temp_2secDelay();
-        saveService.click();
-
-        addService.click();
-        binder.removeBean();
-        List<Long> oneList3 = setup.getDoctors().subList(2,3).stream().map(Doctor::getId).collect(Collectors.toList());
-        docId = oneList3.stream().findFirst().orElseThrow(IllegalArgumentException::new);
-        binder.setBean(new MedicalService(null, MedicalService.ServiceName.Laryngologist, "description3", 200, oneList3));
-        temp_2secDelay();
-        saveService.click();
-
-        setup.setMsList(client.getMedServiceList());
-        serviceGrid.select(setup.getMsList().get(0));
-        doctorBox.setValue(setup.getDoctors().get(1));
-        saveService.click();
-
-        setup.setMsList(client.getMedServiceList());
-        serviceGrid.select(setup.getMsList().get(0));
-        doctorBox.setValue(setup.getDoctors().get(2));
-        saveService.click();
-    }
-
-    void temp_2secDelay() {
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

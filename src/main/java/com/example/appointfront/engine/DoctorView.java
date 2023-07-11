@@ -39,7 +39,6 @@ public class DoctorView extends HorizontalLayout {
     private final TextField[] frameStart = new TextField[5];
     private final TextField[] frameEnd = new TextField[5];
     private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
-    private final Binder<Doctor> binder = new Binder<>(Doctor.class);
     private final List<Grid<TableEntry>> timetable = new ArrayList<>();
     private final Label lockLabel = new Label("timetable unlocked");
     private final String[] dayHeaders = new String[7];
@@ -50,16 +49,15 @@ public class DoctorView extends HorizontalLayout {
         this.client = client;
         setup = Setup.SINGLETON_INSTANCE;
         VerticalLayout container = new VerticalLayout();
-        String formHeaderTxt;
+        Label formLabel = new Label();
         if (setup.getAdmission() > 1) form = new DoctorForm(client, DoctorView.this);
         else form = new AppointForm(client, DoctorView.this);
         if (setup.getDoctor() != null) {
-            formHeaderTxt = "selected: " + setup.getDoctor().getName() + " " + setup.getDoctor().getLastName();
+            formLabel.setText("selected: " + setup.getDoctor().getName() + " " + setup.getDoctor().getLastName());
         } else {
-            formHeaderTxt = "none selected";
+            formLabel.setText("none selected");
             setup.setDoctor(client.getDoctorList().stream().findFirst().orElseThrow(NotFoundException::new));
         }
-        Label formLabel = new Label(formHeaderTxt);
         addClassName("doctor-view");
         setSizeFull();
         createTables();
@@ -86,7 +84,7 @@ public class DoctorView extends HorizontalLayout {
                 form.clearForm();               // main purpose of creating interface BaseForm was to call
                 if (entry == null) return;      // f. as clearForm() or activateControls() from within this class
                 setup.setEntry(entry);
-                setup.setTargetDay(entry.getWeekday()); // this looks stupid
+                setup.setTargetDay(entry.getEntryDateTime().toLocalDate()); // this looks stupid
                 form.activateControls();
             });
             weekTables.add(timetable.get(i));
@@ -95,7 +93,7 @@ public class DoctorView extends HorizontalLayout {
         refreshTables(dateArray);
     }
 
-    private LocalDate[] refreshHeaders() { // fixme
+    private LocalDate[] refreshHeaders() {
         LocalDate[] date = new LocalDate[7];
         for (int n = 1; n < 8; n ++) {
             LocalDate day = setup.getTargetDay();
@@ -111,21 +109,23 @@ public class DoctorView extends HorizontalLayout {
         return date;
     }
 
-    private void refreshTables(LocalDate[] date) { // fixme
+    private void refreshTables(LocalDate[] date) {
         for (int i = 0; i < 5; i ++) {
             TableEntry[] entries = new TableEntry[WORKDAY_HOURS_AMOUNT];
             LocalTime tfStart = null, tfEnd = null;
             if (setup.getDoctor() != null) {
-                client.setDoctorAppList(client.getAppsByDoc());
                 for (TimeFrame tf : client.getDocsTimeFrames()) {
                     if (date[i].equals(LocalDate.parse(tf.getDate()))) {
                         tfStart = LocalTime.parse(tf.getTimeStart());
                         tfEnd   = LocalTime.parse(tf.getTimeEnd());
                         weekTimeFrames[i] = tf;
                     }
-                } // is it really need to B 'n' as second argument in createTableEntry?? ----------┐ fixme
-            } // it better be just index of entries array.                                         │
-            for (int n = 0; n < WORKDAY_HOURS_AMOUNT; n ++) entries[n] = createTableEntry(date[i], n, tfStart, tfEnd);
+                }
+            }
+            for (int n = 0; n < WORKDAY_HOURS_AMOUNT; n ++) {
+                LocalDateTime dateTime = LocalDateTime.of(date[i], LocalTime.of(n + Setup.EARLIEST_STARTING_HOUR, 0));
+                entries[n] = createTableEntry(dateTime, tfStart, tfEnd);
+            }
             timetable.get(i).setItems(entries);
             timetable.get(i).getColumnByKey("status").setHeader(dayHeaders[i]);
         }
@@ -139,28 +139,27 @@ public class DoctorView extends HorizontalLayout {
         refreshTimeForm();
     }
 
-    TableEntry createTableEntry(LocalDate entryDate, int workHourIterator, LocalTime tfStart, LocalTime tfEnd) {
-        LocalTime time = LocalTime.of(workHourIterator + Setup.EARLIEST_STARTING_HOUR, 0);
+    TableEntry createTableEntry(LocalDateTime entryDateTime, LocalTime tfStart, LocalTime tfEnd) {
+        LocalTime time = LocalTime.of(entryDateTime.getHour(), 0);
         String status;
-        Patient patient = null;
-        Long appId = null;
-        if (tfStart == null) status = "n/a";
-        else {
-            if (time.isBefore(tfStart) || time.isAfter(tfEnd) || time.equals(tfEnd)) status = "off";
-            else status = time.getHour() + ":00 ---AVAILABLE---";
-            for (Appointment singleApp : client.getDoctorAppList()) {
-                LocalDateTime appDateTime = LocalDateTime.parse(
-                        singleApp.getStartDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm"));
-                if (entryDate.equals(LocalDate.from(appDateTime)) && time.equals(LocalTime.from(appDateTime))) {
-                    patient = setup.getPatients().stream().filter(e -> e.getId().equals(singleApp.getPatientId()))
-                            .findFirst().orElseThrow(IllegalArgumentException::new);
-                    appId = singleApp.getId();
-                    if (patient.equals(setup.getPatient())) status = time.getHour() + ":00 Appointed";
-                    else status = "busy";
-                }
+        Patient entryPatient = null;
+        Appointment foundAppointment = null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd','HH:mm");
+        if (tfStart == null) return new TableEntry(entryDateTime, "n/a", null, setup.getDoctor(), null);
+        if (time.isBefore(tfStart) || time.isAfter(tfEnd) || time.equals(tfEnd)) status = "off";
+        else status = time.getHour() + ":00 ---AVAILABLE---";
+        for (Appointment singleApp : client.getCurrentDoctorApps()) {
+            for (Patient pat : setup.getPatients()) { // mapping Patient from patientId
+                if (pat.getId().equals(singleApp.getPatientId())) entryPatient = pat;
+            }
+            LocalDateTime appDateTime = LocalDateTime.parse(singleApp.getStartDateTime(), formatter);
+            if (entryDateTime.equals(appDateTime)) { // finding Appointment and is it belonging to current patient
+                foundAppointment = singleApp;
+                if (entryPatient.equals(setup.getPatient())) status = time.getHour() + ":00 Appointed";
+                else status = "busy";
             }
         }
-        return new TableEntry(entryDate, status, time, patient, setup.getDoctor(), appId);
+        return new TableEntry(entryDateTime, status, entryPatient, setup.getDoctor(), foundAppointment);
     }
 
     FormLayout buildNavPanel() {
@@ -212,16 +211,13 @@ public class DoctorView extends HorizontalLayout {
         return new FormLayout(bottomBar);
     }
 
-    // FIXME: 08.07.2023 
     private void tfProcessing(int x) {
         if (!frameStart[x].isEnabled()) return;
         TimeFrame tfx = tfBinderList.get(x).getBean();
         TimeFrame tfSubtract = null;
         for (TimeFrame tf : DoctorForm.getTfProcessList()) {
-            if (tf.getDate().equals(tfx.getDate())) {
-                tfSubtract = tf;
-            }
-        } // for some reason f.remove() does not work on Set. 2 B done later - do it on Set instead of List
+            if (tf.getDate().equals(tfx.getDate())) tfSubtract = tf;
+        }
         DoctorForm.getTfProcessList().remove(tfSubtract);
         DoctorForm.getTfProcessList().add(tfx);
     }
@@ -237,7 +233,6 @@ public class DoctorView extends HorizontalLayout {
     }
 
     public void enterDoctorManagement(Doctor doctor) {
-        binder.setBean(doctor); // this thing seems 2 B a dead code fixme
         setup.setDoctor(doctor);
         UI.getCurrent().navigate("doctor");
     }

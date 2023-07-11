@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class Doctor {
 
-    public enum Position {  Specialist, Administrator, Manager, Board  }
+    public enum Position {  Specialist, Manager, Board  }
 
     @JsonProperty("id")
     private Long id;
@@ -37,12 +37,6 @@ public class Doctor {
 
     @JsonProperty("medServiceIds")
     private List<Long> medServiceIds;
-
-    public Doctor(String name, String lastName, Position position) {
-        this.name = name;
-        this.lastName = lastName;
-        this.position = position;
-    }
 
     @Override
     public String toString() {

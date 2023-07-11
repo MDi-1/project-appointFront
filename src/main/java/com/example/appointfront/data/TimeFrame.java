@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class TimeFrame {
 
-    public enum TfStatus { Present, Day_Off, Holiday } // is holiday never used? fixme
+    public enum TfStatus { Present, Day_Off, Holiday }
 
     @JsonProperty("id")
     private Long id;

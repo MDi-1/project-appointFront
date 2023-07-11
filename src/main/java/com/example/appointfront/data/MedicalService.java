@@ -27,10 +27,4 @@ public class MedicalService {
 
     @JsonProperty("doctorIds")
     private List<Long> doctorIds;
-
-    public MedicalService(ServiceName serviceName, String description, int price) {
-        this.serviceName = serviceName;
-        this.description = description;
-        this.price = price;
-    }
 }

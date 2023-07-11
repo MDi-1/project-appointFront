@@ -1,7 +1,7 @@
 package com.example.appointfront.engine;
 
 import com.example.appointfront.data.*;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,15 +14,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.*;
 
-@Data
+@RequiredArgsConstructor
 @Component
 public class BackendClient {
 
-    private Setup setup = Setup.SINGLETON_INSTANCE;
+    private final Setup setup = Setup.SINGLETON_INSTANCE;
     private final RestTemplate restTemplate;
     @Value("${endpoint.prefix}")
     private String endpointPrefix;
-    private List<Appointment> doctorAppList;
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendClient.class);
 
     public List<MedicalService> getMedServiceList() {
@@ -78,7 +77,7 @@ public class BackendClient {
         }
     }
 
-    public void updateDoctor(Doctor doctor) { // fixme
+    public void updateDoctor(Doctor doctor) {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "doctor").build().encode().toUri();
         restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(doctor), Doctor.class);
     }
@@ -91,18 +90,7 @@ public class BackendClient {
         restTemplate.delete(url);
     }
 
-    public List<Appointment> getAllAppointments() {
-        URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/getAll").build().encode().toUri();
-        try {
-            Appointment[] response = restTemplate.getForObject(url, Appointment[].class);
-            return Optional.ofNullable(response).map(Arrays::asList).orElse(Collections.emptyList());
-        } catch (RestClientException e) {
-            LOGGER.error(e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
-
-    public List<Appointment> getAppsByDoc() {
+    public List<Appointment> getCurrentDoctorApps() {
         URI url = UriComponentsBuilder.fromHttpUrl(endpointPrefix + "appointment/doctorApps/")
                 .path(String.valueOf(setup.getDoctor().getId()))
                 .build().encode().toUri();
