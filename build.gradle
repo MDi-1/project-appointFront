@@ -1,7 +1,7 @@
 plugins {
     id 'org.springframework.boot' version '2.5.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'com.vaadin' version '0.14.6.0'
+    id 'com.vaadin' version '0.14.10.4'
     id 'java'
     id 'application'
 }
@@ -21,7 +21,7 @@ repositories {
 }
 
 ext {
-    set('vaadinVersion', "14.6.8")
+    set('vaadinVersion', "14.10.4")
 }
 
 dependencies {
@@ -39,6 +39,10 @@ dependencyManagement {
     imports {
         mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
     }
+}
+
+vaadin {
+    productionMode = true
 }
 
 test {
