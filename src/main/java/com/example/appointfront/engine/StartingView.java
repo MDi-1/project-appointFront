@@ -17,7 +17,7 @@ import java.util.List;
 @PageTitle("Start | Tiny Clinic")
 public class StartingView extends HorizontalLayout {
 
-    public StartingView(BackendClient client) {
+    public StartingView(BackendClient client, InitHeader initHeader) {
         Setup setup = Setup.SINGLETON_INSTANCE;
         List<Patient> patients = client.getAllPatients();
         Label label = new Label("Click one of buttons to log in as sample patient or as administrator");
@@ -30,7 +30,7 @@ public class StartingView extends HorizontalLayout {
         table.setItems(patients);
         table.setColumns("firstName", "lastName");
         table.asSingleSelect().addValueChangeListener(event -> setup.setPatient(event.getValue()));
-        VerticalLayout loginBox = new VerticalLayout(label, patientBtn, managerBtn, adminButton);
+        VerticalLayout loginBox = new VerticalLayout(label, patientBtn, managerBtn, adminButton);//move 2 line 28 fixme
         loginBox.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
         loginBox.setMaxHeight("40%");
         loginBox.setMaxWidth("50%");
@@ -39,7 +39,7 @@ public class StartingView extends HorizontalLayout {
         patientBtn.addClickListener(event -> {
             if (setup.getPatient() == null) setup.setPatient(client.getPatientById(patients.get(0).getId()));
             setup.setAdmission(1);
-            InitHeader.updateLoggedUser();
+            initHeader.updateLoggedUser();
             UI.getCurrent().navigate("user");
         });
         managerBtn.addClickListener(event -> {

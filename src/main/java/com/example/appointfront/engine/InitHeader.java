@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class InitHeader extends HorizontalLayout {
 
-    private static final Label label = new Label("patient Name Surname");
+    private final Label label = new Label("patient Name Surname");
 
     public InitHeader() {
         H1 logo = new H1("Tiny clinic app");
@@ -23,7 +23,7 @@ public class InitHeader extends HorizontalLayout {
         add(header);
     }
 
-    public static void updateLoggedUser() {
+    public void updateLoggedUser() {
         String patientFirstName = Setup.SINGLETON_INSTANCE.getPatient().getFirstName();
         String patientLastName = Setup.SINGLETON_INSTANCE.getPatient().getLastName();
         label.setText("patient: " + patientFirstName + " " + patientLastName);
