@@ -1,7 +1,15 @@
+buildscript {
+    dependencies {
+        classpath ("com.vaadin:flow-server:2.9.2") {
+            force = true
+        }
+    }
+}
+
 plugins {
     id 'org.springframework.boot' version '2.7.18'
     id 'io.spring.dependency-management' version '1.1.5'
-    id 'com.vaadin' version '0.14.6.0'
+    id 'com.vaadin' version '0.14.8.1'
     id 'java'
     id 'application'
 }
@@ -21,10 +29,13 @@ repositories {
 }
 
 ext {
-    set('vaadinVersion', "14.6.8")
+    set('vaadinVersion', "14.11.11")
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/com.vaadin/vaadin
+    implementation group: 'com.vaadin', name: 'vaadin', version: '14.11.11'
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.vaadin:vaadin-spring-boot-starter'
     implementation 'com.google.api-client:google-api-client:2.2.0'
@@ -40,6 +51,10 @@ dependencyManagement {
         mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
         mavenBom "org.springframework:spring-framework-bom:5.3.33"
     }
+}
+
+vaadin {
+    productionMode = true
 }
 
 test {

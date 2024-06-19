@@ -2,12 +2,14 @@ branch-defaults:
   extratinker:
     environment: proappoint1-dev
     group_suffix: null
+  master:
+    environment: proappoint1-dev
 deploy:
   artifact: build\libs\project-appointFront-0.0.1-SNAPSHOT.jar
 global:
   application_name: proappoint1
   branch: null
-  default_ec2_keyname: null
+  default_ec2_keyname: aws-eb
   default_platform: Corretto 11 running on 64bit Amazon Linux 2
   default_region: eu-north-1
   include_git_submodules: true
