@@ -24,7 +24,7 @@ public class Doctor {
     private String lastName;
 
     @JsonProperty("position")
-    private Doctor.Position position;
+    private Position position;
 
     @JsonProperty("go_calendar_sync")
     private boolean goCalendarSync;

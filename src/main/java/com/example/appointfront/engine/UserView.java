@@ -5,7 +5,7 @@ import com.example.appointfront.data.Doctor;
 import com.example.appointfront.data.MedicalService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -33,13 +33,13 @@ public class UserView extends VerticalLayout {
         this.client = client;
         this.doctorView = new DoctorView(client);
         HorizontalLayout mainTables = new HorizontalLayout(makeAppTab(), makeServiceTab(), makeDocTab());
-        Label companyDetails = new Label("Company, Street, Postal code, City, Phone number");
+        NativeLabel companyDetails = new NativeLabel("Company, Street, Postal code, City, Phone number");
         mainTables.setSizeFull();
         add(new UserForm(client), mainTables, appButtonRow, companyDetails);
     }
 
     VerticalLayout makeAppTab() {
-        Label appHead = new Label("List of recent / incoming appointments");
+        NativeLabel appHead = new NativeLabel("List of recent / incoming appointments");
         if (Setup.SINGLETON_INSTANCE.getPatient() != null) {
             Grid<Appointment> appointmentGrid = new Grid<>(Appointment.class);
             appointmentGrid.setItems(client.getAppsByPatient());
@@ -52,7 +52,8 @@ public class UserView extends VerticalLayout {
                     .findAny().orElseThrow(IllegalArgumentException::new).getLastName()).setHeader("doctors' surname");
             appointmentGrid.asSingleSelect().addValueChangeListener(event -> activateAppButtons(event.getValue()));
             return new VerticalLayout(appHead, appointmentGrid);
-        } else return new VerticalLayout(appHead, new Label("log in as patient to see the appointment list"));
+        } else return new VerticalLayout(appHead, new NativeLabel(
+                "log in as patient to see the appointment list"));
     }
 
     VerticalLayout makeServiceTab() {
@@ -66,7 +67,8 @@ public class UserView extends VerticalLayout {
                     .map(e -> Setup.SINGLETON_INSTANCE.getDoctors().get(0)).orElseThrow(IllegalArgumentException::new);
             doctorView.enterDoctorManagement(found1stDoc);
         });
-        VerticalLayout serviceTab = new VerticalLayout(new Label("Pick service to make an appointment"), serviceGrid);
+        VerticalLayout serviceTab = new VerticalLayout(new NativeLabel(
+                "Pick service to make an appointment"), serviceGrid);
         serviceTab.setWidth("50%");
         return serviceTab;
     }
@@ -78,7 +80,8 @@ public class UserView extends VerticalLayout {
         doctorGrid.setColumns("name", "lastName", "position");
         doctorGrid.setItems(doctors);
         doctorGrid.asSingleSelect().addValueChangeListener(event -> doctorView.enterDoctorManagement(event.getValue()));
-        VerticalLayout docTab = new VerticalLayout(new Label("...or pick doctor to make an appointment"), doctorGrid);
+        VerticalLayout docTab = new VerticalLayout(new NativeLabel(
+                "...or pick doctor to make an appointment"), doctorGrid);
         docTab.setWidth("60%");
         return docTab;
     }

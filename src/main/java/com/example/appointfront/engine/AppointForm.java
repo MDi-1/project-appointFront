@@ -6,10 +6,11 @@ import com.example.appointfront.data.TableEntry;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,8 +20,8 @@ public class AppointForm extends FormLayout implements BaseForm{
 
     private BackendClient client;
     private DoctorView view;
-    private final Label priceTag = new Label();
-    private final Label question = new Label();
+    private final NativeLabel priceTag = new NativeLabel();
+    private final NativeLabel question = new NativeLabel();
     private final Button confirm = new Button("confirm");
     private final Button back2 = new Button("back");
     private final Button back1 = new Button("Back");

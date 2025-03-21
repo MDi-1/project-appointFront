@@ -25,7 +25,7 @@ public class TimeFrame {
     private String timeEnd;
 
     @JsonProperty("status")
-    private TimeFrame.TfStatus tfStatus;
+    private TfStatus tfStatus;
 
     @JsonProperty("ownersId")
     private Long ownersId;

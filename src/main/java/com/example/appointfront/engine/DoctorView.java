@@ -6,7 +6,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -21,7 +21,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 import static com.example.appointfront.data.TimeFrame.TfStatus.Present;
 import static com.example.appointfront.engine.Setup.WORKDAY_HOURS_AMOUNT;
@@ -40,7 +43,7 @@ public class DoctorView extends HorizontalLayout {
     private final TextField[] frameEnd = new TextField[5];
     private final List<Binder<TimeFrame>> tfBinderList = new ArrayList<>();
     private final List<Grid<TableEntry>> timetable = new ArrayList<>();
-    private final Label lockLabel = new Label("timetable unlocked");
+    private final NativeLabel lockLabel = new NativeLabel("timetable unlocked");
     private final String[] dayHeaders = new String[7];
     private final HorizontalLayout weekTables = new HorizontalLayout();
     private final TextField navPanelField = new TextField();
@@ -49,7 +52,7 @@ public class DoctorView extends HorizontalLayout {
         this.client = client;
         setup = Setup.SINGLETON_INSTANCE;
         VerticalLayout container = new VerticalLayout();
-        Label formLabel = new Label();
+        NativeLabel formLabel = new NativeLabel();
         if (setup.getAdmission() > 1) form = new DoctorForm(client, DoctorView.this);
         else form = new AppointForm(client, DoctorView.this);
         if (setup.getDoctor() != null) {

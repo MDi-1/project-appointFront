@@ -6,6 +6,7 @@ import com.example.appointfront.data.Patient;
 import com.example.appointfront.data.TableEntry;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -16,7 +16,7 @@ public class UserForm extends FormLayout implements BaseForm{
     private final Button addBtn = new Button("Add");
     private final Button saveBtn = new Button("Save");
     private final Button deleteBtn = new Button("Delete");
-    private final Button canceBtn = new Button("Cancel");
+    private final Button cancelBtn = new Button("Cancel");
     private final Binder<Patient> binder = new Binder<>(Patient.class);
     // (i) binder .bindInstanceFields(this) does not allow to make these two fields "firstName" and "lastName"
     // as local ones, thus Intellij suggestion is improper
@@ -28,9 +28,9 @@ public class UserForm extends FormLayout implements BaseForm{
         addClassName("user-form");
         binder.bindInstanceFields(this);
         if (setup.getAdmission() > 1) {
-            add(firstName, lastName, new HorizontalLayout(addBtn, editBtn, saveBtn, deleteBtn, canceBtn));
+            add(firstName, lastName, new HorizontalLayout(addBtn, editBtn, saveBtn, deleteBtn, cancelBtn));
         } else {
-            add(firstName, lastName, new HorizontalLayout(editBtn, saveBtn, deleteBtn, canceBtn));
+            add(firstName, lastName, new HorizontalLayout(editBtn, saveBtn, deleteBtn, cancelBtn));
         }
         if (setup.getPatient() != null) {
             firstName.setPlaceholder(setup.getPatient().getFirstName());
@@ -54,7 +54,7 @@ public class UserForm extends FormLayout implements BaseForm{
             client.deletePatient(binder.getBean().getId());
             clearForm();
         });
-        canceBtn.addClickListener(event -> {
+        cancelBtn.addClickListener(event -> {
             binder.setBean(setup.getPatient());
             clearForm();
         });
@@ -88,6 +88,6 @@ public class UserForm extends FormLayout implements BaseForm{
         editBtn.setEnabled(!mode);
         saveBtn.setEnabled(mode);
         deleteBtn.setEnabled(mode);
-        canceBtn.setEnabled(mode);
+        cancelBtn.setEnabled(mode);
     }
 }

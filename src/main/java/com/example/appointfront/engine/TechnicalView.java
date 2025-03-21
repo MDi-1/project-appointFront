@@ -1,6 +1,6 @@
 package com.example.appointfront.engine;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -19,6 +19,6 @@ public class TechnicalView extends VerticalLayout {
     public TechnicalView(BackendClient client) {
         Setup setup = Setup.SINGLETON_INSTANCE;
         if (setup.getAdmission() > 2) add(new MedServiceForm(client));
-        else add(new Label("Access Denied; You need to log in as administrator to access this page"));
+        else add(new NativeLabel("Access Denied; You need to log in as administrator to access this page"));
     }
 }

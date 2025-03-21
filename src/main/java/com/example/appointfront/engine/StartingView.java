@@ -4,8 +4,7 @@ import com.example.appointfront.data.Patient;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -20,7 +19,7 @@ public class StartingView extends HorizontalLayout {
     public StartingView(BackendClient client, InitHeader initHeader) {
         Setup setup = Setup.SINGLETON_INSTANCE;
         List<Patient> patients = client.getAllPatients();
-        Label label = new Label("Click one of buttons to log in as sample patient or as administrator");
+        NativeLabel label = new NativeLabel("Click one of buttons to log in as sample patient or as administrator");
         Button patientBtn = new Button("Log in as patient");
         Button managerBtn = new Button("Log in as manager");
         Button adminButton = new Button("Log in as service administrator");
@@ -31,7 +30,7 @@ public class StartingView extends HorizontalLayout {
         table.setColumns("firstName", "lastName");
         table.asSingleSelect().addValueChangeListener(event -> setup.setPatient(event.getValue()));
         VerticalLayout loginBox = new VerticalLayout(label, patientBtn, managerBtn, adminButton);//move 2 line 28 fixme
-        loginBox.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
+        loginBox.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         loginBox.setMaxHeight("40%");
         loginBox.setMaxWidth("50%");
         add(loginBox, table);

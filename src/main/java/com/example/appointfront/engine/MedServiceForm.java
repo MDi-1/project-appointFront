@@ -6,12 +6,13 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +48,7 @@ public class MedServiceForm extends FormLayout implements BaseForm{
         });
         saveService.addClickListener(event -> executeItem());
         cancel.addClickListener(event -> clearForm());
-        Label saveButtonHint = new Label("Hint: [save] button adds or removes doctor from medical " +
+        NativeLabel saveButtonHint = new NativeLabel("Hint: [save] button adds or removes doctor from medical " +
                 "service entity whenever the one is selected from pull down menu");
         saveButtonHint.setMinWidth("1200px");
         add(new VerticalLayout(
