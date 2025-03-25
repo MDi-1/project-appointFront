@@ -1,1 +1,8 @@
 runtime: java17
+# //(i)// 25-03-2025
+# Walka z deploymentem to Google Cloud, wreszcie z sukcesem.
+# 1. appengine potrzebuje taki plugin do gradle zwany gretty. Ten zaś jest trochę wadliwy.
+# Dlatego trzeba było dokonać konwersji gradle -> maven. Przy tym pomógł GPT, trochę porównywania do projektu
+# startowego ze strony vaadina i ze strony start.spring.io z vaadinem
+# na koniec polecenie:[mvn package appengine:deploy -P production]
+# todo
